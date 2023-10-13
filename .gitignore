@@ -39,5 +39,7 @@ bin/
 ### VS Code ###
 .vscode/
 
+clientapp/node_modules/
+
 ### Mac OS ###
 .DS_Store
