@@ -7,11 +7,11 @@ import org.sdle.model.ShoppingList;
 
 import java.util.List;
 
-public class ShoppingListHandler extends AbstractRequestHandler {
+public class ShoppingRequestHandler extends AbstractRequestHandler {
 
     private final ShoppingListController controller;
 
-    public ShoppingListHandler(ShoppingListController controller){
+    public ShoppingRequestHandler(ShoppingListController controller){
         this.controller = controller;
     }
 

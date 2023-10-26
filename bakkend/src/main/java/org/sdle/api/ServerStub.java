@@ -2,7 +2,7 @@ package org.sdle.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.sdle.handler.RequestHandler;
-import org.sdle.handler.ShoppingListHandler;
+import org.sdle.handler.ShoppingRequestHandler;
 
 import java.io.IOException;
 import java.util.Map;
@@ -13,7 +13,7 @@ public class ServerStub {
     private final Map<String, RequestHandler> handlers;
     private final ObjectMapper mapper = new ObjectMapper();
 
-    public ServerStub(ShoppingListHandler shoppingListHandler){
+    public ServerStub(ShoppingRequestHandler shoppingListHandler){
         handlers = Map.of(
                 SHOPPING_LIST_ROUTE, shoppingListHandler
         );
