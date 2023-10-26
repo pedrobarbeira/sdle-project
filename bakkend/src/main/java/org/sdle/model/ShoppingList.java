@@ -10,9 +10,16 @@ public class ShoppingList {
     private HashMap<String, ShoppingItem> items;
 
     public ShoppingList(){};
+
+    public ShoppingList(String name){
+        this(UUID.randomUUID().toString(), name, null);
+    }
     public ShoppingList(String id, String name, HashMap<String, ShoppingItem> items){
         this.id = id;
         this.name = name;
+        if(items == null){
+            items = new HashMap<>();
+        }
         this.items = items;
     }
 

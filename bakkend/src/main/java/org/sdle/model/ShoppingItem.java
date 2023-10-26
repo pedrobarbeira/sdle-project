@@ -3,15 +3,14 @@ package org.sdle.model;
 import java.util.UUID;
 
 public class ShoppingItem {
-    String id = UUID.randomUUID().toString();;
+    String id;
     String name;
     int quantity;
 
     public ShoppingItem(){};
 
     public ShoppingItem(String name, int quantity){
-        this.name = name;
-        this.quantity = quantity;
+        this(UUID.randomUUID().toString(), name, quantity);
     }
 
     public ShoppingItem(String id, String name, int quantity){
