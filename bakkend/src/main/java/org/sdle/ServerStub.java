@@ -27,8 +27,9 @@ public class ServerStub {
         }
     }
 
-    private Response handleRequestString(String requestString) throws IOException {
+    private String handleRequestString(String requestString) throws IOException {
         Request request = mapper.readValue(requestString, Request.class);
-        return router.route(request);
+        Response response = router.route(request);
+        return mapper.writeValueAsString(response);
     }
 }

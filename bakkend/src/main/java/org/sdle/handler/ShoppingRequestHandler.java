@@ -5,9 +5,12 @@ import org.sdle.api.Response;
 import org.sdle.controller.ShoppingListController;
 import org.sdle.model.ShoppingList;
 
+import java.util.Arrays;
 import java.util.List;
 
 public class ShoppingRequestHandler extends AbstractRequestHandler {
+
+    public static final List<String> ID_METHODS = Arrays.asList(Request.GET, Request.DELETE);
 
     private final ShoppingListController controller;
 
@@ -19,7 +22,7 @@ public class ShoppingRequestHandler extends AbstractRequestHandler {
     public Response handle(Request request){
         Object responseBody = null;
         String method = request.getMethod();
-        if(method.equals(Request.GET) || method.equals(Request.DELETE)){
+        if(ID_METHODS.contains(method)){
             if(request.getBody() == null){
                 responseBody = controller.getAllShoppingLists();
             }else{
