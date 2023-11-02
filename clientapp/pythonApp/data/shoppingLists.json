@@ -1,0 +1,311 @@
+[
+    {
+        "userName": "asd",
+        "data": {
+            "local": [
+                {
+                    "id": 6,
+                    "name": "6",
+                    "items": [
+                        {
+                            "id": 0,
+                            "name": "item",
+                            "type": "numeric",
+                            "quantity": "123"
+                        },
+                        {
+                            "id": 1,
+                            "name": "item",
+                            "type": "numeric",
+                            "quantity": "0"
+                        },
+                        {
+                            "id": 1,
+                            "name": "item",
+                            "type": "numeric",
+                            "quantity": "0"
+                        },
+                        {
+                            "id": 1,
+                            "name": "item",
+                            "type": "boolean",
+                            "quantity": "1"
+                        },
+                        {
+                            "id": 1,
+                            "name": "item",
+                            "type": "boolean",
+                            "quantity": "0"
+                        }
+                    ],
+                    "origin": "local"
+                },
+                {
+                    "id": 9,
+                    "name": "New List",
+                    "items": [],
+                    "origin": "local"
+                },
+                {
+                    "id": 10,
+                    "name": "New List",
+                    "items": [],
+                    "origin": "local"
+                },
+                {
+                    "id": 14,
+                    "name": "New List",
+                    "items": [],
+                    "origin": "local"
+                },
+                {
+                    "id": 15,
+                    "name": "New List",
+                    "items": [],
+                    "origin": "local"
+                },
+                {
+                    "id": 7,
+                    "name": "New List",
+                    "items": [],
+                    "origin": "remote"
+                },
+                {
+                    "id": 8,
+                    "name": "New List",
+                    "items": [],
+                    "origin": "remote"
+                },
+                {
+                    "id": 1,
+                    "name": "1",
+                    "items": [
+                        {
+                            "id": 1,
+                            "name": "item1",
+                            "type": "boolean",
+                            "quantity": "0"
+                        },
+                        {
+                            "id": 2,
+                            "name": "item2",
+                            "type": "boolean",
+                            "quantity": "1"
+                        },
+                        {
+                            "id": 3,
+                            "name": "item3",
+                            "type": "numeric",
+                            "quantity": "10"
+                        },
+                        {
+                            "id": 4,
+                            "name": "item4",
+                            "type": "numeric",
+                            "quantity": "5"
+                        }
+                    ],
+                    "origin": "remote"
+                }
+            ],
+            "remote": []
+        }
+    },
+    {
+        "userName": "qwe",
+        "data": {
+            "local": [
+                {
+                    "id": 1,
+                    "name": "qwe",
+                    "items": [
+                        {
+                            "id": 1,
+                            "name": "item1",
+                            "type": "boolean",
+                            "quantity": 0
+                        },
+                        {
+                            "id": 2,
+                            "name": "item2",
+                            "type": "boolean",
+                            "quantity": 1
+                        },
+                        {
+                            "id": 3,
+                            "name": "item3",
+                            "type": "numeric",
+                            "quantity": 10
+                        },
+                        {
+                            "id": 4,
+                            "name": "item4",
+                            "type": "numeric",
+                            "quantity": 5
+                        }
+                    ]
+                },
+                {
+                    "id": 2,
+                    "name": "qwe",
+                    "items": [
+                        {
+                            "id": 1,
+                            "name": "item1",
+                            "type": "boolean",
+                            "quantity": 0
+                        },
+                        {
+                            "id": 2,
+                            "name": "item2",
+                            "type": "boolean",
+                            "quantity": 1
+                        },
+                        {
+                            "id": 3,
+                            "name": "item3",
+                            "type": "numeric",
+                            "quantity": 10
+                        },
+                        {
+                            "id": 4,
+                            "name": "item4",
+                            "type": "numeric",
+                            "quantity": 5
+                        }
+                    ]
+                },
+                {
+                    "id": 3,
+                    "name": "qwe",
+                    "items": [
+                        {
+                            "id": 1,
+                            "name": "item1",
+                            "type": "boolean",
+                            "quantity": 0
+                        },
+                        {
+                            "id": 2,
+                            "name": "item2",
+                            "type": "boolean",
+                            "quantity": 1
+                        },
+                        {
+                            "id": 3,
+                            "name": "item3",
+                            "type": "numeric",
+                            "quantity": 10
+                        },
+                        {
+                            "id": 4,
+                            "name": "item4",
+                            "type": "numeric",
+                            "quantity": 5
+                        }
+                    ]
+                },
+                {
+                    "id": 4,
+                    "name": "qwe",
+                    "items": [
+                        {
+                            "id": 1,
+                            "name": "item1",
+                            "type": "boolean",
+                            "quantity": 0
+                        },
+                        {
+                            "id": 2,
+                            "name": "item2",
+                            "type": "boolean",
+                            "quantity": 1
+                        },
+                        {
+                            "id": 3,
+                            "name": "item3",
+                            "type": "numeric",
+                            "quantity": 10
+                        },
+                        {
+                            "id": 4,
+                            "name": "item4",
+                            "type": "numeric",
+                            "quantity": 5
+                        }
+                    ]
+                },
+                {
+                    "id": 5,
+                    "name": "qwe",
+                    "items": [
+                        {
+                            "id": 1,
+                            "name": "item1",
+                            "type": "boolean",
+                            "quantity": 0
+                        },
+                        {
+                            "id": 2,
+                            "name": "item2",
+                            "type": "boolean",
+                            "quantity": 1
+                        },
+                        {
+                            "id": 3,
+                            "name": "item3",
+                            "type": "numeric",
+                            "quantity": 10
+                        },
+                        {
+                            "id": 4,
+                            "name": "item4",
+                            "type": "numeric",
+                            "quantity": 5
+                        }
+                    ]
+                }
+            ],
+            "remote": []
+        }
+    },
+    {
+        "userName": "zxc",
+        "data": {
+            "local": [
+                {
+                    "id": 0,
+                    "name": "New List",
+                    "items": [
+                        {
+                            "id": 0,
+                            "name": "item",
+                            "type": "boolean",
+                            "quantity": "1"
+                        },
+                        {
+                            "id": 0,
+                            "name": "item",
+                            "type": "numeric",
+                            "quantity": "123"
+                        }
+                    ],
+                    "origin": "local"
+                },
+                {
+                    "id": 1,
+                    "name": "New List",
+                    "items": [],
+                    "origin": "local"
+                },
+                {
+                    "id": 2,
+                    "name": "New List",
+                    "items": [],
+                    "origin": "local"
+                }
+            ],
+            "remote": []
+        }
+    }
+]
