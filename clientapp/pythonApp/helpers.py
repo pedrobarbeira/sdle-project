@@ -117,3 +117,85 @@ def update_userToken(token: str) -> None:
     except FileNotFoundError:
         print(f"File {'data/userToken.json'} not found.")
 
+def get_remote_shoppingList(token: str) -> tuple:
+    body = {
+        "token": token
+    }
+
+    return send_request("localhost", 5556, "api/shoppinglist", "GET", body)
+
+def del_remote_shoppingList(token: str, shoppingList: dict) -> tuple:
+    body = {
+            "token": {
+            "token": token
+        },
+        "shoppingList": {
+            "id": shoppingList['id'],
+            "authorizedUsers": shoppingList['authorizedUsers']
+        }
+    }
+    
+    return send_request("localhost", 5556, "api/shoppinglist", "DELETE", body)
+
+def post_remote_shoppingList(token: str, shoppingList: dict) -> tuple:
+    body = {
+            "token": {
+            "token": token
+        },
+        "shoppingList": {
+        }
+    }
+
+    for key, value in shoppingList.items():
+
+        match key:
+            case "id":
+                if(isinstance(value, str)):
+                    body['shoppingList']['id'] = value
+            case "name":
+                body['shoppingList']['name'] = value
+            case "items":
+                body['shoppingList']['items'] = []
+                for item in value:
+                    if(isinstance(item['id'], str)):
+                        body['shoppingList']['items'].append(item)
+                    else:
+                        body['shoppingList']['items'].append({ 'name': item['name'], 'type': item['type'], 'quantity': item['quantity']})
+            case "authorizedUsers":
+                body['shoppingList']['authorizedUsers'] = shoppingList['authorizedUsers']
+            case _:
+                continue
+    
+    return send_request("localhost", 5556, "api/shoppinglist", "POST", body)
+
+def post_share_shoppingList(token: str, shoppingList: dict, user :str) -> tuple:
+    body = {
+            "token": {
+                "token": token
+            },
+            "shoppingList": {},
+            "sharingWith": user
+        }
+
+    for key, value in shoppingList.items():
+
+        match key:
+            case "id":
+                if(isinstance(value, str)):
+                    body['shoppingList']['id'] = value
+            case "name":
+                body['shoppingList']['name'] = value
+            case "items":
+                body['shoppingList']['items'] = []
+                for item in value:
+                    if(isinstance(item['id'], str)):
+                        body['shoppingList']['items'].append(item)
+                    else:
+                        body['shoppingList']['items'].append({ 'name': item['name'], 'type': item['type'], 'quantity': item['quantity']})
+            case "authorizedUsers":
+                body['shoppingList']['authorizedUsers'] = shoppingList['authorizedUsers']
+            case _:
+                continue
+
+    return send_request("localhost", 5556, "api/shoppinglist-share", "POST", body)
+

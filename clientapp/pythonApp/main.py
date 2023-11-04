@@ -47,7 +47,25 @@ class tkinterApp(tk.Tk):
         settings.userName, settings.userToken = helpers.load_userToken()
 
         if(settings.userName != ""):
+
+            # ToDo: deal with joinning stored data with server data
+            # local stored version of remote shopping lists may differ from server versions
+
             settings.shoppingLists = helpers.read_local_data(settings.userName)
+
+            #removing remote shopping lists stored locally for safety
+            settings.shoppingLists = [elem for elem in settings.shoppingLists if elem['origin'] != "remote"]
+
+            status, body = helpers.get_remote_shoppingList(settings.userToken)
+
+            if(status != 200):
+                print("GET api/shoppinglist error")
+                exit(1)
+
+            for l in body:
+                l['origin'] = "remote"
+                settings.shoppingLists.append(l)
+
             self.frames[ShoppingListsPage].update_shopping_lists()
 
             self.show_frame(ShoppingListsPage)
@@ -119,9 +137,7 @@ class ShoppingListsPage(tk.Frame):
         self.scrollable_frame = ScrollableFrame(self, bg="#f0f0f0")
         self.scrollable_frame.pack(fill="both", expand=True)
 
-        settings.shoppingLists
         if(settings.shoppingLists == ""): return
-        
         
         for elem in settings.shoppingLists:
             frame = tk.Frame(self.scrollable_frame.frame, pady=2)
@@ -147,23 +163,58 @@ class ShoppingListsPage(tk.Frame):
 
     def share_shoppinglist(self, id):
         result = simpledialog.askstring("Input", "Enter the username to share the shopping list:")
-    
         if result is not None:
-            print(result)
+            for index, elem in enumerate(settings.shoppingLists):
+                if elem['id'] == id:
+                    shoppingList = elem
+                    shoppingListIndex = index
+                    break
+
+            if(shoppingList['origin'] == 'local'):
+                status, body = helpers.post_remote_shoppingList(settings.userToken, shoppingList)
+
+                if(status != 200):
+                    print("POST api/shoppinglist error")
+                    print(body)
+                    return
+                
+                body['origin'] = "remote"
+                settings.shoppingLists[shoppingListIndex] = body
+                shoppingList = body
+
+                print("new id ", settings.shoppingLists[shoppingListIndex]['id'])
+                self.update_shopping_lists()
+
+            status, body = helpers.post_share_shoppingList(settings.userToken, shoppingList, result)
+
+            if(status != 200):
+                print("POST api/shoppinglist error")
+                print(body)
+                return
+
+            settings.shoppingLists[shoppingListIndex] = body
 
     def delete_shopping_list(self, id): 
         for index, elem in enumerate(settings.shoppingLists):
             if elem['id'] == id:
-                settings.shoppingLists.pop(index)
+                shoppingList = settings.shoppingLists.pop(index)
                 break
+        
+        if(shoppingList['origin'] == 'remote'):
+            status, body = helpers.del_remote_shoppingList(settings.userToken, shoppingList)
 
+            if(status != 200):
+                print("DEL api/shoppinglist error")
+                settings.shoppingLists += [shoppingList]
+                print(body)
+                return
+        
         helpers.update_local_data(settings.userName, settings.shoppingLists)
 
         self.update_shopping_lists()
 
-
     def create_new_list(self):
-        ids = [elem['id'] for elem in settings.shoppingLists]
+        ids = [elem['id'] for elem in settings.shoppingLists if elem['origin'] == "local"]
         newId = 1 + max(ids) if ids else 0
 
         settings.shoppingLists.append({'id': newId, 'name':"New List", 'items':[], 'origin':"local"})
@@ -235,9 +286,23 @@ class LoginPage(tk.Frame):
             username_entry.delete(0, tk.END)
             password_entry.delete(0, tk.END)
 
-            settings.shoppingLists = helpers.read_local_data(username)
-            controller.frames[ShoppingListsPage].update_shopping_lists()
+            # ToDo: deal with joinning local stored data with remote data
 
+            #settings.shoppingLists = helpers.read_local_data(settings.userName)
+            settings.shoppingLists = []
+
+            status, body = helpers.get_remote_shoppingList(settings.userToken)
+
+            if(status != 200):
+                print("GET api/shoppinglist error")
+                exit(1)
+
+            for l in body:
+                l['origin'] = "remote"
+
+            settings.shoppingLists = body
+
+            controller.frames[ShoppingListsPage].update_shopping_lists()
             controller.show_frame(ShoppingListsPage)
 
 class ItemsPage(tk.Frame):
@@ -281,8 +346,6 @@ class ItemsPage(tk.Frame):
         save_button = tk.Button(header_frame2, text="Save", command=self.save)
         save_button.grid(row=0, column=3, sticky="e", padx=10)
 
-
-
         # Create a frame for the list and add a scrollbar
         self.scrollable_frame = ScrollableFrame(self, bg=header_frame2['bg'])
         self.scrollable_frame.pack(fill="both", expand=True)
@@ -290,9 +353,8 @@ class ItemsPage(tk.Frame):
     def export(self):
         self.export_button.grid_remove()
         self.data['origin'] = "remote"
-        self.save()
 
-        #export to remote
+        self.save()
 
     def update_items(self, id):
         if hasattr(self, "scrollable_frame"):
@@ -331,18 +393,27 @@ class ItemsPage(tk.Frame):
                 for itemFrame in frame.winfo_children():
                     if isinstance(itemFrame, ItemFrame):
                         self.data['items'].append(itemFrame.get_values())
+       
+        if(self.data['origin'] == "remote"):
+            status, body = helpers.post_remote_shoppingList(settings.userToken, self.data)
 
-        for element in settings.shoppingLists:
-            if element['id'] == id:
-                element = self.data
+            if(status != 200):
+                print("POST api/shoppinglist error")
+                print(body)
+            else:
+                for index, elem in enumerate(settings.shoppingLists):
+                    if(elem['id'] == self.data['id']):
+                        body['origin'] = "remote"
+                        settings.shoppingLists[index] = body
+
+            self.update_items(body['id'])
 
         helpers.update_local_data(settings.userName, settings.shoppingLists)
 
-        # if origin == remote
-        # update remote
+
 
     def create_new_item(self):
-        ids = [item["id"] for item in self.data['items']]
+        ids = [item["id"] for item in self.data['items'] if isinstance(item, int)]
         newId = 1 + max(ids) if ids else 0
         frame = tk.Frame(self.scrollable_frame.frame)
         frame.pack(fill="x", padx=10, pady=10)
