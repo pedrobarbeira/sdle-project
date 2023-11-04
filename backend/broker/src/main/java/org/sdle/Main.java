@@ -1,9 +1,6 @@
 package org.sdle;
 
 import org.sdle.api.Router;
-import org.zeromq.SocketType;
-import org.zeromq.ZContext;
-import org.zeromq.ZMQ;
 
 import java.io.IOException;
 
