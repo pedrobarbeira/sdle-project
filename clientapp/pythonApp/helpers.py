@@ -43,23 +43,59 @@ def update_local_data(username: str, shoppingLists: list) -> None:
     except FileNotFoundError:
         print(f"File {'data/shoppingLists.json'} not found.")
 
-def send_request(address: str, port: int, route: str, method: str, body: dict) -> tuple:
+import zmq
+import json
+from threading import Thread
+import time
+
+import zmq
+import json
+import threading
+
+def receive_response(socket: zmq.socket) -> str:
+    try:
+        return socket.recv_string()
+    except zmq.error.Again:
+        return None 
+
+def send_request(address: str, port: int, route: str, method: str, body: dict, timeout: int = 5) -> tuple:
+
     context = zmq.Context()
     socket = context.socket(zmq.REQ)
     socket.connect(f"tcp://{address}:{port}")
 
-    request = {
-    "route": route,
-    "method": method,
-    "body": json.dumps(body)
-    }
+    try:
+        request = {
+            "route": route,
+            "method": method,
+            "body": json.dumps(body)
+        }
 
-    socket.send_string(json.dumps(request))
+        socket.send_string(json.dumps(request))
 
-    response = socket.recv_string()
-    response_parsed = json.loads(response)
+        poller = zmq.Poller()
+        poller.register(socket, zmq.POLLIN)
 
-    return response_parsed['status'], response_parsed['body']
+        start_time = time.time()
+        while True:
+            if poller.poll(1000):  # Poll every 1 second
+                response = receive_response(socket)
+                if response:
+                    break
+
+            if time.time() - start_time > timeout:
+                print(f"Request timed out. {route} {method} {body}")
+                break
+
+        if response:
+            response_parsed = json.loads(response)
+            return response_parsed['status'], response_parsed['body']
+        else:
+            return 500, ""
+    except Exception as e:
+        print(f"An error occurred: {str(e)}")
+        return 500, ""
+
 
 def login(username: str, password: str) -> tuple:
 
