@@ -19,12 +19,11 @@ public class Router {
         );
     }
 
-    public Response route(Request request){
+    public Response route(Request request) {
         RequestHandler handler = handlers.get(request.getRoute());
 
-        handler = (handler == null && request.getRoute().startsWith("api/shoppinglist")) ? handlers.get("api/shoppinglist") : handler;
+        if(handler == null) return new Response(404, "Route not found");
 
-        Response response = handler.handle(request);
-        return response;
+        return handler.handle(request);
     }
 }

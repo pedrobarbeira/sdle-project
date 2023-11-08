@@ -13,6 +13,7 @@ import org.sdle.service.TokenService;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 
@@ -46,32 +47,40 @@ public class UserRequestHandler extends AbstractRequestHandler {
 
     private Response login(Request request) {
         if(!Objects.equals(request.getMethod(), Request.POST)) {
-            return buildResponse(null);
+            return buildResponse(405, "Method not allowed");
         }
 
-        User user;
+        User user = this.parse(request.getBody(), User.class);
 
-        try {
-            user = new ObjectMapper().readValue((String) request.getBody(), User.class);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
+        if(user == null) return buildResponse(400, "Bad request - user not found");
 
-        return buildResponse(controller.login(user.getUsername(), user.getPassword()));
+        Token token = controller.login(user.getUsername(), user.getPassword());
+
+        if(token == null) return buildResponse(401, "Unauthorized - bad credentials");
+
+        return buildResponse(token);
     }
 
     private Response verifyToken(Request request) {
         if(!Objects.equals(request.getMethod(), Request.GET)) {
-            return buildResponse(null);
+            return buildResponse(405, "Method not allowed");
         }
-        Token token;
-        try {
-            token = new ObjectMapper().readValue((String) request.getBody(), Token.class);
-        } catch (JsonProcessingException e) {
-            System.err.println("Json Processing exception: " + e.getMessage());
-            return buildResponse(null);
-        }
+        Token token = this.parse(request.getBody(), Token.class);
 
-        return buildResponse(controller.verifyToken(token));
+        if(token == null) return buildResponse(400, "Bad request - token not found");
+
+        HashMap<String, String> response = controller.verifyToken(token);
+
+        if(response == null) buildResponse(401, "Unauthorized - bad user token");
+
+        return buildResponse(response);
+    }
+
+    private <T> T parse(Object body, Class<T> expectedClass) {
+        try {
+            return new ObjectMapper().readValue((String) body, expectedClass);
+        } catch (JsonProcessingException e) {
+            return null;
+        }
     }
 }

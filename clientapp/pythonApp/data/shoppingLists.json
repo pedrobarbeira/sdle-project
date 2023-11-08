@@ -1,90 +1,51 @@
 [
     {
-        "userName": "asd",
+        "userName": "zxc",
         "data": {
             "local": [],
             "remote": [
                 {
-                    "id": "af212e28-d8bd-4d81-a1f0-9c9fcd45efb4",
+                    "id": "2290476d-18d9-4910-8c87-3ac6bffd8f62",
                     "name": "New List",
-                    "items": [],
-                    "authorizedUsers": [
-                        "asd"
-                    ],
-                    "origin": "remote"
-                },
-                {
-                    "id": "4a178d47-e69e-455b-8102-7f023d6300bd",
-                    "name": "Default Name",
                     "items": [
                         {
-                            "id": "5be840fd-cd1f-4527-898c-f44df9bc919b",
-                            "name": "item1",
-                            "type": "boolean",
-                            "quantity": 1
-                        },
-                        {
-                            "id": "845dfd83-c106-42eb-b68b-fc553a7f8bd1",
-                            "name": "item4",
-                            "type": "boolean",
-                            "quantity": 1
-                        },
-                        {
-                            "id": "0119e650-dff2-44b3-87cc-bba35b343112",
-                            "name": "item2",
+                            "id": "fe0d0916-a1d9-46f5-9266-2b8b9937c38b",
+                            "name": "item",
                             "type": "numeric",
                             "quantity": 1
                         },
                         {
-                            "id": "ae28b2b0-0845-41d2-b2a6-9bc1d66f49c3",
-                            "name": "item3",
+                            "id": "c8de4070-0a29-47f0-a6bd-b6ae3758f568",
+                            "name": "item",
                             "type": "numeric",
-                            "quantity": 3
+                            "quantity": 0
                         },
                         {
-                            "id": "67a45a22-1757-403c-b225-1c5bd0b99f48",
+                            "id": "2c5c3ec6-31bd-4a56-a1be-50b75c9e9c72",
+                            "name": "item",
+                            "type": "numeric",
+                            "quantity": 0
+                        },
+                        {
+                            "id": "49746c4a-f53c-4406-be01-bd4f5b5b8a99",
+                            "name": "item",
+                            "type": "numeric",
+                            "quantity": 0
+                        },
+                        {
+                            "id": "6b179f48-39c0-4e79-bb4b-bbe777d61587",
                             "name": "item",
                             "type": "numeric",
                             "quantity": 0
                         }
                     ],
                     "authorizedUsers": [
-                        "asd",
-                        "zxc",
-                        "qwe"
+                        "zxc"
                     ],
                     "origin": "remote"
                 },
                 {
-                    "id": "bc7d29cf-6581-4277-8ffc-ebfb8bcff686",
-                    "name": "New List",
-                    "items": [
-                        {
-                            "id": "c47b1c8a-7818-4713-9af6-d25cf323f9cb",
-                            "name": "item",
-                            "type": "boolean",
-                            "quantity": 1
-                        },
-                        {
-                            "id": "1e90c257-74d6-48ee-b87b-ea2da71c8cb6",
-                            "name": "item",
-                            "type": "numeric",
-                            "quantity": 1
-                        },
-                        {
-                            "id": "e9bb999e-1812-4820-b5a9-81572067cedb",
-                            "name": "item",
-                            "type": "numeric",
-                            "quantity": 1
-                        }
-                    ],
-                    "authorizedUsers": [
-                        "asd"
-                    ],
-                    "origin": "remote"
-                },
-                {
-                    "id": "a59c9c0e-9067-4c59-8eaf-77f580241fc3",
+                    "id": "4a178d47-e69e-455b-8102-7f023d6300bd",
                     "name": "test-list-3",
                     "items": [
                         {
@@ -107,124 +68,37 @@
                         }
                     ],
                     "authorizedUsers": [
-                        "asd"
-                    ],
-                    "origin": "remote"
-                },
-                {
-                    "id": "d9350948-1a1f-42b5-b8c6-72b8b890de79",
-                    "name": "New List",
-                    "items": [
-                        {
-                            "id": "cd8696b0-c8c4-4310-b982-8c114dd4dc94",
-                            "name": "item2",
-                            "type": "numeric",
-                            "quantity": 2
-                        },
-                        {
-                            "id": "df699300-7266-4d6d-bc57-c936c90e15c5",
-                            "name": "item1",
-                            "type": "boolean",
-                            "quantity": 1
-                        },
-                        {
-                            "id": "95b29722-fc89-4e48-8401-90ed1151988c",
-                            "name": "item3",
-                            "type": "numeric",
-                            "quantity": 3
-                        }
-                    ],
-                    "authorizedUsers": [
-                        "asd"
-                    ],
-                    "origin": "remote"
-                },
-                {
-                    "id": "8cea6c0d-b323-4a64-9a03-f987de187cee",
-                    "name": "caac",
-                    "items": [
-                        {
-                            "id": "189bed1b-ed50-4953-8dfa-cac18724882c",
-                            "name": "Pumpkins",
-                            "type": "boolean",
-                            "quantity": 0
-                        },
-                        {
-                            "id": "2a1be520-25b5-4843-a6df-e06cf3f9b738",
-                            "name": "asd",
-                            "type": "numeric",
-                            "quantity": 50
-                        },
-                        {
-                            "id": "4e1ca4f4-2004-40e1-9441-3a8d990ee2ea",
-                            "name": "Peanuts",
-                            "type": "boolean",
-                            "quantity": 0
-                        }
-                    ],
-                    "authorizedUsers": [
                         "asd",
+                        "zxc",
                         "qwe"
                     ],
                     "origin": "remote"
                 },
                 {
-                    "id": "75a1599f-db8d-489a-a027-30ea6e03b998",
-                    "name": "New List",
+                    "id": "807a810a-aa10-4e9d-b0d6-8db33c92b976",
+                    "name": "test-list-2",
                     "items": [
                         {
-                            "id": "49292409-cc47-4d0b-b6d3-40f22dff4934",
-                            "name": "itemasd",
+                            "id": "6b4fb888-64fb-488d-a6ac-76bbf839293b",
+                            "name": "Cabbages",
                             "type": "numeric",
-                            "quantity": 2
-                        }
-                    ],
-                    "authorizedUsers": [
-                        "asd"
-                    ],
-                    "origin": "remote"
-                }
-            ]
-        }
-    },
-    {
-        "userName": "qwe",
-        "data": {
-            "local": [],
-            "remote": []
-        }
-    },
-    {
-        "userName": "zxc",
-        "data": {
-            "local": [],
-            "remote": []
-        }
-    },
-    {
-        "userName": "test1",
-        "data": {
-            "local": [],
-            "remote": [
-                {
-                    "id": "f642ac51-1cf5-406f-8ce6-28e94f318d5c",
-                    "name": "New List",
-                    "items": [
-                        {
-                            "id": "2978c1a2-5b0b-4959-a0ed-8d3446b9f3bd",
-                            "name": "item",
-                            "type": "numeric",
-                            "quantity": 0
+                            "quantity": 5
                         },
                         {
-                            "id": "c91a5acd-4eaf-44a0-9461-e77cc600a729",
-                            "name": "item",
+                            "id": "4f74aba3-4887-4958-97b3-22b819967d5b",
+                            "name": "Peanuts",
                             "type": "boolean",
                             "quantity": 1
+                        },
+                        {
+                            "id": "0ea5fb69-93e1-4e23-9799-2e250dddf216",
+                            "name": "Pumpkins",
+                            "type": "numeric",
+                            "quantity": 500
                         }
                     ],
                     "authorizedUsers": [
-                        "test1"
+                        "zxc"
                     ],
                     "origin": "remote"
                 }
@@ -232,7 +106,7 @@
         }
     },
     {
-        "userName": "test2",
+        "userName": "asd",
         "data": {
             "local": [
                 {
@@ -243,13 +117,7 @@
                             "id": 0,
                             "name": "item",
                             "type": "numeric",
-                            "quantity": "0"
-                        },
-                        {
-                            "id": 0,
-                            "name": "item",
-                            "type": "numeric",
-                            "quantity": "0"
+                            "quantity": "10"
                         }
                     ],
                     "origin": "local"
@@ -257,25 +125,104 @@
             ],
             "remote": [
                 {
-                    "id": "f642ac51-1cf5-406f-8ce6-28e94f318d5c",
+                    "id": "2290476d-18d9-4910-8c87-3ac6bffd8f62",
                     "name": "New List",
                     "items": [
                         {
-                            "id": "2978c1a2-5b0b-4959-a0ed-8d3446b9f3bd",
+                            "id": "fe0d0916-a1d9-46f5-9266-2b8b9937c38b",
+                            "name": "item",
+                            "type": "numeric",
+                            "quantity": 1
+                        },
+                        {
+                            "id": "c8de4070-0a29-47f0-a6bd-b6ae3758f568",
                             "name": "item",
                             "type": "numeric",
                             "quantity": 0
                         },
                         {
-                            "id": "c91a5acd-4eaf-44a0-9461-e77cc600a729",
+                            "id": "2c5c3ec6-31bd-4a56-a1be-50b75c9e9c72",
                             "name": "item",
-                            "type": "boolean",
-                            "quantity": 1
+                            "type": "numeric",
+                            "quantity": 0
+                        },
+                        {
+                            "id": "49746c4a-f53c-4406-be01-bd4f5b5b8a99",
+                            "name": "item",
+                            "type": "numeric",
+                            "quantity": 0
+                        },
+                        {
+                            "id": "6b179f48-39c0-4e79-bb4b-bbe777d61587",
+                            "name": "item",
+                            "type": "numeric",
+                            "quantity": 0
                         }
                     ],
                     "authorizedUsers": [
                         "test2",
-                        "test1"
+                        "asd",
+                        "zxc",
+                        "test1",
+                        "qwe"
+                    ],
+                    "origin": "remote"
+                },
+                {
+                    "id": "4a178d47-e69e-455b-8102-7f023d6300bd",
+                    "name": "test-list-3",
+                    "items": [
+                        {
+                            "id": "6b4fb888-64fb-488d-a6ac-76bbf839293b",
+                            "name": "Cabbages",
+                            "type": "numeric",
+                            "quantity": 5
+                        },
+                        {
+                            "id": "4f74aba3-4887-4958-97b3-22b819967d5b",
+                            "name": "Peanuts",
+                            "type": "boolean",
+                            "quantity": 1
+                        },
+                        {
+                            "id": "0ea5fb69-93e1-4e23-9799-2e250dddf216",
+                            "name": "Pumpkins",
+                            "type": "numeric",
+                            "quantity": 500
+                        }
+                    ],
+                    "authorizedUsers": [
+                        "asd",
+                        "zxc",
+                        "qwe"
+                    ],
+                    "origin": "remote"
+                },
+                {
+                    "id": "a59c9c0e-9067-4c59-8eaf-77f580241fc3",
+                    "name": "test-list-4",
+                    "items": [
+                        {
+                            "id": "6b4fb888-64fb-488d-a6ac-76bbf839293b",
+                            "name": "Cabbages",
+                            "type": "numeric",
+                            "quantity": 5
+                        },
+                        {
+                            "id": "4f74aba3-4887-4958-97b3-22b819967d5b",
+                            "name": "Peanuts",
+                            "type": "boolean",
+                            "quantity": 1
+                        },
+                        {
+                            "id": "0ea5fb69-93e1-4e23-9799-2e250dddf216",
+                            "name": "Pumpkins",
+                            "type": "numeric",
+                            "quantity": 500
+                        }
+                    ],
+                    "authorizedUsers": [
+                        "asd"
                     ],
                     "origin": "remote"
                 }

@@ -8,6 +8,8 @@ import org.sdle.service.TokenService;
 import org.sdle.repository.UserRepository;
 import org.sdle.model.User;
 
+import java.util.HashMap;
+
 
 public class UserController {
     UserRepository repository;
@@ -16,7 +18,7 @@ public class UserController {
         this.repository = repository;
     }
 
-    public String login(String username, String password) {
+    public Token login(String username, String password) {
         User user = repository.getUserByUsername(username);
 
         if (user == null) {
@@ -27,24 +29,17 @@ public class UserController {
             return null;
         }
 
-        Token token = TokenService.generateToken(username);
-
-        try {
-            return new ObjectMapper().writeValueAsString(token);
-        } catch (JsonProcessingException e) {
-            System.err.println("Json Processing exception: " + e.getMessage());
-        }
-
-        return null;
+        return TokenService.generateToken(username);
     }
 
-    public String verifyToken(Token token) {
+    public HashMap<String, String> verifyToken(Token token) {
         Claims claims = TokenService.verifyToken(token);
 
-        if(claims == null) return "";
+        if(claims == null) return null;
 
         String name = TokenService.getUsernameFromToken(token);
-
-        return String.format("{ \"username\":\"%s\" }", name);
+        HashMap<String, String> response = new HashMap<>();
+        response.put("username", name);
+        return response;
     }
 }

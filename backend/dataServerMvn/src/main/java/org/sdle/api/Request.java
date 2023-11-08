@@ -7,6 +7,7 @@ public class Request {
     public static final String DELETE = "DELETE";
     private String route;
     private String method;
+    private Object headers;
     private Object body;
 
     Request(){}
@@ -17,6 +18,10 @@ public class Request {
 
     public String getMethod(){
         return this.method;
+    }
+
+    public Object getHeaders() {
+        return  this.headers;
     }
 
     public Object getBody(){

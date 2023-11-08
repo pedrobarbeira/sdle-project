@@ -6,4 +6,5 @@ import org.sdle.api.Response;
 public interface RequestHandler {
     Response handle(Request request);
     Response buildResponse(Object body);
+    Response buildResponse(int status, Object body);
 }

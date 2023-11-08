@@ -14,8 +14,7 @@ public class ShoppingListController {
     }
 
     public ShoppingList shareShoppingList(String id, String username) {
-        repository.getById(id).addAuthorizedUser(username);
-        return repository.getById(id);
+        return repository.addAuthorizedUser(id, username);
     }
 
     public ShoppingList getShoppingList(String id){

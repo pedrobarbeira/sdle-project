@@ -1,5 +1,6 @@
 import json
 import zmq
+import time
 
 def read_local_data(username: str) -> None:
     try:
@@ -43,22 +44,13 @@ def update_local_data(username: str, shoppingLists: list) -> None:
     except FileNotFoundError:
         print(f"File {'data/shoppingLists.json'} not found.")
 
-import zmq
-import json
-from threading import Thread
-import time
-
-import zmq
-import json
-import threading
-
-def receive_response(socket: zmq.socket) -> str:
+def receive_response(socket: zmq.Socket) -> str:
     try:
         return socket.recv_string()
     except zmq.error.Again:
         return None 
 
-def send_request(address: str, port: int, route: str, method: str, body: dict, timeout: int = 5) -> tuple:
+def send_request(address: str, port: int, route: str, method: str, headers: dict, body: dict, timeout: int = 5) -> tuple:
 
     context = zmq.Context()
     socket = context.socket(zmq.REQ)
@@ -68,9 +60,9 @@ def send_request(address: str, port: int, route: str, method: str, body: dict, t
         request = {
             "route": route,
             "method": method,
+            "headers": json.dumps(headers),
             "body": json.dumps(body)
         }
-
         socket.send_string(json.dumps(request))
 
         poller = zmq.Poller()
@@ -104,7 +96,7 @@ def login(username: str, password: str) -> tuple:
         "password": password
     }
 
-    return send_request("localhost", 5555, "api/login", "POST", body)
+    return send_request("localhost", 5555, "api/login", "POST", {}, body)
 
 def validate_userToken(token: str) -> tuple:
 
@@ -112,7 +104,7 @@ def validate_userToken(token: str) -> tuple:
         "token": token
     }
 
-    return send_request("localhost", 5555, "api/verify-token", "GET", body)
+    return send_request("localhost", 5555, "api/verify-token", "GET", {}, body)
 
 def load_userToken() -> tuple:
     try:
@@ -132,7 +124,7 @@ def load_userToken() -> tuple:
             if(status != 200): return "", ""
 
             try:
-                username = json.loads(body)['username']
+                username = body['username']
 
                 return username, token
             except:
@@ -154,32 +146,30 @@ def update_userToken(token: str) -> None:
         print(f"File {'data/userToken.json'} not found.")
 
 def get_remote_shoppingList(token: str) -> tuple:
-    body = {
+    headers = {
         "token": token
     }
 
-    return send_request("localhost", 5556, "api/shoppinglist", "GET", body)
+    return send_request("localhost", 5556, "api/shoppinglist", "GET", headers, {})
 
 def del_remote_shoppingList(token: str, shoppingList: dict) -> tuple:
     body = {
-            "token": {
-            "token": token
-        },
-        "shoppingList": {
-            "id": shoppingList['id'],
-            "authorizedUsers": shoppingList['authorizedUsers']
-        }
+        "id": shoppingList['id'],
+        "authorizedUsers": shoppingList['authorizedUsers']
+    }
+
+    headers = {
+        "token": token
     }
     
-    return send_request("localhost", 5556, "api/shoppinglist", "DELETE", body)
+    return send_request("localhost", 5556, "api/shoppinglist", "DELETE", headers, body)
 
 def post_remote_shoppingList(token: str, shoppingList: dict) -> tuple:
+    headers = {
+        "token": token
+    }
+    
     body = {
-            "token": {
-            "token": token
-        },
-        "shoppingList": {
-        }
     }
 
     for key, value in shoppingList.items():
@@ -187,51 +177,32 @@ def post_remote_shoppingList(token: str, shoppingList: dict) -> tuple:
         match key:
             case "id":
                 if(isinstance(value, str)):
-                    body['shoppingList']['id'] = value
+                    body['id'] = value
             case "name":
-                body['shoppingList']['name'] = value
+                body['name'] = value
             case "items":
-                body['shoppingList']['items'] = []
+                body['items'] = []
                 for item in value:
                     if(isinstance(item['id'], str)):
-                        body['shoppingList']['items'].append(item)
+                        body['items'].append(item)
                     else:
-                        body['shoppingList']['items'].append({ 'name': item['name'], 'type': item['type'], 'quantity': item['quantity']})
+                        body['items'].append({ 'name': item['name'], 'type': item['type'], 'quantity': item['quantity']})
             case "authorizedUsers":
-                body['shoppingList']['authorizedUsers'] = shoppingList['authorizedUsers']
+                body['authorizedUsers'] = shoppingList['authorizedUsers']
             case _:
                 continue
-    
-    return send_request("localhost", 5556, "api/shoppinglist", "POST", body)
+
+    return send_request("localhost", 5556, "api/shoppinglist", "POST", headers, body)
 
 def post_share_shoppingList(token: str, shoppingList: dict, user :str) -> tuple:
+    headers = {
+        "token": token
+    }
+    
     body = {
-            "token": {
-                "token": token
-            },
-            "shoppingList": {},
+            "shoppingListId": shoppingList['id'],
             "sharingWith": user
         }
 
-    for key, value in shoppingList.items():
-
-        match key:
-            case "id":
-                if(isinstance(value, str)):
-                    body['shoppingList']['id'] = value
-            case "name":
-                body['shoppingList']['name'] = value
-            case "items":
-                body['shoppingList']['items'] = []
-                for item in value:
-                    if(isinstance(item['id'], str)):
-                        body['shoppingList']['items'].append(item)
-                    else:
-                        body['shoppingList']['items'].append({ 'name': item['name'], 'type': item['type'], 'quantity': item['quantity']})
-            case "authorizedUsers":
-                body['shoppingList']['authorizedUsers'] = shoppingList['authorizedUsers']
-            case _:
-                continue
-
-    return send_request("localhost", 5556, "api/shoppinglist-share", "POST", body)
+    return send_request("localhost", 5556, "api/shoppinglist-share", "POST", headers, body)
 

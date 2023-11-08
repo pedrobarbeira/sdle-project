@@ -134,4 +134,10 @@ public class ShoppingListRepository {
         }
         return false;
     }
+
+    public ShoppingList addAuthorizedUser(String id, String username) {
+        ShoppingList s = this.getById(id);
+        s.addAuthorizedUser(username);
+        return put(s);
+    }
 }

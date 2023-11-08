@@ -18,4 +18,9 @@ public abstract class AbstractRequestHandler implements RequestHandler{
         }
         return new Response(status, body);
     }
+
+    @Override
+    public Response buildResponse(int status, Object body) {
+        return new Response(status, body);
+    }
 }

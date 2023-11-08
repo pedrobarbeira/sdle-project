@@ -192,6 +192,7 @@ class ShoppingListsPage(tk.Frame):
                 print(body)
                 return
 
+            body['origin'] = 'remote'
             settings.shoppingLists[shoppingListIndex] = body
 
     def delete_shopping_list(self, id): 
@@ -273,10 +274,11 @@ class LoginPage(tk.Frame):
         status, body = helpers.login(username, password)
 
         if(status != 200):
+            print(body)
             messagebox.showerror("Login Failed", "Invalid Username or Password")
         else:
             try:
-                settings.userToken = json.loads(body)['token']
+                settings.userToken = body['token']
             except:
                 messagebox.showerror("Login Failed", "Bad response format from server")
                 return
@@ -294,6 +296,7 @@ class LoginPage(tk.Frame):
             status, body = helpers.get_remote_shoppingList(settings.userToken)
 
             if(status != 200):
+                print(body)
                 print("GET api/shoppinglist error")
                 exit(1)
 
