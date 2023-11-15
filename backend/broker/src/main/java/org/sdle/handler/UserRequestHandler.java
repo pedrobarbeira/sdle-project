@@ -2,16 +2,13 @@ package org.sdle.handler;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.jsonwebtoken.Claims;
 import org.sdle.api.Request;
 import org.sdle.api.Response;
 import org.sdle.api.Router;
 import org.sdle.controller.UserController;
 import org.sdle.model.Token;
 import org.sdle.model.User;
-import org.sdle.service.TokenService;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -19,7 +16,7 @@ import java.util.Objects;
 
 public class UserRequestHandler extends AbstractRequestHandler {
 
-    public static final List<String> ID_METHODS = Arrays.asList(Request.POST, Request.GET);
+    public static final List<java.lang.String> ID_METHODS = Arrays.asList(Request.POST, Request.GET);
 
     private final UserController controller;
 
@@ -29,8 +26,6 @@ public class UserRequestHandler extends AbstractRequestHandler {
 
     @Override
     public Response handle(Request request) {
-
-
         switch (request.getRoute()) {
             case Router.LOGIN_ROUTE -> {
                 return login(request);
@@ -42,7 +37,6 @@ public class UserRequestHandler extends AbstractRequestHandler {
                 return buildResponse(null);
             }
         }
-
     }
 
     private Response login(Request request) {
@@ -52,7 +46,7 @@ public class UserRequestHandler extends AbstractRequestHandler {
 
         User user = this.parse(request.getBody(), User.class);
 
-        if(user == null) return buildResponse(400, "Bad request - user not found");
+        if(user == null) return buildResponse(400, "Bad request - user not found in request body");
 
         Token token = controller.login(user.getUsername(), user.getPassword());
 
@@ -69,7 +63,7 @@ public class UserRequestHandler extends AbstractRequestHandler {
 
         if(token == null) return buildResponse(400, "Bad request - token not found");
 
-        HashMap<String, String> response = controller.verifyToken(token);
+        HashMap<java.lang.String, java.lang.String> response = controller.verifyToken(token);
 
         if(response == null) buildResponse(401, "Unauthorized - bad user token");
 
@@ -78,7 +72,7 @@ public class UserRequestHandler extends AbstractRequestHandler {
 
     private <T> T parse(Object body, Class<T> expectedClass) {
         try {
-            return new ObjectMapper().readValue((String) body, expectedClass);
+            return new ObjectMapper().readValue((java.lang.String) body, expectedClass);
         } catch (JsonProcessingException e) {
             return null;
         }

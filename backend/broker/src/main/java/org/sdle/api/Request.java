@@ -1,22 +1,22 @@
 package org.sdle.api;
 
 public class Request {
-    public static final String GET = "GET";
-    public static final String POST = "POST";
-    public static final  String PUT = "PUT";
-    public static final String DELETE = "DELETE";
-    private String route;
-    private String method;
+    public static final java.lang.String GET = "GET";
+    public static final java.lang.String POST = "POST";
+    public static final java.lang.String PUT = "PUT";
+    public static final java.lang.String DELETE = "DELETE";
+    private java.lang.String route;
+    private java.lang.String method;
     private Object headers;
     private Object body;
 
     Request(){}
 
-    public String getRoute(){
+    public java.lang.String getRoute(){
         return this.route;
     }
 
-    public String getMethod(){
+    public java.lang.String getMethod(){
         return this.method;
     }
 

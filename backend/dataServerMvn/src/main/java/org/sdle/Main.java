@@ -14,6 +14,9 @@ public class Main {
 
         Router router = new Router(ObjectFactory.initializeShoppingListRequestHandler());
         Node stub = new Node(router, String.valueOf(port));
+
+        if(!stub.register()) return;
+
         stub.listen();
     }
 }

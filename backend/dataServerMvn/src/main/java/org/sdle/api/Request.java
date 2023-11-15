@@ -1,5 +1,7 @@
 package org.sdle.api;
 
+import zmq.socket.reqrep.Req;
+
 public class Request {
     public static final String GET = "GET";
     public static final String POST = "POST";
@@ -11,6 +13,13 @@ public class Request {
     private Object body;
 
     Request(){}
+
+    public Request(String route, String method, Object headers, Object body) {
+        this.route = route;
+        this.method = method;
+        this.headers = headers;
+        this.body = body;
+    }
 
     public String getRoute(){
         return this.route;
