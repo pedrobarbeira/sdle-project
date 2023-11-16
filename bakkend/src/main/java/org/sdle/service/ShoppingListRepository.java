@@ -1,6 +1,7 @@
 package org.sdle.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.sdle.ObjectFactory;
 import org.sdle.model.ShoppingList;
 
 import java.io.*;
@@ -11,19 +12,24 @@ import java.util.List;
 import java.util.Objects;
 
 public class ShoppingListRepository {
-    public static final String DATA_ROOT = "data";
+    //TODO separate cache logic from DAO layer
+    private final String dataRoot;
 
     HashMap<String, ShoppingList> cache = new HashMap<>();
     ClassLoader loader = ShoppingListRepository.class.getClassLoader();
-    ObjectMapper mapper = new ObjectMapper();
+    ObjectMapper mapper = ObjectFactory.getObjectMapper();
+
+    public ShoppingListRepository(String dataRoot){
+        this.dataRoot = dataRoot;
+    }
 
     private String filePathFromResources(String id){
-        String dir = Objects.requireNonNull(loader.getResource(DATA_ROOT)).getPath();
+        String dir = Objects.requireNonNull(loader.getResource(dataRoot)).getPath();
         return String.format("%s/%s.json", dir, id);
     }
 
     private String buildFilePath(String id){
-        return String.format("%s/%s.json", DATA_ROOT, id);
+        return String.format("%s/%s.json", dataRoot, id);
     }
 
     private void loadFromMemory(String id){
@@ -63,7 +69,7 @@ public class ShoppingListRepository {
     }
 
     public List<ShoppingList> getAll(){
-        File dir = new File(Objects.requireNonNull(loader.getResource(DATA_ROOT)).getPath());
+        File dir = new File(Objects.requireNonNull(loader.getResource(dataRoot)).getPath());
         File[] dirContents = Objects.requireNonNull(dir.listFiles());
         if(dirContents.length > cache.size()){
             for(File file : dirContents){

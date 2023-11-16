@@ -12,10 +12,15 @@ public abstract class AbstractRequestHandler implements RequestHandler{
     public Response buildResponse(Object body) {
         int status;
         if(body == null){
-            status = 500;
+            status = StatusCode.ERROR;
         }else{
-            status = 200;
+            status = StatusCode.OK;
         }
         return new Response(status, body);
+    }
+
+    private static class StatusCode{
+        public static final int ERROR = 500;
+        public static final int OK = 200;
     }
 }

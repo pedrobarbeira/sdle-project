@@ -11,7 +11,7 @@ public class ServerStub {
     //TODO consider implementing a MQ system here
     private final Router router;
     private final String port;
-    private final ObjectMapper mapper = new ObjectMapper();
+    private final ObjectMapper mapper = ObjectFactory.getObjectMapper();
 
     public ServerStub(Router router, String port){
         this.router = router;
@@ -22,12 +22,15 @@ public class ServerStub {
         while(true) {
             //open port and listen
             //receive request string
-            //handle request string in new thread
-            //send response to broker
+            //start new thread
+                //handle request string
+                //send response to broker
+                //close thread
         }
     }
 
     private String handleRequestString(String requestString) throws IOException {
+        //TODO add exception handler logic
         Request request = mapper.readValue(requestString, Request.class);
         Response response = router.route(request);
         return mapper.writeValueAsString(response);
