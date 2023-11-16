@@ -5,6 +5,7 @@ import org.sdle.api.Request;
 
 import java.io.*;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Objects;
 
@@ -18,7 +19,7 @@ public class UtilsTcp {
                 response +
                 "\r\n";
 
-        return message.getBytes();
+        return message.getBytes(StandardCharsets.UTF_8);
     }
     private static int parseRequestSize(String header) {
         List<String> split = List.of(header.split("\r\n"));
@@ -31,7 +32,7 @@ public class UtilsTcp {
             byte[] message = buildMessage(body);
             out.write(message);
         } catch (IOException e) {
-            e.printStackTrace();
+            System.err.println("Failed to send TCP message:\n" + body + "\n" + e.getMessage());
         }
     }
 
@@ -68,7 +69,7 @@ public class UtilsTcp {
             }
             return bodyString.toString();
         } catch (IOException e) {
-            e.printStackTrace();
+            System.err.println("Failed to read TCP message:\n" + e.getMessage());
             return null;
         }
     }

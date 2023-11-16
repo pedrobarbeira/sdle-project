@@ -11,7 +11,6 @@ public class Response {
         this.body = body;
     }
 
-
     public Object getBody() {
         return body;
     }

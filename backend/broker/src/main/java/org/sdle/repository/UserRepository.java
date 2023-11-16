@@ -21,10 +21,10 @@ public class UserRepository {
                     userHashMap.put(user.getUsername(), user);
                 }
             }catch(IOException e){
-                System.out.println(e.getMessage());
+                System.err.println(e.getMessage());
             }
         }else{
-            System.out.printf("File [%s] was not found\n", path);
+            System.err.printf("File [%s] was not found\n", path);
         }
     }
 

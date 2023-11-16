@@ -4,6 +4,7 @@ import org.sdle.model.ShoppingList;
 import org.sdle.repository.ShoppingListRepository;
 
 import java.util.List;
+import java.util.Map;
 
 public class ShoppingListController {
 
@@ -25,7 +26,7 @@ public class ShoppingListController {
         return repository.getAll();
     }
 
-    public List<ShoppingList> getAllShoppingListsFromUser(String username){
+    public Map<String, ShoppingList> getAllShoppingListsFromUser(String username){
         return repository.getAllFromUser(username);
     }
 

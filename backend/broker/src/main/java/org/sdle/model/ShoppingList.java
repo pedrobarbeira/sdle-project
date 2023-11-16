@@ -55,23 +55,15 @@ public class ShoppingList {
         }
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setItems(HashMap<String, ShoppingItem> items) {
-        this.items = items;
-    }
-
-    public void setAuthorizedUsers(Set<String> authorizedUsers) {
-        this.authorizedUsers = authorizedUsers;
-    }
-
     public Set<String> getAuthorizedUsers() {
         return authorizedUsers;
     }
 
     public void addAuthorizedUser(String username) {
         authorizedUsers.add(username);
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 }

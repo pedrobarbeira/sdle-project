@@ -10,12 +10,13 @@ import org.sdle.utils.UtilsTcp;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.file.FileAlreadyExistsException;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class Node {
     private static final int numThreads = 8;
-    private static final int TIMEOUT = 30;
     private String id;
     private final Router router;
     private final int port;
@@ -29,8 +30,6 @@ public class Node {
         serverSocket = new ServerSocket(this.port);
 
         pool = Executors.newFixedThreadPool(numThreads);
-
-        id = UtilsHash.hashSHA256(port);
     }
 
     public void listen() throws IOException {
@@ -38,7 +37,8 @@ public class Node {
 
         while(!Thread.currentThread().isInterrupted()) {
             Socket socket = this.serverSocket.accept();
-            socket.setSoTimeout(TIMEOUT);
+
+            //socket.setSoTimeout();
 
             Runnable connectionHandler = new UtilsConnectionHandler(socket, this.router);
 
@@ -48,7 +48,7 @@ public class Node {
 
     public boolean register() {
         try {
-            Request request = new Request("api/register-node", Request.POST, null, mapper.writeValueAsString(this));
+            Request request = new Request("api/register-node", Request.POST, null, mapper.convertValue(this, Map.class));
 
             String requestStr = mapper.writeValueAsString(request);
             Socket socket = new Socket("localhost", 5555);
@@ -59,9 +59,14 @@ public class Node {
             Response response = mapper.readValue(responseStr, Response.class);
 
             if(response.getStatus() != 200) {
-                System.out.println(response.getBody());
+                System.err.println(response.getBody());
                 return false;
             }
+
+            String id = (String) mapper.convertValue(response.getBody(), Map.class).get("id");
+            if(id == null) return false;
+
+            this.id = id;
 
             return true;
         } catch (Exception e) {

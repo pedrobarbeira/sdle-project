@@ -1,6 +1,5 @@
 package org.sdle.handler;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.sdle.api.Request;
 import org.sdle.api.Response;
@@ -15,10 +14,8 @@ import java.util.List;
 import java.util.Objects;
 
 public class UserRequestHandler extends AbstractRequestHandler {
-
-    public static final List<java.lang.String> ID_METHODS = Arrays.asList(Request.POST, Request.GET);
-
     private final UserController controller;
+    private final ObjectMapper mapper = new ObjectMapper();
 
     public UserRequestHandler(UserController controller) {
         this.controller = controller;
@@ -44,7 +41,7 @@ public class UserRequestHandler extends AbstractRequestHandler {
             return buildResponse(405, "Method not allowed");
         }
 
-        User user = this.parse(request.getBody(), User.class);
+        User user = mapper.convertValue(request.getBody(), User.class);
 
         if(user == null) return buildResponse(400, "Bad request - user not found in request body");
 
@@ -59,22 +56,14 @@ public class UserRequestHandler extends AbstractRequestHandler {
         if(!Objects.equals(request.getMethod(), Request.GET)) {
             return buildResponse(405, "Method not allowed");
         }
-        Token token = this.parse(request.getBody(), Token.class);
+        Token token = mapper.convertValue(request.getBody(), Token.class);
 
         if(token == null) return buildResponse(400, "Bad request - token not found");
 
-        HashMap<java.lang.String, java.lang.String> response = controller.verifyToken(token);
+        HashMap<String, String> response = controller.verifyToken(token);
 
         if(response == null) buildResponse(401, "Unauthorized - bad user token");
 
         return buildResponse(response);
-    }
-
-    private <T> T parse(Object body, Class<T> expectedClass) {
-        try {
-            return new ObjectMapper().readValue((java.lang.String) body, expectedClass);
-        } catch (JsonProcessingException e) {
-            return null;
-        }
     }
 }

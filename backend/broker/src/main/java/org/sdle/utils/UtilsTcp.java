@@ -4,33 +4,33 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.*;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Objects;
 
 public class UtilsTcp {
-    private static final ObjectMapper mapper = new ObjectMapper();
-    private static byte[] buildMessage(java.lang.String response) {
-        java.lang.String message = "\r\n" +
+    private static byte[] buildMessage(String response) {
+        String message = "\r\n" +
                 response.length() +
                 "\r\n" +
                 "\r\n" +
                 response +
                 "\r\n";
 
-        return message.getBytes();
+        return message.getBytes(StandardCharsets.UTF_8);
     }
-    private static int parseRequestSize(java.lang.String header) {
-        List<java.lang.String> split = List.of(header.split("\r\n"));
+    private static int parseRequestSize(String header) {
+        List<String> split = List.of(header.split("\r\n"));
         if(split.size() != 2 || !Objects.equals(split.get(0), "")) return -1;
         return Integer.parseInt(split.get(1));
     }
-    public static void sendTcpMessage(Socket socket, java.lang.String body) {
+    public static void sendTcpMessage(Socket socket, String body) {
         try {
             OutputStream out = socket.getOutputStream();
             byte[] message = buildMessage(body);
             out.write(message);
         } catch (IOException e) {
-            e.printStackTrace();
+            System.err.println("Failed to send TCP message:\n" + body + "\n" + e.getMessage());
         }
     }
 
@@ -67,7 +67,7 @@ public class UtilsTcp {
             }
             return bodyString.toString();
         } catch (IOException e) {
-            e.printStackTrace();
+            System.err.println("Failed to read TCP message:\n" + e.getMessage());
             return null;
         }
     }

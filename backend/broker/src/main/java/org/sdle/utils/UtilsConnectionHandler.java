@@ -25,19 +25,17 @@ public class UtilsConnectionHandler implements Runnable {
     public void run()
     {
         try {
-
             String requestStr = UtilsTcp.receiveTcpMessage(this.clientSocket);
 
             if(requestStr == null) return;
 
             Request request = mapper.readValue(requestStr, Request.class);
             Response response = router.route(request);
-            java.lang.String responseStr = mapper.writeValueAsString(response);
+            String responseStr = mapper.writeValueAsString(response);
 
             UtilsTcp.sendTcpMessage(this.clientSocket, responseStr);
         } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+            System.err.println("Failed to process request:\n" + e.getMessage());
         }
-
     }
 }

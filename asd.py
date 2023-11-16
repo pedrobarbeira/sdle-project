@@ -31,8 +31,8 @@ def send_request(address: str, port: int, route: str, method: str, headers: dict
     request = {
                 "route": route,
                 "method": method,
-                "headers": json.dumps(headers),
-                "body": json.dumps(body)
+                "headers": headers,
+                "body": body
             }
 
     message = "\r\n" + str(len(json.dumps(request))) + "\r\n\r\n" + json.dumps(request) + "\r\n"
@@ -61,23 +61,54 @@ def send_request(address: str, port: int, route: str, method: str, headers: dict
             if(isHeader and len(headerStr) > 3 and headerStr[len(headerStr) - 4:] == "\r\n\r\n"):
                 requestLen = parseRequestSize(headerStr)
                 isHeader = False
-
-        if(requestLen <= 0): break
+            
+        if(not isHeader and requestLen <= 0):
+            break;
 
     response_parsed = json.loads(requestStr)
     return response_parsed['status'], response_parsed['body']
 
-id = "2"
+# id = "2"
 
-t1 = threading.Thread(target= lambda : print("1 ", send_request("localhost", 5555, "api/register-node" ,"POST", {}, {"id":id, "port":123})))
-t2 = threading.Thread(target= lambda : print("2 ",send_request("localhost", 5555, "api/register-node" ,"POST", {}, {"id":id, "port":234})))
-t3 = threading.Thread(target= lambda : print("3 ",send_request("localhost", 5555, "api/register-node" ,"POST", {}, {"id":id, "port":456})))
+# print("1 ", send_request("localhost", 5555, "api/register-node" ,"POST", {}, {"port":111}))
+# exit()
 
-t1.start()
-t2.start()
-t3.start()
+# t1 = threading.Thread(target= lambda : print("1 ", send_request("localhost", 5555, "api/register-node" ,"POST", {}, {"id":1, "port":123})))
+# t2 = threading.Thread(target= lambda : print("2 ",send_request("localhost", 5555, "api/register-node" ,"POST", {}, {"id":2, "port":234})))
+# t3 = threading.Thread(target= lambda : print("3 ",send_request("localhost", 5555, "api/register-node" ,"POST", {}, {"id":3, "port":456})))
 
-t1.join()
-t2.join()
-t3.join()
+# t1.start()
+# t2.start()
+# t3.start()
 
+# t1.join()
+# t2.join()
+# t3.join()
+
+a, b = send_request("localhost", 5555, "api/login", "POST", {}, {"username":"asd", "password":"123"})
+token = b['token']
+print(a, token)
+
+# a, b = send_request("localhost", 5555, "api/verify-token", "GET", {}, {"token":token})
+# print(a, b)
+
+a, b = send_request("localhost", 5555, "api/shoppinglist", "GET", {"token":token}, {})
+
+# a, b = send_request("localhost", 5556, "api/shoppinglist", "GET", {"username":"qwe"}, {})
+#print(a, b)
+
+for l in b:
+    print(l, b[l]['authorizedUsers'], b[l]['name'])
+
+# a, b = send_request("localhost", 5555, "api/shoppinglist", "POST", {"token":token}, {"id":"03_053a4122-58f6-47be-80ad-bff0c5ccc09e", "name":"asd sl", "authorizedUsers":['asd']})
+a, b = send_request("localhost", 5555, "api/shoppinglist", "POST", {"token":token}, {"id":"03_053a4122-58f6-47be-80ad-bff0c5ccc09e", "name":"asd sl", "authorizedUsers":['asd']})
+print(a)
+print(b)
+
+a, b = send_request("localhost", 5555, "api/shoppinglist", "GET", {"token":token}, {})
+
+# a, b = send_request("localhost", 5556, "api/shoppinglist", "GET", {"username":"qwe"}, {})
+#print(a, b)
+
+for l in b:
+    print(l, b[l]['authorizedUsers'], b[l]['name'])

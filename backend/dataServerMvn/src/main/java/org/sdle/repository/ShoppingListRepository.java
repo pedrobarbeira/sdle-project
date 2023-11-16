@@ -5,10 +5,7 @@ import org.sdle.model.ShoppingList;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public class ShoppingListRepository {
 
@@ -35,10 +32,10 @@ public class ShoppingListRepository {
                 ShoppingList shoppingList = mapper.readValue(stream, ShoppingList.class);
                 cache.put(shoppingList.getId(), shoppingList);
             }catch(IOException e){
-                System.out.println(e.getMessage());
+                System.err.println(e.getMessage());
             }
         }else{
-            System.out.printf("File [%s] was not found\n", path);
+            System.err.printf("File [%s] was not found\n", path);
         }
     }
 
@@ -52,7 +49,7 @@ public class ShoppingListRepository {
             String jsonData = mapper.writeValueAsString(item);
             os.write(jsonData.getBytes(StandardCharsets.UTF_8));
         }catch(IOException e){
-            System.out.println(e.getMessage());
+            System.err.println(e.getMessage());
         }
     }
 
@@ -81,7 +78,7 @@ public class ShoppingListRepository {
         return toReturn;
     }
 
-    public List<ShoppingList> getAllFromUser(String username){
+    public Map<String, ShoppingList> getAllFromUser(String username){
         File dir = new File(Objects.requireNonNull(loader.getResource(DATA_ROOT)).getPath());
         File[] dirContents = Objects.requireNonNull(dir.listFiles());
         if(dirContents.length > cache.size()){
@@ -92,10 +89,10 @@ public class ShoppingListRepository {
                 }
             }
         }
-        List<ShoppingList> toReturn = new ArrayList<>();
+        Map<String, ShoppingList> toReturn = new HashMap<>();
         for(String key : cache.keySet()){
             if(cache.get(key).getAuthorizedUsers().contains(username)) {
-                toReturn.add(cache.get(key));
+                toReturn.put(key, cache.get(key));
             }
         }
 
@@ -103,6 +100,7 @@ public class ShoppingListRepository {
     }
 
     public ShoppingList put(ShoppingList item){
+        System.out.println("Putting: " + item.getId() + " " + item.getName());
         cache.put(item.getId(), item);
         writeToMemory(item);
         return item;

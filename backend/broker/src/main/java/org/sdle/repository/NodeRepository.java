@@ -2,42 +2,38 @@ package org.sdle.repository;
 
 import org.sdle.model.Node;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.Map;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ConcurrentMap;
 
 public class NodeRepository {
-    Map<String, Node> nodeMap = new TreeMap<>();
-    private static final Object countLock = new Object();
+    Map<String, Integer> nodeMap = new HashMap<>();
+    Queue<String> nodeQueue = new LinkedList<>();
 
-    public boolean addNode(Node node) {
-        synchronized (countLock) {
-            if (nodeMap.containsKey(node.getId())) return false;
-
-            nodeMap.put(node.getId(), node);
-        }
-
-        return true;
+    public String addNode(String id, int port) {
+        nodeMap.put(id, port);
+        if(!nodeQueue.contains(id))
+            nodeQueue.add(id);
+        return id;
     }
 
-    public boolean removeNode(String id) {
-        if (!nodeMap.containsKey(id)) return false;
-
-        nodeMap.remove(id);
-
-        return true;
+    public int getNodeMapping(String id) {
+        return nodeMap.get(id);
     }
 
-    public Node getNextNode(String id) {
-        List<String> keyList = new ArrayList<>(nodeMap.keySet());
+    public String popQueue() {
+        return nodeQueue.poll();
+    }
 
-        if (keyList.isEmpty()) {
-            return null;
-        }
+    public void enQueue(String id) {
+        nodeQueue.add(id);
+    }
 
-        Collections.sort(keyList);
-
-        int idIndex = keyList.indexOf(id);
-        String nextKey = keyList.get((idIndex + 1) % keyList.size());
-
-        return nodeMap.get(nextKey);
+    public Map<String, Integer> getNodeMap() {
+        return this.nodeMap;
     }
 }
