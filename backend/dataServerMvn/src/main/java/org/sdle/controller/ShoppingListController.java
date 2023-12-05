@@ -26,7 +26,7 @@ public class ShoppingListController {
         return repository.getAll();
     }
 
-    public Map<String, ShoppingList> getAllShoppingListsFromUser(String username){
+    public List<ShoppingList> getAllShoppingListsFromUser(String username){
         return repository.getAllFromUser(username);
     }
 

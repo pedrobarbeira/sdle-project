@@ -1,5 +1,6 @@
 package org.sdle.controller;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.sdle.api.Request;
 import org.sdle.api.Response;
@@ -10,6 +11,7 @@ import org.sdle.utils.UtilsTcp;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 public class NodeController {
@@ -90,7 +92,7 @@ public class NodeController {
         return null;
     }
 
-    public Map getShoppingLists(Integer port, Request request) {
+    public List<ShoppingList> getShoppingLists(Integer port, Request request) {
         try {
             ObjectMapper mapper = new ObjectMapper();
 
@@ -99,12 +101,12 @@ public class NodeController {
             String message = UtilsTcp.receiveTcpMessage(socket);
             Response response = mapper.readValue(message, Response.class);
             if (response.getStatus() == 200) {
-                return mapper.convertValue(response.getBody(), Map.class);
+                return mapper.convertValue(response.getBody(), new TypeReference<>() {});
             }
         } catch (IOException e) {
             System.err.println("Failed to retrieve shopping lists from node: " + port);
             System.err.println(e.getMessage());
         }
-        return Collections.emptyMap();
+        return Collections.emptyList();
     }
 }

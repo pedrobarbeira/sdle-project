@@ -83,8 +83,7 @@ public class ShoppingListRepository {
         return toReturn;
     }
 
-    public Map<String, ShoppingList> getAllFromUser(String username){
-
+    public List<ShoppingList> getAllFromUser(String username){
         URL resourceUrl = loader.getResource(DATA_ROOT);
         if (resourceUrl == null) {
             throw new IllegalStateException("Resource directory not found: " + DATA_ROOT);
@@ -102,10 +101,10 @@ public class ShoppingListRepository {
                 }
             }
         }
-        Map<String, ShoppingList> toReturn = new HashMap<>();
+        List<ShoppingList> toReturn = new ArrayList();
         for(String key : cache.keySet()){
             if(cache.get(key).getAuthorizedUsers().contains(username)) {
-                toReturn.put(key, cache.get(key));
+                toReturn.add(cache.get(key));
             }
         }
 

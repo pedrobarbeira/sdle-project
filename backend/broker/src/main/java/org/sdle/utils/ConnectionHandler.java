@@ -8,25 +8,25 @@ import org.sdle.api.Router;
 
 import java.net.Socket;
 
-public class UtilsConnectionHandler implements Runnable {
+public class ConnectionHandler implements Runnable {
     private final Socket clientSocket;
     private final Router router;
 
     private static final ObjectMapper mapper = new ObjectMapper();
 
-    public UtilsConnectionHandler(Socket socket, Router router)
-    {
+    public ConnectionHandler(Socket socket, Router router){
         this.router = router;
         this.clientSocket = socket;
     }
 
     @Override
-    public void run()
-    {
+    public void run(){
         try {
             String requestStr = UtilsTcp.receiveTcpMessage(this.clientSocket);
 
-            if(requestStr == null) return;
+            if(requestStr == null) {
+                return;
+            }
 
             Request request = mapper.readValue(requestStr, Request.class);
             Response response = router.route(request);

@@ -31,39 +31,37 @@ public class NodeRequestHandler extends AbstractRequestHandler {
 
     @Override
     public Response handle(Request request) {
+        String username = AuthService.authenticateRequest(request);
+        if(username == null) {
+            return buildResponse(401, "Unauthorized - bad credentials");
+        }
         switch(request.getMethod()) {
             case Request.GET -> {
-                return getShoppingLists(request);
+                return getShoppingLists(request, username);
             }
             case Request.POST, Request.PUT -> {
-                return postPutShoppingList(request);
+                return postPutShoppingList(request, username);
             }
             case Request.DELETE -> {
-                return delShoppingList(request);
+                return delShoppingList(request, username);
             }
             default -> {
                 return buildResponse(null);
             }
         }
     }
-    private Response postPutShoppingList(Request request) {
-
-        String username = AuthService.authenticateRequest(request);
-        if(username == null) return buildResponse(401, "Unauthorized - bad credentials");
+    private Response postPutShoppingList(Request request, String username) {
 
         ShoppingList shoppingList = mapper.convertValue(request.getBody(), ShoppingList.class);
 
         return buildResponse(controller.postPutShoppingList(shoppingList, username));
     }
-    private Response getShoppingLists(Request request) {
 
-        String username = AuthService.authenticateRequest(request);
-        if(username == null) return buildResponse(401, "Unauthorized - bad credentials");
-
-        Map<String, Object> shoppingLists = new HashMap<>();
+    private Response getShoppingLists(Request request, String username) {
+        List<ShoppingList> shoppingLists = new ArrayList<>();
         Request requestShoppingLists = new Request("api/shoppinglist", "GET", Map.of("username", username), Map.of());
 
-        List<Callable<Map<String, Object>>> tasks = new ArrayList<>();
+        List<Callable<List<ShoppingList>>> tasks = new ArrayList<>();
 
         for (Integer port : controller.getNodeMap().values()) {
             tasks.add(() ->
@@ -71,46 +69,19 @@ public class NodeRequestHandler extends AbstractRequestHandler {
             );
         }
 
-        List<Future<Map<String, Object>>> futures;
         try {
-            futures = workers.invokeAll(tasks);
-
-            for (Future<Map<String, Object>> future : futures) {
-                try {
-                    Map<String, Object> result = future.get();
-                    shoppingLists.putAll(result);
-                } catch (InterruptedException | ExecutionException e) {
-                    e.printStackTrace();
-                }
+            for (Future<List<ShoppingList>> future : workers.invokeAll(tasks)) {
+                List<ShoppingList> result = future.get();
+                shoppingLists.addAll(result);
             }
-        } catch (InterruptedException e) {
+        } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
         }
-
-
-        /*
-        for (Integer port : controller.getNodeMap().values()) {
-            try {
-                Socket socket = new Socket("localhost", port);
-
-                //socket.setSoTimeout();
-                UtilsTcp.sendTcpMessage(socket, mapper.writeValueAsString(requestShoppingLists));
-
-                String message = UtilsTcp.receiveTcpMessage(socket);
-                Response response = mapper.readValue(message, Response.class);
-                if(response.getStatus() != 200) continue;
-
-                shoppingLists.putAll(mapper.convertValue(response.getBody(), Map.class));
-            } catch (IOException e) {
-                System.err.println("Failed to retrieve shopping lists from node: " + port);
-                System.err.println(e.getMessage());
-            }
-        }*/
 
         return new Response(200, shoppingLists);
     }
 
-    private Response delShoppingList(Request request) {
+    private Response delShoppingList(Request request, String username) {
         return null;
     }
 

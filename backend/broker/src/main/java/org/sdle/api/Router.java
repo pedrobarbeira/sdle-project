@@ -24,7 +24,9 @@ public class Router {
     public Response route(Request request){
         RequestHandler handler = handlers.get(request.getRoute());
 
-        if(handler == null) return new Response(404, "Route not found");
+        if(handler == null) {
+            return new Response(404, "Route not found");
+        }
 
         return handler.handle(request);
     }
