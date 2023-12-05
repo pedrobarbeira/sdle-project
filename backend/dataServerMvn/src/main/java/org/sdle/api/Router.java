@@ -8,8 +8,6 @@ import java.util.Map;
 public class Router {
     public static final String SHOPPINGLIST = "api/shoppinglist";
     public static final String SHOPPINGLIST_SHARE = "api/shoppinglist-share";
-
-
     private final Map<String, RequestHandler> handlers;
 
     public Router(ShoppingListRequestHandler shoppingListRequestHandler){

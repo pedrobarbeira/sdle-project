@@ -6,6 +6,7 @@ import org.sdle.utils.UtilsConnectionHandler;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -15,15 +16,16 @@ public class Broker {
     private final Router router;
     private final int port;
     private final ServerSocket serverSocket;
-    private final ExecutorService pool;
+    private final ExecutorService workers;
 
-    public Broker(Router router, String port) throws IOException {
-        this.router = router;
+    public Broker(String port) throws IOException {
         this.port = Integer.parseInt(port);
 
         this.serverSocket = new ServerSocket(this.port);
 
-        pool = Executors.newFixedThreadPool(numThreads);
+        this.workers = Executors.newFixedThreadPool(numThreads);
+
+        this.router = new Router(ObjectFactory.initializeUserRequestHandler(this.workers), ObjectFactory.initializeNodeRequestHandler(this.workers));
     }
 
     public void listen() throws IOException {
@@ -33,8 +35,7 @@ public class Broker {
             Socket socket = this.serverSocket.accept();
 
             Runnable connectionHandler = new UtilsConnectionHandler(socket, this.router);
-
-            pool.execute(connectionHandler);
+            workers.execute(connectionHandler);
         }
     }
 }

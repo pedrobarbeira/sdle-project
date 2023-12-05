@@ -13,6 +13,16 @@
         <maven.compiler.target>19</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources/data</directory> <!-- Path to your resources -->
+                <filtering>true</filtering> <!-- Optional: Enables resource filtering -->
+            </resource>
+        </resources>
+    </build>
+
     <dependencies>
         <dependency>
             <groupId>org.zeromq</groupId>

@@ -12,10 +12,9 @@ public class Main {
 
         int port = Integer.parseInt(args[0]);
 
-        Router router = new Router(ObjectFactory.initializeShoppingListRequestHandler());
-        Node stub = new Node(router, String.valueOf(port));
+        Node stub = new Node(String.valueOf(port));
 
-        if(!stub.register()) return;
+        if(!stub.createStorageFolder()) return;
 
         stub.listen();
     }

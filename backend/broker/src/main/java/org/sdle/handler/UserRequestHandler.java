@@ -12,13 +12,17 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.ExecutorService;
 
 public class UserRequestHandler extends AbstractRequestHandler {
     private final UserController controller;
     private final ObjectMapper mapper = new ObjectMapper();
 
-    public UserRequestHandler(UserController controller) {
+    private final ExecutorService workers;
+
+    public UserRequestHandler(UserController controller, ExecutorService worker) {
         this.controller = controller;
+        this.workers = worker;
     }
 
     @Override

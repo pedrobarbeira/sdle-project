@@ -5,12 +5,11 @@ import org.sdle.api.Request;
 import org.sdle.api.Response;
 import org.sdle.model.ShoppingList;
 import org.sdle.repository.NodeRepository;
-import org.sdle.utils.UtilsIDGenerator;
 import org.sdle.utils.UtilsTcp;
 
 import java.io.IOException;
 import java.net.Socket;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.Map;
 
 public class NodeController {
@@ -20,18 +19,11 @@ public class NodeController {
         this.repository = repository;
     }
 
-    public String getNextNodeId() {
-        String id = repository.popQueue();
-        repository.enQueue(id);
-        return id;
+    public Map<String, Integer> getNodeMap() {
+        return this.repository.getNodeMap();
     }
-    public String addNode(Integer nodePort) {
-        String id = UtilsIDGenerator.generateSequentialID();
 
-        if(id == null) return null;
-
-        return repository.addNode(id, nodePort);
-    }
+    /*
     public Map<String, Object> getShoppingLists(String username) {
         Map<String, Object> shoppingLists = new HashMap<>();
         ObjectMapper mapper = new ObjectMapper();
@@ -57,15 +49,20 @@ public class NodeController {
 
         return shoppingLists;
     }
+    */
 
     public ShoppingList postPutShoppingList(ShoppingList shoppingList, String username) {
-        if(shoppingList.getId().split("_").length == 1) {
-            shoppingList.setId(this.getNextNodeId() + "_" + shoppingList.getId());
+        if(shoppingList.getPrimaryNodeId() == null) {
+            String id = this.repository.getNextNodeId(shoppingList.getId());
+
+            if(id == null) return null;
+
+            shoppingList.setPrimaryNodeId(id);
         }
 
         ObjectMapper mapper = new ObjectMapper();
-        String nodeID = shoppingList.getId().split("_")[0];
-        int nodePort = repository.getNodeMapping(nodeID);
+
+        int nodePort = repository.getNodeMapping(shoppingList.getPrimaryNodeId());
         Request request = new Request("api/shoppinglist", "POST", Map.of("username", username), shoppingList);
 
         try {
@@ -78,20 +75,36 @@ public class NodeController {
             String message = UtilsTcp.receiveTcpMessage(socket);
             Response response = mapper.readValue(message, Response.class);
 
-            ShoppingList resShoppingList = mapper.convertValue(response.getBody(), ShoppingList.class);
-
-            if(response.getStatus() != 200 || resShoppingList == null){
+            if(response.getStatus() != 200) {
                 System.err.println("Failed to post/put shopping list to node: " + nodePort);
                 System.err.println(response.getBody());
                 return null;
             }
 
-            return resShoppingList;
-        } catch (IOException e) {
+            return mapper.convertValue(response.getBody(), ShoppingList.class);
+        } catch (IOException | IllegalArgumentException e) {
             System.err.println("Failed to post/put shopping list to node: " + nodePort);
             System.err.println(e.getMessage());
         }
 
         return null;
+    }
+
+    public Map getShoppingLists(Integer port, Request request) {
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+
+            Socket socket = new Socket("localhost", port);
+            UtilsTcp.sendTcpMessage(socket, mapper.writeValueAsString(request));
+            String message = UtilsTcp.receiveTcpMessage(socket);
+            Response response = mapper.readValue(message, Response.class);
+            if (response.getStatus() == 200) {
+                return mapper.convertValue(response.getBody(), Map.class);
+            }
+        } catch (IOException e) {
+            System.err.println("Failed to retrieve shopping lists from node: " + port);
+            System.err.println(e.getMessage());
+        }
+        return Collections.emptyMap();
     }
 }

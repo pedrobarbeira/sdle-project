@@ -8,52 +8,45 @@ import org.sdle.controller.NodeController;
 import org.sdle.model.Node;
 import org.sdle.model.ShoppingList;
 import org.sdle.service.AuthService;
+import org.sdle.utils.UtilsTcp;
 import zmq.socket.reqrep.Req;
 
-import java.util.Map;
-import java.util.Objects;
+import java.io.IOException;
+import java.net.Socket;
+import java.util.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 
 public class NodeRequestHandler extends AbstractRequestHandler {
 
     private final NodeController controller;
     private final ObjectMapper mapper = new ObjectMapper();
-
-    public NodeRequestHandler(NodeController controller) {
+    private final ExecutorService workers;
+    public NodeRequestHandler(NodeController controller, ExecutorService workers) {
         this.controller = controller;
+        this.workers = workers;
     }
 
     @Override
     public Response handle(Request request) {
-
-        switch(request.getRoute()) {
-            case Router.REGISTER_NODE_ROUTE -> {
-                return registerNode(request);
+        switch(request.getMethod()) {
+            case Request.GET -> {
+                return getShoppingLists(request);
             }
-            case Router.SHOPPINGLIST -> {
-                switch(request.getMethod()) {
-                    case Request.GET -> {
-                        return getShoppingLists(request);
-                    }
-                    case Request.POST, Request.PUT -> {
-                        return postPutShoppingList(request);
-                    }
-                    case Request.DELETE -> {
-                        return delShoppingList(request);
-                    }
-                }
+            case Request.POST, Request.PUT -> {
+                return postPutShoppingList(request);
+            }
+            case Request.DELETE -> {
+                return delShoppingList(request);
+            }
+            default -> {
+                return buildResponse(null);
             }
         }
-
-        return buildResponse(null);
-    }
-
-    private Response delShoppingList(Request request) {
-        return null;
     }
     private Response postPutShoppingList(Request request) {
-        if(!Objects.equals(request.getMethod(), Request.POST) && !Objects.equals(request.getMethod(), Request.PUT)) {
-            return buildResponse(405, "Method not allowed");
-        }
 
         String username = AuthService.authenticateRequest(request);
         if(username == null) return buildResponse(401, "Unauthorized - bad credentials");
@@ -62,31 +55,63 @@ public class NodeRequestHandler extends AbstractRequestHandler {
 
         return buildResponse(controller.postPutShoppingList(shoppingList, username));
     }
-
     private Response getShoppingLists(Request request) {
-        if(!Objects.equals(request.getMethod(), Request.GET)) {
-            return buildResponse(405, "Method not allowed");
-        }
 
         String username = AuthService.authenticateRequest(request);
         if(username == null) return buildResponse(401, "Unauthorized - bad credentials");
 
-        return new Response(200, controller.getShoppingLists(username));
-    }
+        Map<String, Object> shoppingLists = new HashMap<>();
+        Request requestShoppingLists = new Request("api/shoppinglist", "GET", Map.of("username", username), Map.of());
 
-    private Response registerNode(Request request) {
-        if(!Objects.equals(request.getMethod(), Request.POST)) {
-            return buildResponse(405, "Method not allowed");
+        List<Callable<Map<String, Object>>> tasks = new ArrayList<>();
+
+        for (Integer port : controller.getNodeMap().values()) {
+            tasks.add(() ->
+                controller.getShoppingLists(port, requestShoppingLists)
+            );
         }
 
-        Map<?, ?> body = mapper.convertValue(request.getBody(), Map.class);
-        Integer port = (Integer) body.get("port");
-        if(port == null) return buildResponse(400, "Bad request - port not found in request body");
+        List<Future<Map<String, Object>>> futures;
+        try {
+            futures = workers.invokeAll(tasks);
 
-        String nodeID = controller.addNode(port);
+            for (Future<Map<String, Object>> future : futures) {
+                try {
+                    Map<String, Object> result = future.get();
+                    shoppingLists.putAll(result);
+                } catch (InterruptedException | ExecutionException e) {
+                    e.printStackTrace();
+                }
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
-        if(nodeID == null) return buildResponse(null);
 
-        return buildResponse(200, Map.of("id", nodeID));
+        /*
+        for (Integer port : controller.getNodeMap().values()) {
+            try {
+                Socket socket = new Socket("localhost", port);
+
+                //socket.setSoTimeout();
+                UtilsTcp.sendTcpMessage(socket, mapper.writeValueAsString(requestShoppingLists));
+
+                String message = UtilsTcp.receiveTcpMessage(socket);
+                Response response = mapper.readValue(message, Response.class);
+                if(response.getStatus() != 200) continue;
+
+                shoppingLists.putAll(mapper.convertValue(response.getBody(), Map.class));
+            } catch (IOException e) {
+                System.err.println("Failed to retrieve shopping lists from node: " + port);
+                System.err.println(e.getMessage());
+            }
+        }*/
+
+        return new Response(200, shoppingLists);
     }
+
+    private Response delShoppingList(Request request) {
+        return null;
+    }
+
 }
