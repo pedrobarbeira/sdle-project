@@ -4,16 +4,21 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.sdle.model.ShoppingList;
 
 import java.io.*;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 public class ShoppingListRepository {
 
-    public static final String DATA_ROOT = "data";
+    private String DATA_ROOT;
 
     HashMap<String, ShoppingList> cache = new HashMap<>();
     ClassLoader loader = ShoppingListRepository.class.getClassLoader();
     ObjectMapper mapper = new ObjectMapper();
+
+    public ShoppingListRepository(String nodeId) {
+        this.DATA_ROOT = String.format("data/%s", nodeId);
+    }
 
     private String filePathFromResources(String id){
         String dir = Objects.requireNonNull(loader.getResource(DATA_ROOT)).getPath();
@@ -79,6 +84,14 @@ public class ShoppingListRepository {
     }
 
     public Map<String, ShoppingList> getAllFromUser(String username){
+
+        URL resourceUrl = loader.getResource(DATA_ROOT);
+        if (resourceUrl == null) {
+            throw new IllegalStateException("Resource directory not found: " + DATA_ROOT);
+        } else {
+            System.out.println(resourceUrl);
+        }
+
         File dir = new File(Objects.requireNonNull(loader.getResource(DATA_ROOT)).getPath());
         File[] dirContents = Objects.requireNonNull(dir.listFiles());
         if(dirContents.length > cache.size()){
@@ -100,7 +113,6 @@ public class ShoppingListRepository {
     }
 
     public ShoppingList put(ShoppingList item){
-        System.out.println("Putting: " + item.getId() + " " + item.getName());
         cache.put(item.getId(), item);
         writeToMemory(item);
         return item;

@@ -22,4 +22,25 @@ public class UtilsHash {
 
         return hexString.toString();
     }
+
+    public static String generateMD5(String input) {
+        try {
+            MessageDigest md = MessageDigest.getInstance("MD5");
+
+            byte[] messageDigest = md.digest(input.getBytes(StandardCharsets.UTF_8));
+
+            BigInteger no = new BigInteger(1, messageDigest);
+
+            StringBuilder hashText = new StringBuilder(no.toString(16));
+
+            while (hashText.length() < 32) {
+                hashText.insert(0, "0");
+            }
+
+            return hashText.toString();
+        } catch (NoSuchAlgorithmException e) {
+            System.err.println(e.getMessage());
+            return null;
+        }
+    }
 }

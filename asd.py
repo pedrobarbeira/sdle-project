@@ -87,28 +87,29 @@ def send_request(address: str, port: int, route: str, method: str, headers: dict
 
 a, b = send_request("localhost", 5555, "api/login", "POST", {}, {"username":"asd", "password":"123"})
 token = b['token']
-print(a, token)
-
-# a, b = send_request("localhost", 5555, "api/verify-token", "GET", {}, {"token":token})
-# print(a, b)
 
 a, b = send_request("localhost", 5555, "api/shoppinglist", "GET", {"token":token}, {})
+print(a)
 
-# a, b = send_request("localhost", 5556, "api/shoppinglist", "GET", {"username":"qwe"}, {})
-#print(a, b)
-
+print("shoppinglists")
 for l in b:
     print(l, b[l]['authorizedUsers'], b[l]['name'])
+print("end")
 
-# a, b = send_request("localhost", 5555, "api/shoppinglist", "POST", {"token":token}, {"id":"03_053a4122-58f6-47be-80ad-bff0c5ccc09e", "name":"asd sl", "authorizedUsers":['asd']})
-a, b = send_request("localhost", 5555, "api/shoppinglist", "POST", {"token":token}, {"id":"03_053a4122-58f6-47be-80ad-bff0c5ccc09e", "name":"asd sl", "authorizedUsers":['asd']})
+a, b = send_request("localhost", 5555, "api/shoppinglist", "POST", {"token":token}, 
+                    {
+                        'id': '7fb5db7e7af244f4b6194ce858470473',
+                        'name': 'asdasdasd', 
+                        'authorizedUsers': ['asd']
+                    })
 print(a)
 print(b)
 
-a, b = send_request("localhost", 5555, "api/shoppinglist", "GET", {"token":token}, {})
 
-# a, b = send_request("localhost", 5556, "api/shoppinglist", "GET", {"username":"qwe"}, {})
-#print(a, b)
+# a, b = send_request("localhost", 5555, "api/shoppinglist", "GET", {"token":token}, {})
+# print(a)
 
-for l in b:
-    print(l, b[l]['authorizedUsers'], b[l]['name'])
+# print("shoppinglists")
+# for l in b:
+#     print(l, b[l]['authorizedUsers'], b[l]['name'])
+# print("end")

@@ -5,20 +5,16 @@ import java.util.*;
 public class ShoppingList {
 
     private String id;
+    private String primaryNodeId;
     private String name;
     private HashMap<String, ShoppingItem> items;
-
     private Set<String> authorizedUsers;
 
-    public ShoppingList(){
-        this(UUID.randomUUID().toString(), "Default Name", new HashMap<>(), new HashSet<>());
-    };
+    public ShoppingList(){};
 
-    public ShoppingList(String name){
-        this(UUID.randomUUID().toString(), name, new HashMap<>(), new HashSet<>());
-    }
-    public ShoppingList(String id, String name, HashMap<String, ShoppingItem> items, Set<String> authorizedUsers){
+    public ShoppingList(String id, String primaryNodeId, String name, HashMap<String, ShoppingItem> items, Set<String> authorizedUsers){
         this.id = id;
+        this.primaryNodeId = primaryNodeId;
         this.name = name;
         this.items = items != null ? items : new HashMap<>();
         this.authorizedUsers = authorizedUsers != null ? authorizedUsers : new HashSet<>();
@@ -59,10 +55,6 @@ public class ShoppingList {
         this.name = name;
     }
 
-    public void setItems(HashMap<String, ShoppingItem> items) {
-        this.items = items;
-    }
-
     public void setAuthorizedUsers(Set<String> authorizedUsers) {
         this.authorizedUsers = authorizedUsers;
     }
@@ -73,5 +65,13 @@ public class ShoppingList {
 
     public void addAuthorizedUser(String username) {
         authorizedUsers.add(username);
+    }
+
+    public void setPrimaryNodeId(String primaryNodeId) {
+        this.primaryNodeId = primaryNodeId;
+    }
+
+    public String getPrimaryNodeId() {
+        return primaryNodeId;
     }
 }

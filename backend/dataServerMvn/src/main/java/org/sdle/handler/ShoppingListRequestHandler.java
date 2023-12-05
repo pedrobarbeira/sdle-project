@@ -72,20 +72,10 @@ public class ShoppingListRequestHandler extends AbstractRequestHandler {
             if(shoppingList.getAuthorizedUsers().isEmpty()) {
                 shoppingList.addAuthorizedUser(username);
             } else if(!shoppingList.getAuthorizedUsers().contains(username)) {
-                System.out.println("here1");
                 return buildResponse(403, "Forbidden");
             }
-        } else {
-            try {
-                System.out.println(mapper.writeValueAsString(storedShoppingList));
-                System.out.println(storedShoppingList.getAuthorizedUsers());
-                System.out.println(username);
-            } catch (JsonProcessingException e) {
-                throw new RuntimeException(e);
-            }
-            if(!storedShoppingList.getAuthorizedUsers().contains(username)) {
-                return buildResponse(403, "Forbidden");
-            }
+        } else if(!storedShoppingList.getAuthorizedUsers().contains(username)) {
+            return buildResponse(403, "Forbidden");
         }
 
         return buildResponse(controller.addShoppingList(shoppingList));
