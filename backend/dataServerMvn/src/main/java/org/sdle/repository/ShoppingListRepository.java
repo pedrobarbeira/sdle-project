@@ -2,13 +2,14 @@ package org.sdle.repository;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.sdle.model.ShoppingList;
+import org.sdle.repository.crdt.CRDT;
 
 import java.io.*;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
-public class ShoppingListRepository {
+public class ShoppingListRepository implements ICRDTRepository<ShoppingList> {
 
     private String DATA_ROOT;
 
@@ -141,5 +142,10 @@ public class ShoppingListRepository {
         ShoppingList s = this.getById(id);
         s.addAuthorizedUser(username);
         return put(s);
+    }
+
+    @Override
+    public CRDT<ShoppingList> getCRDT(String id) {
+        return null;
     }
 }
