@@ -1,0 +1,251 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <title>Coverage Report > ShoppingListRepository</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">org.sdle.repository</a>
+</div>
+
+<h1>Coverage Summary for Class: ShoppingListRepository (org.sdle.repository)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">ShoppingListRepository</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    93.3%
+  </span>
+  <span class="absValue">
+    (14/15)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    78.9%
+  </span>
+  <span class="absValue">
+    (56/71)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package org.sdle.repository;
+&nbsp;
+&nbsp;import com.fasterxml.jackson.databind.ObjectMapper;
+&nbsp;import org.sdle.model.ShoppingList;
+&nbsp;
+&nbsp;import java.io.*;
+&nbsp;import java.net.URL;
+&nbsp;import java.nio.charset.StandardCharsets;
+&nbsp;import java.util.*;
+&nbsp;
+&nbsp;public class ShoppingListRepository {
+&nbsp;
+&nbsp;    private String DATA_ROOT;
+&nbsp;
+&nbsp;    HashMap&lt;String, ShoppingList&gt; cache;
+&nbsp;    ClassLoader loader;
+<b class="fc">&nbsp;    ObjectMapper mapper = new ObjectMapper();</b>
+&nbsp;
+&nbsp;    public ShoppingListRepository(String nodeId) {
+<b class="fc">&nbsp;        this(nodeId, new HashMap&lt;&gt;());</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public ShoppingListRepository(String nodeId, HashMap&lt;String, ShoppingList&gt; cache){
+<b class="fc">&nbsp;        this(nodeId, cache, ShoppingListRepository.class.getClassLoader());</b>
+&nbsp;    }
+&nbsp;
+<b class="fc">&nbsp;    public ShoppingListRepository(String nodeId, HashMap&lt;String,ShoppingList&gt; cache, ClassLoader loader){</b>
+<b class="fc">&nbsp;        this.DATA_ROOT = String.format(&quot;data/%s&quot;, nodeId);</b>
+<b class="fc">&nbsp;        this.cache = cache;</b>
+<b class="fc">&nbsp;        this.loader = loader;</b>
+&nbsp;    }
+&nbsp;    private String filePathFromResources(String id){
+<b class="fc">&nbsp;        String dir = Objects.requireNonNull(loader.getResource(DATA_ROOT)).getPath();</b>
+<b class="fc">&nbsp;        return String.format(&quot;%s/%s.json&quot;, dir, id);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private String buildFilePath(String id){
+<b class="fc">&nbsp;        return String.format(&quot;%s/%s.json&quot;, DATA_ROOT, id);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private void loadFromMemory(String id){
+<b class="fc">&nbsp;        String path = buildFilePath(id);</b>
+<b class="fc">&nbsp;        InputStream stream = loader.getResourceAsStream(path);</b>
+<b class="fc">&nbsp;        if(stream != null){</b>
+&nbsp;            try{
+<b class="fc">&nbsp;                ShoppingList shoppingList = mapper.readValue(stream, ShoppingList.class);</b>
+<b class="fc">&nbsp;                cache.put(shoppingList.getId(), shoppingList);</b>
+<b class="nc">&nbsp;            }catch(IOException e){</b>
+<b class="nc">&nbsp;                System.err.println(e.getMessage());</b>
+<b class="fc">&nbsp;            }</b>
+&nbsp;        }else{
+<b class="fc">&nbsp;            System.err.printf(&quot;File [%s] was not found\n&quot;, path);</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    private void writeToMemory(ShoppingList item){
+<b class="fc">&nbsp;        File file = new File(filePathFromResources(item.getId()));</b>
+&nbsp;        try{
+<b class="fc">&nbsp;            if(!file.exists()) {</b>
+<b class="fc">&nbsp;                file.createNewFile();</b>
+&nbsp;            }
+<b class="fc">&nbsp;            OutputStream os = new FileOutputStream(file);</b>
+<b class="fc">&nbsp;            String jsonData = mapper.writeValueAsString(item);</b>
+<b class="fc">&nbsp;            os.write(jsonData.getBytes(StandardCharsets.UTF_8));</b>
+<b class="nc">&nbsp;        }catch(IOException e){</b>
+<b class="nc">&nbsp;            System.err.println(e.getMessage());</b>
+<b class="fc">&nbsp;        }</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public ShoppingList getById(String id){
+<b class="fc">&nbsp;        if(!cache.containsKey(id)){</b>
+<b class="fc">&nbsp;            loadFromMemory(id);</b>
+&nbsp;        }
+<b class="fc">&nbsp;        return cache.get(id);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public List&lt;ShoppingList&gt; getAll(){
+<b class="fc">&nbsp;        File dir = new File(Objects.requireNonNull(loader.getResource(DATA_ROOT)).getPath());</b>
+<b class="fc">&nbsp;        File[] dirContents = Objects.requireNonNull(dir.listFiles());</b>
+<b class="fc">&nbsp;        if(dirContents.length &gt; cache.size()){</b>
+<b class="fc">&nbsp;            for(File file : dirContents){</b>
+<b class="fc">&nbsp;                String id = file.getName().split(&quot;\\.&quot;, 2)[0];</b>
+<b class="fc">&nbsp;                if(!cache.containsKey(id)){</b>
+<b class="fc">&nbsp;                    loadFromMemory(id);</b>
+&nbsp;                }
+&nbsp;            }
+&nbsp;        }
+<b class="fc">&nbsp;        return new ArrayList&lt;&gt;(cache.values());</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public List&lt;ShoppingList&gt; getAllFromUser(String username){
+<b class="nc">&nbsp;        URL resourceUrl = loader.getResource(DATA_ROOT);</b>
+<b class="nc">&nbsp;        if (resourceUrl == null) {</b>
+<b class="nc">&nbsp;            throw new IllegalStateException(&quot;Resource directory not found: &quot; + DATA_ROOT);</b>
+&nbsp;        } else {
+<b class="nc">&nbsp;            System.out.println(resourceUrl);</b>
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        List&lt;ShoppingList&gt; allLists = getAll();</b>
+<b class="nc">&nbsp;        List&lt;ShoppingList&gt; toReturn = new ArrayList();</b>
+<b class="nc">&nbsp;        for(ShoppingList list : allLists){</b>
+<b class="nc">&nbsp;            if(list.getAuthorizedUsers().contains(username)) {</b>
+<b class="nc">&nbsp;                toReturn.add(list);</b>
+&nbsp;            }
+<b class="nc">&nbsp;        }</b>
+&nbsp;
+<b class="nc">&nbsp;        return toReturn;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public ShoppingList put(ShoppingList item){
+<b class="fc">&nbsp;        cache.put(item.getId(), item);</b>
+<b class="fc">&nbsp;        writeToMemory(item);</b>
+<b class="fc">&nbsp;        return item;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public List&lt;ShoppingList&gt; put(List&lt;ShoppingList&gt; items){
+<b class="fc">&nbsp;        for(ShoppingList item : items){</b>
+<b class="fc">&nbsp;            put(item);</b>
+<b class="fc">&nbsp;        }</b>
+<b class="fc">&nbsp;        return items;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public ShoppingList update(ShoppingList item){
+<b class="fc">&nbsp;        if(cache.containsKey(item.getId())){</b>
+<b class="fc">&nbsp;            return put(item);</b>
+&nbsp;        }
+<b class="fc">&nbsp;        String path = buildFilePath(item.getId());</b>
+<b class="fc">&nbsp;        if(loader.getResource(path) != null){</b>
+<b class="fc">&nbsp;            return put(item);</b>
+&nbsp;        }
+<b class="fc">&nbsp;        return null;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public boolean delete(String id){
+<b class="fc">&nbsp;        cache.remove(id);</b>
+<b class="fc">&nbsp;        File file = new File(filePathFromResources(id));</b>
+<b class="fc">&nbsp;        if(file.exists()){</b>
+<b class="fc">&nbsp;            return file.delete();</b>
+&nbsp;        }
+<b class="fc">&nbsp;        return false;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public ShoppingList addAuthorizedUser(String id, String username) {
+<b class="fc">&nbsp;        ShoppingList s = this.getById(id);</b>
+<b class="fc">&nbsp;        s.addAuthorizedUser(username);</b>
+<b class="fc">&nbsp;        return put(s);</b>
+&nbsp;    }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2023-12-08 03:05</div>
+</div>
+</body>
+</html>

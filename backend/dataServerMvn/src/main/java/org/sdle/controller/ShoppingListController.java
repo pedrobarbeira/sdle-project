@@ -6,7 +6,7 @@ import org.sdle.repository.ShoppingListRepository;
 import java.util.List;
 import java.util.Map;
 
-public class ShoppingListController {
+public class ShoppingListController implements IShoppingListController {
 
     private final ShoppingListRepository repository;
 

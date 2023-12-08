@@ -12,8 +12,6 @@ public class Request {
     private Object headers;
     private Object body;
 
-    Request(){}
-
     public Request(String route, String method, Object headers, Object body) {
         this.route = route;
         this.method = method;

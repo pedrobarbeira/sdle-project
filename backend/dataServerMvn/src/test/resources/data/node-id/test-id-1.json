@@ -1,0 +1,13 @@
+{
+  "id": "test-id-1",
+  "name": "test-list-1",
+  "items": {
+    "4f74aba3-4887-4958-97b3-22b819967d5b": {
+      "id": "4f74aba3-4887-4958-97b3-22b819967d5b",
+      "name": "Peanuts",
+      "checked" : true,
+      "quantity": 3
+    }
+  },
+  "authorizedUsers": ["test-id-1"]
+}

@@ -14,7 +14,9 @@ public class Main {
 
         Node stub = new Node(String.valueOf(port));
 
-        if(!stub.createStorageFolder()) return;
+        if(!stub.createStorageFolder()) {
+            return;
+        }
 
         stub.listen();
     }

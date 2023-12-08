@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.sdle.api.Request;
 import org.sdle.api.Response;
 import org.sdle.api.Router;
+import org.sdle.controller.IShoppingListController;
 import org.sdle.controller.ShoppingListController;
 import org.sdle.model.ShoppingList;
 
@@ -14,10 +15,10 @@ import java.util.Objects;
 
 public class ShoppingListRequestHandler extends AbstractRequestHandler {
 
-    ShoppingListController controller;
+    IShoppingListController controller;
     private final ObjectMapper mapper = new ObjectMapper();
 
-    public ShoppingListRequestHandler(ShoppingListController controller) {
+    public ShoppingListRequestHandler(IShoppingListController controller) {
         this.controller = controller;
     }
 
@@ -25,9 +26,9 @@ public class ShoppingListRequestHandler extends AbstractRequestHandler {
     public Response handle(Request request) {
         String username = (String) mapper.convertValue(request.getHeaders(), HashMap.class).get("username");
 
-        if(username == null) return buildResponse(500);
+        if (username == null) return buildResponse(500);
 
-        if(Objects.equals(request.getRoute(), Router.SHOPPINGLIST)) {
+        if (Objects.equals(request.getRoute(), Router.SHOPPINGLIST)) {
             switch (request.getMethod()) {
                 case Request.POST, Request.PUT -> {
                     return postPutShoppingList(request.getBody(), username);
@@ -42,21 +43,23 @@ public class ShoppingListRequestHandler extends AbstractRequestHandler {
                     return buildResponse(405, "Method not allowed");
                 }
             }
-        } else if(Objects.equals(request.getRoute(), Router.SHOPPINGLIST_SHARE)) {
+        } else if (Objects.equals(request.getRoute(), Router.SHOPPINGLIST_SHARE)) {
             return shareShoppingList(request.getBody(), username);
         }
 
-        return buildResponse(null);
+        return buildResponse(404, "Not Found");
     }
 
     private Response getShoppingList(Object body, String username) {
         Map<?, ?> mappedBody = mapper.convertValue(body, Map.class);
 
-        if(mappedBody.isEmpty()) return buildResponse(controller.getAllShoppingListsFromUser(username));
+        if (mappedBody.isEmpty()) {
+            return buildResponse(controller.getAllShoppingListsFromUser(username));
+        }
 
         String id = (String) mappedBody.get("shoppinglistID");
 
-        if(id == null) return buildResponse(400, "Bad request - shoppingList id not found");
+        if (id == null) return buildResponse(400, "Bad request - shoppingList id not found");
 
         return buildResponse(controller.getShoppingList(id));
     }
@@ -64,17 +67,19 @@ public class ShoppingListRequestHandler extends AbstractRequestHandler {
     private Response postPutShoppingList(Object body, String username) {
         ShoppingList shoppingList = mapper.convertValue(body, ShoppingList.class);
 
-        if(shoppingList == null) return buildResponse(400, "Bad request - shoppingList not found");
+        if (shoppingList == null) {
+            return buildResponse(400, "Bad request - shoppingList not found");
+        }
 
         ShoppingList storedShoppingList = controller.getShoppingList(shoppingList.getId());
 
-        if(storedShoppingList == null) {
-            if(shoppingList.getAuthorizedUsers().isEmpty()) {
+        if (storedShoppingList == null) {
+            if (shoppingList.getAuthorizedUsers().isEmpty()) {
                 shoppingList.addAuthorizedUser(username);
-            } else if(!shoppingList.getAuthorizedUsers().contains(username)) {
+            } else if (!shoppingList.getAuthorizedUsers().contains(username)) {
                 return buildResponse(403, "Forbidden");
             }
-        } else if(!storedShoppingList.getAuthorizedUsers().contains(username)) {
+        } else if (!storedShoppingList.getAuthorizedUsers().contains(username)) {
             return buildResponse(403, "Forbidden");
         }
 
@@ -84,9 +89,9 @@ public class ShoppingListRequestHandler extends AbstractRequestHandler {
     private Response delShoppingList(Object body, String username) {
         ShoppingList shoppingList = mapper.convertValue(body, ShoppingList.class);
 
-        if(shoppingList == null) return buildResponse(400, "Bad request - shoppingList not found");
+        if (shoppingList == null) return buildResponse(400, "Bad request - shoppingList not found");
 
-        if(!controller.getShoppingList(shoppingList.getId()).getAuthorizedUsers().contains(username))
+        if (!controller.getShoppingList(shoppingList.getId()).getAuthorizedUsers().contains(username))
             return buildResponse(403, "Forbidden");
 
         return buildResponse(controller.deleteShoppingList(shoppingList.getId()));
@@ -95,16 +100,17 @@ public class ShoppingListRequestHandler extends AbstractRequestHandler {
     private Response shareShoppingList(Object body, String username) {
         HashMap<?, ?> bodyItems = mapper.convertValue(body, HashMap.class);
 
-        if(bodyItems == null) return buildResponse(400, "Bad request - shoppingListId and/or sharingWith not found");
+        if (bodyItems == null) return buildResponse(400, "Bad request - shoppingListId and/or sharingWith not found");
 
         String shoppingListId = (String) bodyItems.get("shoppingListId");
         String sharingWith = (String) bodyItems.get("sharingWith");
 
-        if(shoppingListId == null || sharingWith == null) return buildResponse(400, "Bad request - shoppingListId and/or sharingWith not found");
+        if (shoppingListId == null || sharingWith == null)
+            return buildResponse(400, "Bad request - shoppingListId and/or sharingWith not found");
 
         ShoppingList shoppingList = controller.getShoppingList(shoppingListId);
 
-        if(!shoppingList.getAuthorizedUsers().contains(username)) {
+        if (!shoppingList.getAuthorizedUsers().contains(username)) {
             return buildResponse(403, "Forbidden");
         }
 

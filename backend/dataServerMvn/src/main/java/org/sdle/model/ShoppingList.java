@@ -26,8 +26,8 @@ public class ShoppingList {
 
     public String getName(){return this.name;}
 
-    public List<ShoppingItem> getItems(){
-        return new ArrayList<>(items.values());
+    public HashMap<String, ShoppingItem> getItems(){
+        return items;
     }
 
     public ShoppingItem getById(String id){
@@ -43,12 +43,8 @@ public class ShoppingList {
         return false;
     }
 
-    public void setItems(List<ShoppingItem> itemList) {
-        items = new HashMap<>();
-
-        for (ShoppingItem item : itemList) {
-            items.put(item.getId(), item);
-        }
+    public void setItems(HashMap<String, ShoppingItem> items) {
+        this.items = items;
     }
 
     public void setName(String name) {

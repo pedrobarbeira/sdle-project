@@ -12,14 +12,23 @@ public class ShoppingListRepository {
 
     private String DATA_ROOT;
 
-    HashMap<String, ShoppingList> cache = new HashMap<>();
-    ClassLoader loader = ShoppingListRepository.class.getClassLoader();
+    HashMap<String, ShoppingList> cache;
+    ClassLoader loader;
     ObjectMapper mapper = new ObjectMapper();
 
     public ShoppingListRepository(String nodeId) {
-        this.DATA_ROOT = String.format("data/%s", nodeId);
+        this(nodeId, new HashMap<>());
     }
 
+    public ShoppingListRepository(String nodeId, HashMap<String, ShoppingList> cache){
+        this(nodeId, cache, ShoppingListRepository.class.getClassLoader());
+    }
+
+    public ShoppingListRepository(String nodeId, HashMap<String,ShoppingList> cache, ClassLoader loader){
+        this.DATA_ROOT = String.format("data/%s", nodeId);
+        this.cache = cache;
+        this.loader = loader;
+    }
     private String filePathFromResources(String id){
         String dir = Objects.requireNonNull(loader.getResource(DATA_ROOT)).getPath();
         return String.format("%s/%s.json", dir, id);
@@ -76,35 +85,19 @@ public class ShoppingListRepository {
                 }
             }
         }
-        List<ShoppingList> toReturn = new ArrayList<>();
-        for(String key : cache.keySet()){
-            toReturn.add(cache.get(key));
-        }
-        return toReturn;
+        return new ArrayList<>(cache.values());
     }
 
     public List<ShoppingList> getAllFromUser(String username){
         URL resourceUrl = loader.getResource(DATA_ROOT);
         if (resourceUrl == null) {
             throw new IllegalStateException("Resource directory not found: " + DATA_ROOT);
-        } else {
-            System.out.println(resourceUrl);
         }
-
-        File dir = new File(Objects.requireNonNull(loader.getResource(DATA_ROOT)).getPath());
-        File[] dirContents = Objects.requireNonNull(dir.listFiles());
-        if(dirContents.length > cache.size()){
-            for(File file : dirContents){
-                String id = file.getName().split("\\.", 2)[0];
-                if(!cache.containsKey(id)){
-                    loadFromMemory(id);
-                }
-            }
-        }
+        List<ShoppingList> allLists = getAll();
         List<ShoppingList> toReturn = new ArrayList();
-        for(String key : cache.keySet()){
-            if(cache.get(key).getAuthorizedUsers().contains(username)) {
-                toReturn.add(cache.get(key));
+        for(ShoppingList list : allLists){
+            if(list.getAuthorizedUsers().contains(username)) {
+                toReturn.add(list);
             }
         }
 
