@@ -1,19 +1,22 @@
 package org.sdle.repository;
 
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.type.TypeFactory;
 import org.sdle.model.ShoppingList;
 import org.sdle.repository.crdt.CRDT;
 
 import java.io.*;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.util.*;
 
 public class ShoppingListRepository implements ICRDTRepository<ShoppingList> {
 
     private String DATA_ROOT;
 
-    HashMap<String, ShoppingList> cache;
+    HashMap<String, CRDT<ShoppingList>> cache;
     ClassLoader loader;
     ObjectMapper mapper = new ObjectMapper();
 
@@ -21,11 +24,11 @@ public class ShoppingListRepository implements ICRDTRepository<ShoppingList> {
         this(nodeId, new HashMap<>());
     }
 
-    public ShoppingListRepository(String nodeId, HashMap<String, ShoppingList> cache){
+    public ShoppingListRepository(String nodeId, HashMap<String, CRDT<ShoppingList>> cache){
         this(nodeId, cache, ShoppingListRepository.class.getClassLoader());
     }
 
-    public ShoppingListRepository(String nodeId, HashMap<String,ShoppingList> cache, ClassLoader loader){
+    public ShoppingListRepository(String nodeId, HashMap<String, CRDT<ShoppingList>> cache, ClassLoader loader){
         this.DATA_ROOT = String.format("data/%s", nodeId);
         this.cache = cache;
         this.loader = loader;
@@ -44,8 +47,11 @@ public class ShoppingListRepository implements ICRDTRepository<ShoppingList> {
         InputStream stream = loader.getResourceAsStream(path);
         if(stream != null){
             try{
-                ShoppingList shoppingList = mapper.readValue(stream, ShoppingList.class);
-                cache.put(shoppingList.getId(), shoppingList);
+                TypeFactory typeFactory = mapper.getTypeFactory();
+                JavaType typeReference = typeFactory.constructParametricType(CRDT.class, ShoppingList.class);
+                CRDT<ShoppingList> shoppingList = mapper.readValue(stream, typeReference);
+                String shoppingListId = shoppingList.getValue().getId();
+                cache.put(shoppingListId, shoppingList);
             }catch(IOException e){
                 System.err.println(e.getMessage());
             }
@@ -54,8 +60,9 @@ public class ShoppingListRepository implements ICRDTRepository<ShoppingList> {
         }
     }
 
-    private void writeToMemory(ShoppingList item){
-        File file = new File(filePathFromResources(item.getId()));
+    private void writeToMemory(CRDT<ShoppingList> item){
+        ShoppingList shoppingList = item.getValue();
+        File file = new File(filePathFromResources(shoppingList.getId()));
         try{
             if(!file.exists()) {
                 file.createNewFile();
@@ -69,10 +76,11 @@ public class ShoppingListRepository implements ICRDTRepository<ShoppingList> {
     }
 
     public ShoppingList getById(String id){
-        if(!cache.containsKey(id)){
-            loadFromMemory(id);
+        CRDT<ShoppingList> shoppingList = getCRDT(id);
+        if(shoppingList != null) {
+            return shoppingList.getValue();
         }
-        return cache.get(id);
+        return null;
     }
 
     public List<ShoppingList> getAll(){
@@ -86,7 +94,11 @@ public class ShoppingListRepository implements ICRDTRepository<ShoppingList> {
                 }
             }
         }
-        return new ArrayList<>(cache.values());
+        List<ShoppingList> toReturn = new ArrayList<>();
+        for(CRDT<ShoppingList> crdt : cache.values()){
+            toReturn.add(crdt.getValue());
+        }
+        return toReturn;
     }
 
     public List<ShoppingList> getAllFromUser(String username){
@@ -95,9 +107,9 @@ public class ShoppingListRepository implements ICRDTRepository<ShoppingList> {
             throw new IllegalStateException("Resource directory not found: " + DATA_ROOT);
         }
         List<ShoppingList> allLists = getAll();
-        List<ShoppingList> toReturn = new ArrayList();
+        List<ShoppingList> toReturn = new ArrayList<>();
         for(ShoppingList list : allLists){
-            if(list.getAuthorizedUsers().contains(username)) {
+            if(list.getAuthorizedUsers() != null && list.getAuthorizedUsers().contains(username)) {
                 toReturn.add(list);
             }
         }
@@ -106,10 +118,9 @@ public class ShoppingListRepository implements ICRDTRepository<ShoppingList> {
     }
 
     public ShoppingList put(ShoppingList item){
-        cache.put(item.getId(), item);
-        writeToMemory(item);
-        return item;
+        return putCRDt(item).getValue();
     }
+
 
     public List<ShoppingList> put(List<ShoppingList> items){
         for(ShoppingList item : items){
@@ -146,6 +157,18 @@ public class ShoppingListRepository implements ICRDTRepository<ShoppingList> {
 
     @Override
     public CRDT<ShoppingList> getCRDT(String id) {
-        return null;
+        if(!cache.containsKey(id)){
+            loadFromMemory(id);
+        }
+        return cache.get(id);
+    }
+
+    @Override
+    public CRDT<ShoppingList> putCRDt(ShoppingList value) {
+        UUID uuid = UUID.randomUUID();
+        CRDT<ShoppingList> shoppingList = new CRDT<>(value, uuid.toString(), Date.from(Instant.now()));
+        cache.put(value.getId(), shoppingList);
+        writeToMemory(shoppingList);
+        return shoppingList;
     }
 }

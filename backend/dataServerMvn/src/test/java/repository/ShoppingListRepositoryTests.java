@@ -6,6 +6,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.sdle.model.ShoppingList;
 import org.sdle.repository.ShoppingListRepository;
+import org.sdle.repository.crdt.CRDT;
+
 import java.util.*;
 
 public class ShoppingListRepositoryTests {
@@ -27,15 +29,16 @@ public class ShoppingListRepositoryTests {
 
     @Test
     public void getByIdTestInCacheTest() throws JsonProcessingException {
-        ShoppingList testList = new ShoppingList();
-        HashMap<String, ShoppingList> testCache = new HashMap<>() {{
+        ShoppingList shoppingList = new ShoppingList();
+        CRDT<ShoppingList> testList = new CRDT<>(shoppingList);
+        HashMap<String, CRDT<ShoppingList>> testCache = new HashMap<>() {{
             put(Constants.ID, testList);
         }};
         ShoppingListRepository repository = new ShoppingListRepository(Constants.DATA_ROOT, testCache);
 
         ShoppingList result = repository.getById(Constants.ID);
         Assert.isInstanceOf(ShoppingList.class, result);
-        Assert.isTrue(result == testList);
+        Assert.isTrue(result == shoppingList);
     }
 
     @Test
@@ -125,8 +128,9 @@ public class ShoppingListRepositoryTests {
                 Constants.PRIMARY_NODE_ID,
                 Constants.PUT_ID,
                 new HashMap<>(), new HashSet<>());
-        HashMap<String, ShoppingList> cache = new HashMap<>() {{
-            put(Constants.PUT_ID, shoppingList);
+        CRDT<ShoppingList> testList = new CRDT<>(shoppingList);
+        HashMap<String, CRDT<ShoppingList>> cache = new HashMap<>() {{
+            put(Constants.PUT_ID, testList);
         }};
         ShoppingListRepository repository = new ShoppingListRepository(
                 Constants.DATA_ROOT,
@@ -144,11 +148,11 @@ public class ShoppingListRepositoryTests {
                 Constants.PRIMARY_NODE_ID,
                 Constants.PUT_ID,
                 new HashMap<>(), new HashSet<>());
-
+        CRDT<ShoppingList> testList = new CRDT<>(shoppingList);
         ShoppingListRepository repository = new ShoppingListRepository(
                 Constants.DATA_ROOT,
                 new HashMap<>(){{
-                    put(Constants.PUT_ID, shoppingList);
+                    put(Constants.PUT_ID, testList);
                 }},
                 getClass().getClassLoader()
         );
@@ -180,11 +184,12 @@ public class ShoppingListRepositoryTests {
                 Constants.PRIMARY_NODE_ID,
                 Constants.PUT_ID,
                 new HashMap<>(), new HashSet<>());
+        CRDT<ShoppingList> testList = new CRDT<>(shoppingList);
 
         ShoppingListRepository repository = new ShoppingListRepository(
                 Constants.DATA_ROOT,
                 new HashMap<>(){{
-                    put(Constants.PUT_ID, shoppingList);
+                    put(Constants.PUT_ID, testList);
                 }},
                 getClass().getClassLoader()
         );

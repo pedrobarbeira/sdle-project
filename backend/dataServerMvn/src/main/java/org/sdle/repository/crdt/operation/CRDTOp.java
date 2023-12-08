@@ -4,13 +4,14 @@ import org.sdle.model.ShoppingList;
 import org.sdle.repository.crdt.CRDT;
 
 import java.time.LocalDateTime;
+import java.util.Date;
 
 public abstract class CRDTOp<T> {
     protected final String targetId;
     protected final Object value;
     protected final String version;
-    protected final LocalDateTime timeStamp;
-    CRDTOp(String targetId, Object value, String version, LocalDateTime timeStamp) {
+    protected final Date timeStamp;
+    CRDTOp(String targetId, Object value, String version, Date timeStamp) {
         this.targetId = targetId;
         this.value = value;
         this.version = version;
