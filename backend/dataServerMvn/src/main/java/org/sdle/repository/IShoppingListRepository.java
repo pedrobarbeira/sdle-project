@@ -8,6 +8,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 public interface IShoppingListRepository {
     ShoppingList getById(String id);
@@ -18,4 +19,5 @@ public interface IShoppingListRepository {
     ShoppingList update(ShoppingList item);
     boolean delete(String id);
     ShoppingList addAuthorizedUser(String id, String username);
+    Set<String> getAuthorizedUsers(String id);
 }

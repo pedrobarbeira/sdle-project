@@ -1,7 +1,7 @@
 package org.sdle.api;
 
-import org.sdle.handler.RequestHandler;
-import org.sdle.handler.ShoppingListRequestHandler;
+import org.sdle.api.handler.RequestHandler;
+import org.sdle.api.handler.ShoppingListRequestHandler;
 
 import java.util.Map;
 

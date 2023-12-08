@@ -12,7 +12,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.*;
 
-public class ShoppingListRepository implements ICRDTRepository<ShoppingList> {
+public class ShoppingListRepository implements IShoppingListRepository, ICRDTRepository<ShoppingList> {
 
     private String DATA_ROOT;
 
@@ -150,9 +150,14 @@ public class ShoppingListRepository implements ICRDTRepository<ShoppingList> {
     }
 
     public ShoppingList addAuthorizedUser(String id, String username) {
-        ShoppingList s = this.getById(id);
-        s.addAuthorizedUser(username);
-        return put(s);
+        ShoppingList shoppingList = this.getById(id);
+        shoppingList.addAuthorizedUser(username);
+        return put(shoppingList);
+    }
+
+    public Set<String> getAuthorizedUsers(String id){
+        ShoppingList shoppingList = this.getById(id);
+        return shoppingList.getAuthorizedUsers();
     }
 
     @Override

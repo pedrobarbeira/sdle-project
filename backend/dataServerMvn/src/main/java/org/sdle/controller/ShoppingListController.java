@@ -1,16 +1,20 @@
 package org.sdle.controller;
 
+import org.sdle.api.ApiComponent;
+import org.sdle.api.Response;
 import org.sdle.model.ShoppingList;
+import org.sdle.repository.IShoppingListRepository;
 import org.sdle.repository.ShoppingListRepository;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
-public class ShoppingListController implements IShoppingListController {
+public class ShoppingListController extends ApiComponent implements IShoppingListController {
 
-    private final ShoppingListRepository repository;
+    private final IShoppingListRepository repository;
 
-    public ShoppingListController(ShoppingListRepository repository){
+    public ShoppingListController(IShoppingListRepository repository){
         this.repository = repository;
     }
 
@@ -18,18 +22,20 @@ public class ShoppingListController implements IShoppingListController {
         return repository.addAuthorizedUser(id, username);
     }
 
-    public ShoppingList getShoppingList(String id){
-        return repository.getById(id);
+    public Response getShoppingList(String id){
+        if (id == null) {
+            return badRequest();
+        }
+        return ok(repository.getById(id));
     }
 
     public List<ShoppingList> getAllShoppingLists(){
         return repository.getAll();
     }
 
-    public List<ShoppingList> getAllShoppingListsFromUser(String username){
-        return repository.getAllFromUser(username);
+    public Response getAllShoppingListsFromUser(String username){
+        return ok(repository.getAllFromUser(username));
     }
-
 
     public ShoppingList addShoppingList(ShoppingList shoppingList){
         return repository.put(shoppingList);
@@ -43,7 +49,19 @@ public class ShoppingListController implements IShoppingListController {
         return repository.update(shoppingList);
     }
 
-    public boolean deleteShoppingList(String id){
-        return repository.delete(id);
+    public Response deleteShoppingList(ShoppingList shoppingList, String username){
+        if (shoppingList == null || username == null) {
+            return badRequest();
+        }
+
+        Set<String> authorizedUsers = repository.getAuthorizedUsers(shoppingList.getId());
+        if (!authorizedUsers.contains(username)){
+            return unauthorized();
+        }
+
+        if(repository.delete(shoppingList.getId())){
+            return ok(shoppingList);
+        }
+        return error();
     }
 }
