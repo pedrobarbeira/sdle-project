@@ -4,7 +4,8 @@ import java.util.List;
 
 public class NodeConfig {
     public int port;
+    public int threadNum;
     public String dataRoot;
-    public List<String> replicates;
     public List<String> replicatedOn;
+    public List<String> replicates;
 }

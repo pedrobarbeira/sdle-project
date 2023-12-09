@@ -4,6 +4,7 @@ import org.sdle.repository.ICRDTRepository;
 import org.sdle.repository.crdt.CRDT;
 import org.sdle.repository.crdt.operation.CRDTOp;
 
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -29,6 +30,13 @@ public class CRDTExecutionService<T> implements ICRDTExecutionService<T>{
                 operation.apply(target);
             }
         }
+    }
+
+    public CRDT<T> mergeCRDT(CRDT<T> current, CRDT<T> latest){
+        Date currentTimestamp = current.getTimeStamp();
+        Date latestTimestamp = latest.getTimeStamp();
+        int comparisonResult = currentTimestamp.compareTo(latestTimestamp);
+        return comparisonResult < 0 ? latest : current;
     }
 
     void addOperation(CRDTOp<T> operation){

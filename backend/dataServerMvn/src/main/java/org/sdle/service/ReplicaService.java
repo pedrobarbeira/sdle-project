@@ -1,90 +1,79 @@
 package org.sdle.service;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.sdle.ObjectFactory;
-import org.sdle.api.ServerStub;
-import org.sdle.config.NodeConfig;
-import org.sdle.config.ServerConfig;
-import org.sdle.model.ReplicaDataModel;
-import org.sdle.model.ShoppingList;
-import org.sdle.repository.ShoppingListRepository;
+import org.sdle.api.ApiComponent;
+import org.sdle.api.Request;
+import org.sdle.api.Response;
 import org.sdle.repository.crdt.operation.CRDTOp;
+import org.zeromq.SocketType;
+import org.zeromq.ZContext;
+import org.zeromq.ZMQ;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
-public class ReplicaService<T> implements IReplicaService<T> {
-    private String dataRoot;
+public class ReplicaService<T> extends ApiComponent implements IReplicaService<T> {
+    private final ZContext ctx;
+    private boolean tmpListenerFlag;
+    private final List<ZMQ.Socket> replicatedOnSockets;
+    private final ObjectMapper mapper = new ObjectMapper();
 
-    public ReplicaService(String dataRoot){
-        try {
-            ServerConfig config = ObjectFactory.getServerConfig();
-            this.dataRoot = dataRoot;
-        }catch(Exception e){
-            e.printStackTrace();
-        }
-    }
-
-    public void synchronize(ServerStub serverStub, List<String> targets) throws IOException {
-        String responseStr = serverStub.requestDataFromReplicas(targets, dataRoot);
-        if(responseStr != null) {
-            List<ReplicaDataModel> dataList = new ObjectMapper().readValue(responseStr, new TypeReference<>() {
-            });
-            for (ReplicaDataModel data : dataList) {
-                FileStorageWorker worker = new FileStorageWorker(data);
-                Thread thread = new Thread(worker);
-                thread.start();
-            }
-        }
+    public ReplicaService(ZContext ctx){
+        this.ctx = ctx;
+        this.tmpListenerFlag = false;
+        this.replicatedOnSockets = new ArrayList<>();
     }
 
     public void publish(CRDTOp<T> crdtOp){
         //sends CRDTOp to replica nodes
     }
 
-    public void listen(){
-        //listens for CRDTOps sent from replica nodes
-    }
-
-    private void subscribe(String address){
-
-    }
-
-    static class FileStorageWorker implements Runnable{
-        private final ReplicaDataModel dataModel;
-
-        public FileStorageWorker(ReplicaDataModel dataModel){
-            this.dataModel = dataModel;
-        }
-
-        @Override
-        public void run() {
-            try {
-                createDirectoryIfNotExists(dataModel.dataRoot);
-                ShoppingListRepository tmpRepository = new ShoppingListRepository(dataModel.dataRoot);
-                for (String id : dataModel.deletedIds) {
-                    tmpRepository.delete(id);
-                }
-                for (ShoppingList item : dataModel.shoppingLists.values()) {
-                    tmpRepository.putCRDt(item);
-                }
-            }catch(IOException e){
-                e.printStackTrace();
-            }
-        }
-
-        private void createDirectoryIfNotExists(String dataRoot) throws IOException {
-            ClassLoader loader = getClass().getClassLoader();
-            String path = Objects.requireNonNull(loader.getResource(dataRoot)).getPath();
-            File file = new File(path);
-            if(!file.exists() || !file.isDirectory()){
-                Files.createDirectory(Path.of(path));
-            }
+    public void registerReplicatedOn(List<String> addresses){
+        for(String address : addresses){
+            ZMQ.Socket socket = createSocket(address, SocketType.REQ);
+            this.replicatedOnSockets.add(socket);
         }
     }
+
+    public void subscribe(String address, CRDTExecutionService<T> executionService){
+        ZMQ.Socket socket = createSocket(address, SocketType.REP);
+        while(!Thread.currentThread().isInterrupted()){
+            receiveReplicaData(socket, executionService);
+        }
+    }
+
+    public void startTmpListener(String address, CRDTExecutionService<T> executionService){
+        this.tmpListenerFlag = true;
+        ZMQ.Socket socket = createSocket(address, SocketType.REP);
+        while(tmpListenerFlag){
+            receiveReplicaData(socket, executionService);
+        }
+    }
+
+
+    public void stopTmpListeners(){
+        this.tmpListenerFlag = false;
+    }
+
+    private ZMQ.Socket createSocket(String address, SocketType socketType){
+        ZMQ.Socket socket = this.ctx.createSocket(socketType);
+        socket.bind(address);
+        return socket;
+    }
+
+    private void receiveReplicaData(ZMQ.Socket socket, CRDTExecutionService<T> executionService){
+        String responseStr = "";
+        try{
+            String requestStr = socket.recvStr();
+            Request request = this.mapper.readValue(requestStr, Request.class);
+            CRDTOp<T> operation = (CRDTOp<T>) request.getBody();
+            executionService.addOperation(operation);
+            Response response = ok(operation);
+            responseStr = this.mapper.writeValueAsString(response);
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        socket.send(responseStr);
+    }
+
 }

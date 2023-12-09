@@ -1,2 +1,4 @@
-package org.sdle;public class Server {
+package org.sdle.server;
+
+public class Server {
 }

@@ -14,32 +14,32 @@ import java.util.*;
 
 public class ShoppingListRepository implements IShoppingListRepository, ICRDTRepository<ShoppingList> {
 
-    private String DATA_ROOT;
+    private final Cache cache;
+    private final ClassLoader loader;
+    private final ObjectMapper mapper = new ObjectMapper();
 
-    HashMap<String, CRDT<ShoppingList>> cache;
-    ClassLoader loader;
-    ObjectMapper mapper = new ObjectMapper();
-
-    public ShoppingListRepository(String nodeId) {
-        this(nodeId, new HashMap<>());
+    public ShoppingListRepository(String dataRoot) {
+        this(dataRoot, new HashMap<>());
     }
 
-    public ShoppingListRepository(String nodeId, HashMap<String, CRDT<ShoppingList>> cache){
-        this(nodeId, cache, ShoppingListRepository.class.getClassLoader());
+    public ShoppingListRepository(String dataRoot, HashMap<String, CRDT<ShoppingList>> data){
+        this(dataRoot, data, ShoppingListRepository.class.getClassLoader());
     }
 
-    public ShoppingListRepository(String nodeId, HashMap<String, CRDT<ShoppingList>> cache, ClassLoader loader){
-        this.DATA_ROOT = String.format("data/%s", nodeId);
-        this.cache = cache;
+    public ShoppingListRepository(String dataRoot, HashMap<String, CRDT<ShoppingList>> data, ClassLoader loader){
+        this.cache = new Cache(dataRoot, data);
         this.loader = loader;
     }
     private String filePathFromResources(String id){
-        String dir = Objects.requireNonNull(loader.getResource(DATA_ROOT)).getPath();
+        String dataRoot = this.cache.getDataRoot();
+        String dir = Objects.requireNonNull(loader.getResource(dataRoot)).getPath();
         return String.format("%s/%s.json", dir, id);
     }
 
     private String buildFilePath(String id){
-        return String.format("%s/%s.json", DATA_ROOT, id);
+        String dataRoot = this.cache.getDataRoot();
+        return String.format("%s/%s.json", dataRoot, id
+        );
     }
 
     private void loadFromMemory(String id){
@@ -84,7 +84,8 @@ public class ShoppingListRepository implements IShoppingListRepository, ICRDTRep
     }
 
     public List<ShoppingList> getAll(){
-        File dir = new File(Objects.requireNonNull(loader.getResource(DATA_ROOT)).getPath());
+        String dataRoot = this.cache.getDataRoot();
+        File dir = new File(Objects.requireNonNull(loader.getResource(dataRoot)).getPath());
         File[] dirContents = Objects.requireNonNull(dir.listFiles());
         if(dirContents.length > cache.size()){
             for(File file : dirContents){
@@ -95,16 +96,17 @@ public class ShoppingListRepository implements IShoppingListRepository, ICRDTRep
             }
         }
         List<ShoppingList> toReturn = new ArrayList<>();
-        for(CRDT<ShoppingList> crdt : cache.values()){
+        for(CRDT<ShoppingList> crdt : cache.getValues()){
             toReturn.add(crdt.getValue());
         }
         return toReturn;
     }
 
     public List<ShoppingList> getAllFromUser(String username){
-        URL resourceUrl = loader.getResource(DATA_ROOT);
+        String dataRoot = this.cache.getDataRoot();
+        URL resourceUrl = loader.getResource(dataRoot);
         if (resourceUrl == null) {
-            throw new IllegalStateException("Resource directory not found: " + DATA_ROOT);
+            throw new IllegalStateException("Resource directory not found: " + dataRoot);
         }
         List<ShoppingList> allLists = getAll();
         List<ShoppingList> toReturn = new ArrayList<>();
@@ -175,5 +177,10 @@ public class ShoppingListRepository implements IShoppingListRepository, ICRDTRep
         cache.put(value.getId(), shoppingList);
         writeToMemory(shoppingList);
         return shoppingList;
+    }
+
+    @Override
+    public Cache getCache(){
+        return this.cache;
     }
 }

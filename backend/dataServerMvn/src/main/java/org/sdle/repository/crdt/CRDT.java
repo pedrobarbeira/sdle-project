@@ -40,7 +40,7 @@ public class CRDT<T> {
         return this.timeStamp;
     }
 
-    public boolean isDirty(){return this.dirty};
+    public boolean isDirty(){return this.dirty;};
 
     public void setValue(T value){
         this.value = value;

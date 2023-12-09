@@ -1,2 +1,4 @@
-package org.sdle.server;public class NodeRouter {
+package org.sdle.server;
+
+public class NodeRouter {
 }
