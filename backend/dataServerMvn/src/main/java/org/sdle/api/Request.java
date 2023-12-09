@@ -2,6 +2,8 @@ package org.sdle.api;
 
 import zmq.socket.reqrep.Req;
 
+import java.util.HashMap;
+
 public class Request {
     public static final String GET = "GET";
     public static final String POST = "POST";
@@ -9,10 +11,10 @@ public class Request {
     public static final String DELETE = "DELETE";
     private String route;
     private String method;
-    private Object headers;
+    private HashMap<String, String> headers;
     private Object body;
 
-    public Request(String route, String method, Object headers, Object body) {
+    public Request(String route, String method, HashMap<String, String> headers, Object body) {
         this.route = route;
         this.method = method;
         this.headers = headers;
@@ -27,7 +29,7 @@ public class Request {
         return this.method;
     }
 
-    public Object getHeaders() {
+    public HashMap<String, String> getHeaders() {
         return  this.headers;
     }
 

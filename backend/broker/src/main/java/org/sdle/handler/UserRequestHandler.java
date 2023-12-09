@@ -1,5 +1,6 @@
 package org.sdle.handler;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.sdle.api.Request;
 import org.sdle.api.Response;
@@ -27,25 +28,30 @@ public class UserRequestHandler extends AbstractRequestHandler {
 
     @Override
     public Response handle(Request request) {
-        switch (request.getRoute()) {
-            case Router.LOGIN_ROUTE -> {
-                return login(request);
+        try{
+            switch (request.getRoute()) {
+                case Router.LOGIN_ROUTE -> {
+                    return login(request);
+                }
+                case Router.AUTH_TOKEN_ROUTE -> {
+                    return verifyToken(request);
+                }
+                default -> {
+                    return buildResponse(null);
+                }
             }
-            case Router.AUTH_TOKEN_ROUTE -> {
-                return verifyToken(request);
-            }
-            default -> {
-                return buildResponse(null);
-            }
+        }catch( JsonProcessingException e){
+            System.out.println(e.getMessage());
         }
+        return null;
     }
 
-    private Response login(Request request) {
+    private Response login(Request request) throws JsonProcessingException {
         if(!Objects.equals(request.getMethod(), Request.POST)) {
             return buildResponse(405, "Method not allowed");
         }
-
-        User user = mapper.convertValue(request.getBody(), User.class);
+        String body = (String) request.getBody();
+        User user = mapper.readValue(body, User.class);
 
         if(user == null) return buildResponse(400, "Bad request - user not found in request body");
 

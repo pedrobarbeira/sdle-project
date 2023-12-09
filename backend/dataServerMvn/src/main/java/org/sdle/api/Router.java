@@ -5,7 +5,8 @@ import org.sdle.api.handler.ShoppingListRequestHandler;
 
 import java.util.Map;
 
-public class Router {
+public class Router extends  ApiComponent {
+    public static final String REPLICA = "api/replica";
     public static final String SHOPPINGLIST = "api/shoppinglist";
     public static final String SHOPPINGLIST_SHARE = "api/shoppinglist-share";
     private final Map<String, RequestHandler> handlers;
@@ -20,7 +21,9 @@ public class Router {
     public Response route(Request request) {
         RequestHandler handler = handlers.get(request.getRoute());
 
-        if(handler == null) return new Response(404, "Route not found");
+        if(handler == null) {
+            return notFound();
+        }
 
         return handler.handle(request);
     }

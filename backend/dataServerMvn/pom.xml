@@ -56,5 +56,10 @@
             <version>5.8.0</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.zeromq</groupId>
+            <artifactId>jeromq</artifactId>
+            <version>0.5.4</version>
+        </dependency>
     </dependencies>
 </project>

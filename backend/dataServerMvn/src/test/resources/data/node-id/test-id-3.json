@@ -1,12 +1,16 @@
 {
-  "id": "test-id-3",
-  "name": "test-list-3",
-  "items": {
-    "4f74aba3-4887-4958-97b3-22b819967d5b": {
-      "id": "4f74aba3-4887-4958-97b3-22b819967d5b",
-      "name": "Peanuts",
-      "checked" : true,
-      "quantity": 3
+  "value": {
+    "id": "test-id-3",
+    "name": "test-list-3",
+    "items": {
+      "4f74aba3-4887-4958-97b3-22b819967d5b": {
+        "id": "4f74aba3-4887-4958-97b3-22b819967d5b",
+        "name": "Peanuts",
+        "checked": true,
+        "quantity": 3
+      }
     }
-  }
+  },
+  "version": "c100059c-cf53-48a3-b6b7-2644cd821848",
+  "timeStamp": 1702080927904
 }

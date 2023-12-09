@@ -1,23 +1,23 @@
 package org.sdle;
 
-import org.sdle.api.Router;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.sdle.config.NodeConfig;
+import org.sdle.config.ServerConfig;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 public class Main {
-    public static void main(String[] args) throws IOException {
-        if (args.length != 1) {
-            System.out.println("Wrong number of arguments provided. Provide only the server port.");
+    public static void main(String[] args) {
+        try {
+            ServerConfig serverConfig = ObjectFactory.getServerConfig();
+            for (NodeConfig nodeConfig : serverConfig.nodeMap.values()) {
+                Node node = new Node(nodeConfig);
+                node.start();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            ;
         }
-
-        int port = Integer.parseInt(args[0]);
-
-        Node stub = new Node(String.valueOf(port));
-
-        if(!stub.createStorageFolder()) {
-            return;
-        }
-
-        stub.listen();
     }
 }

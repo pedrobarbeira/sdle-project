@@ -9,6 +9,8 @@ public class CRDT<T> {
     private T value;
     private String version;
     private Date timeStamp;
+    private boolean dirty;
+
     public CRDT(){}
 
     public CRDT(T value){
@@ -23,6 +25,7 @@ public class CRDT<T> {
         this.value = value;
         this.version = version;
         this.timeStamp = timeStamp;
+        this.dirty = true;
     }
 
     public T getValue(){
@@ -37,6 +40,8 @@ public class CRDT<T> {
         return this.timeStamp;
     }
 
+    public boolean isDirty(){return this.dirty};
+
     public void setValue(T value){
         this.value = value;
     }
@@ -47,6 +52,9 @@ public class CRDT<T> {
 
     public void setTimeStamp(Date timeStamp){
         this.timeStamp = timeStamp;
+    }
+    public void setDirty(boolean isDirty){
+        this.dirty = isDirty;
     }
 }
 

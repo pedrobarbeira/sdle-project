@@ -4,6 +4,7 @@ import org.sdle.repository.ICRDTRepository;
 import org.sdle.repository.crdt.CRDT;
 import org.sdle.repository.crdt.operation.CRDTOp;
 
+import java.util.LinkedList;
 import java.util.Queue;
 
 public class CRDTExecutionService<T> implements ICRDTExecutionService<T>{
@@ -11,8 +12,8 @@ public class CRDTExecutionService<T> implements ICRDTExecutionService<T>{
     private final Queue<CRDTOp<T>> operationQueue;
     private final int timeOut;
 
-    public CRDTExecutionService(Queue<CRDTOp<T>> operationQueue, int timeOut) {
-        this.operationQueue = operationQueue;
+    public CRDTExecutionService(int timeOut) {
+        this.operationQueue = new LinkedList<>();
         this.timeOut = timeOut;
     }
 

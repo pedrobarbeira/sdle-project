@@ -46,4 +46,8 @@ public abstract class ApiComponent {
         public static final String NOT_ALLOWED = "Method not allowed";
         public static final String ERROR = "Internal server error";
     }
+
+    public static class Headers{
+        public static final String DATA_ROOT = "data-root";
+    }
 }
