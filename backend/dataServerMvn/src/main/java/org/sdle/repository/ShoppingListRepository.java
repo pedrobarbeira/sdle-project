@@ -3,8 +3,10 @@ package org.sdle.repository;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
+import org.sdle.config.ServerConfig;
 import org.sdle.model.ShoppingList;
 import org.sdle.repository.crdt.CRDT;
+import org.sdle.server.ObjectFactory;
 
 import java.io.*;
 import java.net.URL;
@@ -14,21 +16,29 @@ import java.util.*;
 
 public class ShoppingListRepository implements IShoppingListRepository, ICRDTRepository<ShoppingList> {
 
-    private final Cache cache;
-    private final ClassLoader loader;
+    public static final String DATA_DIR = "data";
+    private Cache cache;
+    private ClassLoader loader;
     private final ObjectMapper mapper = new ObjectMapper();
 
-    public ShoppingListRepository(String dataRoot) {
-        this(dataRoot, new HashMap<>());
+    public ShoppingListRepository(String nodeId) {
+        this(nodeId, new HashMap<>());
     }
 
-    public ShoppingListRepository(String dataRoot, HashMap<String, CRDT<ShoppingList>> data){
-        this(dataRoot, data, ShoppingListRepository.class.getClassLoader());
+    public ShoppingListRepository(String nodeId, HashMap<String, CRDT<ShoppingList>> data){
+        this(nodeId, data, ShoppingListRepository.class.getClassLoader());
     }
 
-    public ShoppingListRepository(String dataRoot, HashMap<String, CRDT<ShoppingList>> data, ClassLoader loader){
-        this.cache = new Cache(dataRoot, data);
-        this.loader = loader;
+    public ShoppingListRepository(String nodeId, HashMap<String, CRDT<ShoppingList>> data, ClassLoader loader){
+        try {
+            ServerConfig serverConfig = ObjectFactory.getServerConfig();
+            String dataRoot = serverConfig.dataRoot;
+            String dataPath = String.format("%s/%s/s", DATA_DIR, dataRoot, nodeId);
+            this.cache = new Cache(dataPath, data);
+            this.loader = loader;
+        }catch(Exception e){
+            e.printStackTrace();
+        }
     }
     private String filePathFromResources(String id){
         String dataRoot = this.cache.getDataRoot();
@@ -38,8 +48,7 @@ public class ShoppingListRepository implements IShoppingListRepository, ICRDTRep
 
     private String buildFilePath(String id){
         String dataRoot = this.cache.getDataRoot();
-        return String.format("%s/%s.json", dataRoot, id
-        );
+        return String.format("%s/%s.json", dataRoot, id);
     }
 
     private void loadFromMemory(String id){

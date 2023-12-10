@@ -3,9 +3,6 @@ package org.sdle.server;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.sdle.Main;
 import org.sdle.config.ServerConfig;
-import org.sdle.controller.ShoppingListController;
-import org.sdle.repository.ShoppingListRepository;
-import org.sdle.api.handler.ShoppingListRequestHandler;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -13,7 +10,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class ObjectFactory {
-    public static final String CONFIG_FILE = "appsettings.json";
+    public static final String CONFIG_FILE = "server-1-settings.json";
     private static ServerConfig serverConfig;
     private static ExecutorService executorService;
 

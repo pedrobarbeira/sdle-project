@@ -1,0 +1,52 @@
+{
+  "maxActiveThreads": 32,
+  "timeOut": 1000,
+  "apiBase": "tcp://localhost",
+  "dataRoot": "server-4-data",
+  "mainNodeId": "4c73f5ce-f87e-4b35-b0a4-7235bf203265",
+  "nodeMap": {
+    "4c73f5ce-f87e-4b35-b0a4-7235bf203265": {
+      "port": 7200,
+      "threadNum": 4,
+      "nodeId": "4c73f5ce-f87e-4b35-b0a4-7235bf203265",
+      "replicates": [
+        "200cd0be-1820-4bcb-a0de-838ee38774f0",
+        "379a2fc7-f5bb-4e2f-80d3-9b28166a1d7d"
+      ],
+      "replicatedOn": [
+        "52a8d4f8-fe38-41ee-9bec-1f05af515597",
+        "1f89cea5-f8d9-4cd2-8128-bced97f29e60"
+      ]
+    },
+    "200cd0be-1820-4bcb-a0de-838ee38774f0": {
+      "port": 7201,
+      "threadNum": 4,
+      "nodeId": "200cd0be-1820-4bcb-a0de-838ee38774f0",
+      "replicates": [
+        "1f89cea5-f8d9-4cd2-8128-bced97f29e60",
+        "52a8d4f8-fe38-41ee-9bec-1f05af515597"
+      ],
+      "replicatedOn": [
+        "379a2fc7-f5bb-4e2f-80d3-9b28166a1d7d"
+      ]
+    },
+    "379a2fc7-f5bb-4e2f-80d3-9b28166a1d7d": {
+      "port": 7202,
+      "threadNum": 4,
+      "nodeId": "379a2fc7-f5bb-4e2f-80d3-9b28166a1d7d",
+      "replicates": [
+        "1f89cea5-f8d9-4cd2-8128-bced97f29e60",
+        "200cd0be-1820-4bcb-a0de-838ee38774f0"
+      ],
+      "replicatedOn": [
+        "52a8d4f8-fe38-41ee-9bec-1f05af515597"
+      ]
+    }
+  },
+  "addressMap": {
+    "1f89cea5-f8d9-4cd2-8128-bced97f29e60": "tcp://localhost:4200",
+    "200cd0be-1820-4bcb-a0de-838ee38774f0": "tcp://localhost:5200",
+    "379a2fc7-f5bb-4e2f-80d3-9b28166a1d7d": "tcp://localhost:6200",
+    "52a8d4f8-fe38-41ee-9bec-1f05af515597": "tcp://localhost:8200"
+  }
+}

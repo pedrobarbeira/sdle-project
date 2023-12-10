@@ -33,7 +33,7 @@ public class DataFetchWorker implements Callable<String> {
         HashMap<String, String> headers = new HashMap<>(){{
             put(ApiComponent.Headers.DATA_ROOT, dataRoot);
         }};
-        Request request = new Request(Router.REPLICA, Request.GET, headers, target.dataRoot);
+        Request request = new Request(Router.REPLICA, Request.GET, headers, target.nodeId);
         String requestStr = mapper.writeValueAsString(request);
         socket.send(requestStr);
         return socket.recvStr();

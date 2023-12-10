@@ -15,7 +15,6 @@ import org.sdle.service.ReplicaService;
 import org.zeromq.ZContext;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -53,7 +52,7 @@ public class Bootstrapper {
 
     private void initializeServices(){
         int timeOut = this.config.timeOut;
-        String dataRoot = this.config.mainDataRoot;
+        String dataRoot = this.config.mainNodeId;
 
         NodeConfig nodeConfig = this.nodeMap.get(dataRoot);
         List<String> replicates = nodeConfig.replicates;
@@ -65,7 +64,7 @@ public class Bootstrapper {
         this.replicaService = new ReplicaService<>(this.ctx);
     }
     private boolean isNewServer(){
-        String dataRoot = this.config.mainDataRoot;
+        String dataRoot = this.config.mainNodeId;
         ClassLoader loader = getClass().getClassLoader();
         String path = Objects.requireNonNull(loader.getResource(dataRoot)).getPath();
         File file = new File(path);
@@ -73,7 +72,7 @@ public class Bootstrapper {
     }
 
     private void getData() throws ExecutionException, JsonProcessingException, InterruptedException {
-        String dataRoot = this.config.mainDataRoot;
+        String dataRoot = this.config.mainNodeId;
         NodeConfig nodeConfig = this.nodeMap.get(dataRoot);
 
         List<String> mainNodeReplicas = nodeConfig.replicatedOn;
@@ -132,7 +131,7 @@ public class Bootstrapper {
     private void getNodeData(List<NodeConfig> targets) throws ExecutionException, JsonProcessingException, InterruptedException {
         List<DataFetchWorker> workers = new ArrayList<>();
         for(NodeConfig target: targets){
-            workers.add(new DataFetchWorker(this.ctx, target, config.mainDataRoot, config.apiBase));
+            workers.add(new DataFetchWorker(this.ctx, target, config.mainNodeId, config.apiBase));
         }
         List<ReplicaDataModel> unmergedData = executeFetchWorkers(workers);
         mergeAndStoreData(unmergedData);
@@ -165,7 +164,7 @@ public class Bootstrapper {
     }
 
     private void mergeRepositoryData(Cache baseData, Cache toMerge){
-        String dataRoot = this.config.mainDataRoot;
+        String dataRoot = this.config.mainNodeId;
         CRDTExecutionService<ShoppingList> executionService = this.executionServiceMap.get(dataRoot);
         for(CRDT<ShoppingList> crdt : toMerge.getValues()){
             ShoppingList shoppingList = crdt.getValue();
@@ -187,7 +186,7 @@ public class Bootstrapper {
     }
 
     private void bootNodes() {
-        String dataRoot = this.config.mainDataRoot;
+        String dataRoot = this.config.mainNodeId;
         NodeConfig nodeConfig = this.nodeMap.get(dataRoot);
         bootMainNode(nodeConfig);
         bootSecondaryNodes(nodeConfig);

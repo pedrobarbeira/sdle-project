@@ -55,7 +55,7 @@ public class Node extends Thread {
     }
 
     private void initializeNode() throws IOException {
-        String dataRoot = this.config.dataRoot;
+        String dataRoot = this.config.nodeId;
 
         ShoppingListRepository repository = new ShoppingListRepository(dataRoot);
         ShoppingListController controller = new ShoppingListController(repository);

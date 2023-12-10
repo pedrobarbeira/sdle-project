@@ -3,6 +3,7 @@ package org.sdle.server.workers;
 import org.sdle.model.ReplicaDataModel;
 import org.sdle.model.ShoppingList;
 import org.sdle.repository.ShoppingListRepository;
+import org.sdle.repository.crdt.CRDT;
 
 import java.io.File;
 import java.io.IOException;
@@ -20,13 +21,14 @@ public class FileStorageWorker implements Runnable{
     @Override
     public void run() {
         try {
-            createDirectoryIfNotExists(dataModel.dataRoot);
-            ShoppingListRepository tmpRepository = new ShoppingListRepository(dataModel.dataRoot);
+            String dataRoot = dataModel.data.getDataRoot();
+            createDirectoryIfNotExists(dataRoot);
+            ShoppingListRepository tmpRepository = new ShoppingListRepository(dataRoot);
             for (String id : dataModel.deletedIds) {
                 tmpRepository.delete(id);
             }
-            for (ShoppingList item : dataModel.shoppingLists.values()) {
-                tmpRepository.putCRDt(item);
+            for (CRDT<ShoppingList> item : dataModel.data.getValues()) {
+                tmpRepository.putCRDt(item.getValue());
             }
         }catch(IOException e){
             e.printStackTrace();
