@@ -36,15 +36,15 @@ public class AuthService {
         }
     }
 
-    private boolean validateUser(String userName, String password){
-        User user = repository.getUser(userName);
+    private boolean validateUser(String username, String password){
+        User user = repository.getUser(username);
         return password.equals(user.getPassword());
     }
 
-    public String generateToken(String userName, String password){
-        if(validateUser(userName, password)){
-            String token = encrypt(userName);
-            tokenMap.put(userName, token);
+    public String generateToken(String username, String password){
+        if(validateUser(username, password)){
+            String token = encrypt(username);
+            tokenMap.put(username, token);
             return token;
         }
         return null;
@@ -53,5 +53,15 @@ public class AuthService {
     public boolean validateToken(String user, String token){
         String validToken = tokenMap.get(user);
         return validToken.equals(token);
+    }
+
+    public String register(String username, String password){
+        try {
+            repository.createUser(username, password);
+            return generateToken(username, password);
+        }catch (Exception e){
+            e.printStackTrace();
+            return null;
+        }
     }
 }

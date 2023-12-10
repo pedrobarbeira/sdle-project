@@ -27,12 +27,28 @@ public class CommandHandler {
     private void handleAuthCommand(List<String> tokens){
         String token = tokens.get(0);
         switch(token){
-            case AuthCommands.LOGOUT -> handleLogout();
-            default -> handleLogin(tokens);
+            case AuthCommand.REGISTER -> handleAuthCommandRegister(tokens);
+            case AuthCommand.LOGOUT -> handleAuthCommandLogout();
+            default -> handleAuthCommandLogin(tokens);
         }
     }
 
-    private void handleLogout(){
+    private void handleAuthCommandRegister(List<String> tokens){
+        if(tokens.size() != CommandLength.AUTH_REGISTER){
+            System.out.println("Invalid credentials");
+            return;
+        }
+        String username = tokens.get(AuthCommand.USERNAME);
+        String password = tokens.get(AuthCommand.PASSWORD);
+        if(client.register(username, password)){
+            System.out.println("Account successfully created");
+            System.out.printf("Welcome, %s%n", username);
+        }else{
+            System.out.println("Could not create account");
+        }
+    }
+
+    private void handleAuthCommandLogout(){
         System.out.println("Logging out");
         if(client.endSession()) {
             System.out.println("See you next time");
@@ -41,13 +57,13 @@ public class CommandHandler {
         }
     }
 
-    private void handleLogin(List<String> tokens){
-        if(tokens.size() != CommandLength.LOGIN_COMMAND){
+    private void handleAuthCommandLogin(List<String> tokens){
+        if(tokens.size() != CommandLength.AUTH_LOGIN){
             System.out.println("Invalid credentials");
             return;
         }
-        String username = tokens.get(0);
-        String password = tokens.get(1);
+        String username = tokens.get(AuthCommand.USERNAME);
+        String password = tokens.get(AuthCommand.PASSWORD);
         if(client.authenticate(username, password)){
             System.out.printf("Welcome, %s%n", username);
         }else{
@@ -58,16 +74,16 @@ public class CommandHandler {
     private void handleListsCommand(List<String> tokens){
         String token = tokens.get(0);
         switch(token){
-            case ListsCommands.SHOW -> handleListsCommandShow(tokens);
-            case ListsCommands.CREATE -> handleListsCommandCreate(tokens);
-            case ListsCommands.DELETE -> handleListsCommandDelete(tokens);
+            case ListsCommand.SHOW -> handleListsCommandShow(tokens);
+            case ListsCommand.CREATE -> handleListsCommandCreate(tokens);
+            case ListsCommand.DELETE -> handleListsCommandDelete(tokens);
             default -> handleListsCommandShare(tokens);
         }
     }
 
     private void handleListsCommandShow(List<String> tokens){
-        if(tokens.size() > ListsCommands.LIST_SHOW_SIZE){
-            handleListsCommandsError(tokens);
+        if(tokens.size() > CommandLength.LIST_SHOW){
+            handleListsCommandError(tokens);
             return;
         }
         List<String> shoppingLists = client.getShoppingLists();
@@ -77,48 +93,48 @@ public class CommandHandler {
     }
 
     private void handleListsCommandCreate(List<String> tokens){
-        if(tokens.size() != ListsCommands.LIST_CREATE_SIZE){
-            handleListsCommandsError(tokens);
+        if(tokens.size() != CommandLength.LISTS_OPERATION){
+            handleListsCommandError(tokens);
             return;
         }
-        String listName = tokens.get(ListsCommands.LIST_NAME);
+        String listName = tokens.get(ListsCommand.LIST_NAME);
         String shoppingList = client.createShoppingList(listName);
         System.out.println(shoppingList);
     }
 
     private void handleListsCommandDelete(List<String> tokens){
-        if(tokens.size() != ListsCommands.LIST_DELETE_SIZE){
-            handleListsCommandsError(tokens);
+        if(tokens.size() != CommandLength.LISTS_OPERATION){
+            handleListsCommandError(tokens);
             return;
         }
-        String listName = tokens.get(ListsCommands.LIST_NAME);
+        String listName = tokens.get(ListsCommand.LIST_NAME);
         String shoppingList = client.deleteShoppingList(listName);
         System.out.println(shoppingList);
     }
 
     private void handleListsCommandShare(List<String> tokens){
-        if(tokens.size() != ListsCommands.LIST_SHARE_SIZE){
-            handleListsCommandsError(tokens);
+        if(tokens.size() != CommandLength.LISTS_SHARE){
+            handleListsCommandError(tokens);
             return;
         }
-        String command = tokens.get(ListsCommands.SHARE_COMMAND);
-        if(!command.equals(ListsCommands.SHARE)){
-            handleListsCommandsError(tokens);
+        String command = tokens.get(ListsCommand.SHARE_COMMAND);
+        if(!command.equals(ListsCommand.SHARE)){
+            handleListsCommandError(tokens);
             return;
         }
-        String listName = tokens.get(ListsCommands.SHARE_LIST_NAME);
-        String option = tokens.get(ListsCommands.SHARE_OPTION);
-        String target = tokens.get(ListsCommands.SHARE_TARGET);
+        String listName = tokens.get(ListsCommand.SHARE_LIST_NAME);
+        String option = tokens.get(ListsCommand.SHARE_OPTION);
+        String target = tokens.get(ListsCommand.SHARE_TARGET);
         String message = "";
         switch(option){
             case CommandOptions.ADD -> message = client.addSharedUser(listName, target);
             case CommandOptions.REMOVE -> message = client.removeSharedUser(listName, target);
-            default -> handleListsCommandsError(tokens);
+            default -> handleListsCommandError(tokens);
         }
         System.out.println(message);
     }
 
-    private void handleListsCommandsError(List<String> tokens){
+    private void handleListsCommandError(List<String> tokens){
         String error = rebuildCommand(CommandTypes.LISTS, tokens);
         handleError(error);
     }
@@ -130,14 +146,14 @@ public class CommandHandler {
         }
         String token = tokens.get(1);
         switch(token){
-            case ItemsCommands.SHOW -> handleItemsCommandShow(tokens);
-            case ItemsCommands.CREATE -> handleItemsCommandCreate(tokens);
+            case ItemsCommand.SHOW -> handleItemsCommandShow(tokens);
+            case ItemsCommand.CREATE -> handleItemsCommandCreate(tokens);
             default ->handleItemsCommandOperations(tokens);
         }
     }
 
     private void handleItemsCommandShow(List<String> tokens){
-        if(tokens.size() > ItemsCommands.SHOW_LENGTH){
+        if(tokens.size() > ItemsCommand.SHOW_LENGTH){
             handleItemsCommandError(tokens);
             return;
         }
@@ -177,8 +193,8 @@ public class CommandHandler {
         switch(operation){
             case CommandOptions.ADD -> handleItemsCommandOperationsAdd(tokens);
             case CommandOptions.REMOVE -> handleItemsCommandOperationsRemove(tokens);
-            case ItemsCommands.CHECK -> handleItemsCommandCheck(tokens);
-            case ItemsCommands.UNCHECK -> handleItemsCommandUncheck(tokens);
+            case ItemsCommand.CHECK -> handleItemsCommandCheck(tokens);
+            case ItemsCommand.UNCHECK -> handleItemsCommandUncheck(tokens);
             default -> handleItemsCommandError(tokens);
         }
     }
@@ -254,23 +270,23 @@ public class CommandHandler {
     }
 
     private String getItemsListName(List<String> tokens){
-        return tokens.get(ItemsCommands.LIST_NAME);
+        return tokens.get(ItemsCommand.LIST_NAME);
     }
 
     private String getItemsCreateName(List<String> tokens){
-        return tokens.get(ItemsCommands.CREATE_NAME);
+        return tokens.get(ItemsCommand.CREATE_NAME);
     }
 
     private String getItemsCreateQuantity(List<String> tokens){
-        return tokens.get(ItemsCommands.CREATE_QUANTITY);
+        return tokens.get(ItemsCommand.CREATE_QUANTITY);
     }
 
     private String getItemsOperationName(List<String> tokens){
-        return tokens.get(ItemsCommands.OPERATION_NAME);
+        return tokens.get(ItemsCommand.OPERATION_NAME);
     }
 
     private String getItemsOperationQuantity(List<String> tokens){
-        return tokens.get(ItemsCommands.OPERATION_QUANTITY);
+        return tokens.get(ItemsCommand.OPERATION_QUANTITY);
     }
 
     private void handleHelpCommand(List<String> tokens) {
@@ -279,6 +295,7 @@ public class CommandHandler {
         }
         System.out.println("""
                 # Auth
+                auth register <username> <password>
                 auth <username> <password>
                 auth logout
 
@@ -331,19 +348,18 @@ public class CommandHandler {
         public static final String EXIT = "exit";
     }
 
-    static class AuthCommands {
+    static class AuthCommand {
+        public static final String REGISTER = "register";
         public static final String LOGOUT = "logout";
+        public static final int USERNAME = 0;
+        public static final int PASSWORD = 1;
     }
 
-    static class ListsCommands{
+    static class ListsCommand {
         public static final String SHOW = "ls";
         public static final String CREATE = "create";
         public static final String SHARE = "share";
         public static final String DELETE = "delete";
-        public static final int LIST_SHOW_SIZE = 1;
-        public static final int LIST_CREATE_SIZE = 2;
-        public static final int LIST_SHARE_SIZE = 4;
-        public static final int LIST_DELETE_SIZE = 2;
         public static final int LIST_NAME = 1;
         public static final int SHARE_COMMAND = 1;
         public static final int SHARE_LIST_NAME = 0;
@@ -351,7 +367,7 @@ public class CommandHandler {
         public static final int SHARE_TARGET = 3;
     }
 
-    static class ItemsCommands{
+    static class ItemsCommand {
         public static final String SHOW = "ls";
         public static final String CREATE = "create";
         public static final String CHECK = "check";
@@ -370,8 +386,11 @@ public class CommandHandler {
     }
 
     static class CommandLength{
-        public static final int LOGIN_COMMAND = 2;
-        public static final int SHARE_COMMAND = 4;
+        public static final int AUTH_REGISTER =3 ;
+        public static final int AUTH_LOGIN = 2;
+        public static final int LIST_SHOW = 2;
+        public static final int LISTS_OPERATION = 3;
+        public static final int LISTS_SHARE = 4;
         public static final int ITEMS_MIN = 2;
         public static final int ITEMS_CREATE_MAX = 4;
         public static final int ITEMS_OPERATION_MIN = 3;

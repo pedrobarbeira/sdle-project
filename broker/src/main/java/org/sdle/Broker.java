@@ -1,7 +1,9 @@
 package org.sdle;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.sdle.api.ApiComponent;
 import org.sdle.api.Request;
+import org.sdle.api.Response;
 import org.sdle.api.handler.AuthRequestHandler;
 import org.sdle.api.handler.ShoppingListRequestHandler;
 import org.sdle.api.Router;
@@ -16,7 +18,7 @@ import org.zeromq.ZMQ;
 import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 
-public class Broker {
+public class Broker extends ApiComponent {
     public static final String API_WORKERS = "inproc://workers";
     private final ZContext ctx;
     private final ObjectMapper mapper = ObjectFactory.getMapper();
@@ -28,8 +30,10 @@ public class Broker {
     }
 
     public void boot() throws IOException {
+        System.out.println("Initializing broker");
         initializeDependencies();
         String brokerAddress = String.format("%s:%d", brokerConfig.apiBase, brokerConfig.port);
+        System.out.printf("Opening listeners on %s%n", brokerAddress);
         ZMQ.Socket clients = ctx.createSocket(SocketType.ROUTER);
         clients.bind(brokerAddress);
         ZMQ.Socket workers = ctx.createSocket(SocketType.DEALER);
@@ -38,6 +42,7 @@ public class Broker {
             Thread worker = new BrokerStub(ctx, router);
             worker.start();
         }
+        System.out.printf("Listening on %d threads%n", brokerConfig.maxActiveThreads);
         ZMQ.proxy(clients, workers, null);
     }
 
@@ -73,10 +78,14 @@ public class Broker {
             while (true) {
                 try {
                     String requestStr = socket.recvStr(0);
+                    System.out.println("Received request");
                     Request request = mapper.readValue(requestStr, Request.class);
-                    CompletableFuture.runAsync(() -> router.handle(request, socket));
+                    Response response = router.handle(request);
+                    String responseStr = mapper.writeValueAsString(response);
+                    socket.send(responseStr);;
                 }catch(Exception e){
                     e.printStackTrace();
+                    socket.send("500 - Internal Server Error");
                 }
             }
         }

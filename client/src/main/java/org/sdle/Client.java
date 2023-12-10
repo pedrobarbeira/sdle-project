@@ -14,6 +14,7 @@ public class Client extends ApiComponent {
     public static final String AUTH = "api/auth";
     public static final String REPLICA = "api/replica";
     public static final String SHOPPINGLIST = "api/shoppinglist";
+    private String username;
     private final HashMap<String, String> headers;
     private final ClientStub clientStub;
 
@@ -23,7 +24,7 @@ public class Client extends ApiComponent {
     }
 
     public boolean endSession(){
-        Request request = new Request(AUTH, Request.POST, headers, null);
+        Request request = new Request(AUTH, Request.PUT, headers, username);
         Response response = clientStub.sendRequest(request);
         if(response.getStatus() == StatusCode.OK){
             headers.remove(Headers.TOKEN);
@@ -35,14 +36,32 @@ public class Client extends ApiComponent {
     public boolean authenticate(String username, String password){
         String encryptedPassword = encrypt(password);
         HashMap<String, String> body = new HashMap<>(){{
-            put("username", username);
-            put("password", encryptedPassword);
+            put(Constants.USERNAME, username);
+            put(Constants.PASSWORD, encryptedPassword);
         }};
         Request request = new Request(AUTH, Request.GET, headers, body);
         Response response = clientStub.sendRequest(request);
         if(response.getStatus() == StatusCode.OK){
             String token = (String) response.getBody();
             headers.put(Headers.TOKEN, token);
+            this.username = username;
+            return true;
+        }
+        return false;
+    }
+
+    public boolean register(String username, String password){
+        String encryptedPassword = encrypt(password);
+        HashMap<String, String> body = new HashMap<>(){{
+            put(Constants.USERNAME, username);
+            put(Constants.PASSWORD, encryptedPassword);
+        }};
+        Request request = new Request(AUTH, Request.POST, headers, body);
+        Response response = clientStub.sendRequest(request);
+        if(response.getStatus() == StatusCode.OK){
+            String token = (String) response.getBody();
+            headers.put(Headers.TOKEN, token);
+            this.username = username;
             return true;
         }
         return false;
@@ -119,5 +138,10 @@ public class Client extends ApiComponent {
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    static class Constants{
+        public static final String USERNAME = "username";
+        public static final String PASSWORD = "password";
     }
 }

@@ -15,15 +15,20 @@ public class Router extends ApiComponent{
         this.shoppingListRequestHandler = shoppingListRequestHandler;
     }
 
-    public void handle(Request request, ZMQ.Socket socket){
+    public Response handle(Request request){
         try {
-            String method = request.getMethod();
-            switch (method) {
-                case AUTH -> authRequestHandler.handle(request, socket);
-                default -> shoppingListRequestHandler.handle(request, socket);
+            String route = request.getRoute();
+            switch (route) {
+                case AUTH -> {
+                    return authRequestHandler.handle(request);
+                }
+                default -> {
+                    return shoppingListRequestHandler.handle(request);
+                }
             }
         }catch(Exception e){
             e.printStackTrace();
+            return error();
         }
     }
 }

@@ -1,33 +1,51 @@
 package org.sdle.api;
 
-public abstract class ApiComponent {
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.sdle.ObjectFactory;
+import org.zeromq.ZMQ;
 
-    public Response buildResponse(int status, Object body) {
+public abstract class ApiComponent {
+    public static final ObjectMapper mapper = ObjectFactory.getMapper();
+
+    protected Response buildResponse(int status, Object body) {
         return new Response(status, body);
     }
 
-    public Response ok(Object body) {
+    protected Response ok(Object body) {
         return new Response(StatusCode.OK, body);
     }
 
-    public Response badRequest(){
+    protected Response badRequest(){
         return new Response(StatusCode.BAD_REQUEST, Message.BAD_REQUEST);
     }
 
-    public Response unauthorized(){
+    protected Response unauthorized(){
         return new Response(StatusCode.UNAUTHORIZED, Message.UNAUTHORIZED);
     }
 
-    public Response notAllowed(){
+    protected Response notAllowed(){
         return buildResponse(StatusCode.NOT_ALLOWED, Message.NOT_ALLOWED);
     }
 
-    public Response notFound(){
+    protected Response notFound(){
         return buildResponse(StatusCode.NOT_FOUND, Message.NOT_FOUND);
     }
 
-    public Response error(){
+    protected Response error(){
         return buildResponse(StatusCode.ERROR, Message.ERROR);
+    }
+
+    protected void badRequestResponse(ZMQ.Socket socket) throws JsonProcessingException {
+        Response response = badRequest();
+        String responseStr = mapper.writeValueAsString(response);
+        socket.send(responseStr);
+    }
+
+    protected void okResponse(Object body, ZMQ.Socket socket) throws JsonProcessingException {
+        Response response = ok(body);
+        String responseStr = mapper.writeValueAsString(response);
+        socket.send(responseStr);
     }
 
     public static class StatusCode{

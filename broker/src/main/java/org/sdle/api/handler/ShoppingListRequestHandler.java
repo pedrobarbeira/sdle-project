@@ -24,25 +24,32 @@ public class ShoppingListRequestHandler extends ApiComponent implements RequestH
     }
 
     @Override
-    public void handle(Request request, ZMQ.Socket socket) {
-        String method = request.getMethod();
+    public Response handle(Request request) {
+        String route = request.getRoute();
         try {
-            switch (method) {
-                case SHOPPINGLIST -> handleRequest(request, socket);
-                case SHARE -> handleShareRequest(request, socket);
-                default -> handleBadRequest(request, socket);
+            switch (route) {
+                case SHOPPINGLIST -> {
+                    return handleRequest(request);
+                }
+                case SHARE -> {
+                    return handleShareRequest(request);
+                }
+                default -> {
+                    return badRequest();
+                }
             }
         }catch(Exception e){
             e.printStackTrace();
+            return badRequest();
         }
     }
 
-    private void handleRequest(Request request, ZMQ.Socket socket){
-
+    private Response handleRequest(Request request){
+        return error();
     }
 
-    private void handleShareRequest(Request request, ZMQ.Socket socket){
-
+    private Response handleShareRequest(Request request){
+        return error();
     }
 
     private Response sendRequestToServer(Request request, String address) throws JsonProcessingException {
@@ -51,14 +58,8 @@ public class ShoppingListRequestHandler extends ApiComponent implements RequestH
 
         String requestStr = mapper.writeValueAsString(request);
         socket.send(requestStr);
-        
+
         String responseStr = socket.recvStr();
         return mapper.readValue(responseStr, Response.class);
-    }
-
-    private void handleBadRequest(Request request, ZMQ.Socket socket) throws JsonProcessingException {
-        Response response = badRequest();
-        String responseStr = mapper.writeValueAsString(response);
-        socket.send(responseStr);
     }
 }
