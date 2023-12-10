@@ -5,7 +5,7 @@ import org.sdle.api.ApiComponent;
 import org.sdle.api.Request;
 import org.sdle.api.Response;
 import org.sdle.api.handler.AuthRequestHandler;
-import org.sdle.api.handler.ShoppingListRequestHandler;
+import org.sdle.api.handler.OperationRequestHandler;
 import org.sdle.api.Router;
 import org.sdle.config.BrokerConfig;
 import org.sdle.service.AuthService;
@@ -16,7 +16,6 @@ import org.zeromq.ZContext;
 import org.zeromq.ZMQ;
 
 import java.io.IOException;
-import java.util.concurrent.CompletableFuture;
 
 public class Broker extends ApiComponent {
     public static final String API_WORKERS = "inproc://workers";
@@ -56,7 +55,7 @@ public class Broker extends ApiComponent {
         AuthRequestHandler authRequestHandler = new AuthRequestHandler(authService);
 
         NodeService nodeService = new NodeService(brokerConfig);
-        ShoppingListRequestHandler shoppingListRequestHandler = new ShoppingListRequestHandler(nodeService, authService, ctx);
+        OperationRequestHandler shoppingListRequestHandler = new OperationRequestHandler(nodeService, authService, ctx);
 
         router = new Router(shoppingListRequestHandler, authRequestHandler);
     }

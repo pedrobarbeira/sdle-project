@@ -76,7 +76,7 @@ public class CommandHandler {
         switch(token){
             case ListsCommand.SHOW -> handleListsShowCommand(tokens);
             case ListsCommand.CREATE -> handleListsCreateCommand(tokens);
-            case ListsCommand.DELETE -> handleListsDeleteCommand(tokens);
+            case ListsCommand.REMOVE -> handleListsDeleteCommand(tokens);
             default -> handleListsShareCommand(tokens);
         }
     }
@@ -150,13 +150,14 @@ public class CommandHandler {
         }
         String token = tokens.get(1);
         switch(token){
-            case ItemsCommand.SHOW -> handleItemsCommandShow(tokens);
-            case ItemsCommand.CREATE -> handleItemsCommandCreate(tokens);
-            default ->handleItemsCommandOperations(tokens);
+            case ItemsCommand.SHOW -> handleItemsShowCommand(tokens);
+            case ItemsCommand.CREATE -> handleItemsCreateCommand(tokens);
+            case ItemsCommand.REMOVE -> handleItemsRemoveCommand(tokens);
+            default -> handleItemsOperationCommand(tokens);
         }
     }
 
-    private void handleItemsCommandShow(List<String> tokens){
+    private void handleItemsShowCommand(List<String> tokens){
         if(tokens.size() > ItemsCommand.SHOW_LENGTH){
             handleItemsCommandError(tokens);
             return;
@@ -168,7 +169,7 @@ public class CommandHandler {
         }
     }
 
-    private void handleItemsCommandCreate(List<String> tokens) {
+    private void handleItemsCreateCommand(List<String> tokens) {
         if (tokens.size() > CommandLength.ITEMS_CREATE_MAX) {
             handleItemsCommandError(tokens);
             return;
@@ -188,7 +189,7 @@ public class CommandHandler {
         }
     }
 
-    private void handleItemsCommandOperations(List<String> tokens){
+    private void handleItemsOperationCommand(List<String> tokens){
         if(tokens.size() < CommandLength.ITEMS_OPERATION_MIN || tokens.size() > CommandLength.ITEMS_OPERATION_MAX){
             handleItemsCommandError(tokens);
             return;
@@ -268,6 +269,18 @@ public class CommandHandler {
         }
     }
 
+    private void handleItemsRemoveCommand(List<String> tokens) {
+        if (tokens.size() > CommandLength.ITEMS_CREATE_MAX) {
+            handleItemsCommandError(tokens);
+            return;
+        }
+        String listName = getItemsListName(tokens);
+        String itemName = getItemsCreateName(tokens);
+        int itemQuantity = 0;
+        String result = client.removeItem(listName, itemName);
+        System.out.println(result);
+    }
+
     private void handleItemsCommandError(List<String> tokens){
         String error = rebuildCommand(CommandTypes.ITEMS, tokens);
         handleError(error);
@@ -319,6 +332,7 @@ public class CommandHandler {
                 items <list-name> <item-name> check
                 items <list-name> <item-name> uncheck
                 items <list-name> <item-name> uncheck <quantity>
+                items <list-name> <item-name> rm
                 # Misc
                 help
                 exit
@@ -363,7 +377,7 @@ public class CommandHandler {
         public static final String SHOW = "ls";
         public static final String CREATE = "create";
         public static final String SHARE = "shared";
-        public static final String DELETE = "delete";
+        public static final String REMOVE = "rm";
         public static final int LIST_NAME = 1;
         public static final int SHARE_COMMAND = 0;
         public static final int SHARE_LIST_NAME = 1;
@@ -376,6 +390,7 @@ public class CommandHandler {
         public static final String CREATE = "create";
         public static final String CHECK = "check";
         public static final String UNCHECK = "uncheck";
+        public static final String REMOVE = "rm";
         public static final int SHOW_LENGTH = 2;
         public static final int LIST_NAME = 0;
         public static final int CREATE_NAME = 1;

@@ -3,7 +3,7 @@ package org.sdle;
 import org.sdle.api.ApiComponent;
 import org.sdle.api.Request;
 import org.sdle.api.Response;
-import org.sdle.model.ListShareDataModel;
+import org.sdle.model.ShareOperationDataModel;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -13,10 +13,10 @@ import java.util.HashMap;
 import java.util.List;
 
 public class Client extends ApiComponent {
-    public static final String AUTH = "api/auth";
-    public static final String REPLICA = "api/replica";
-    public static final String SHOPPINGLIST = "api/shoppinglist";
-    public static final String SHARE = "share";
+    public static final String API_AUTH = "api/auth";
+    public static final String API_SHOPPINGLIST = "api/shoppinglist";
+    public static final String API_SHARED = "api/shared";
+    public static final String API_ITEMS = "api/items";
     private String username;
     private final ShoppingListRepository repository;
     private final HashMap<String, String> headers;
@@ -29,10 +29,11 @@ public class Client extends ApiComponent {
     }
 
     public boolean endSession(){
-        Request request = new Request(AUTH, Request.PUT, headers, username);
+        Request request = new Request(API_AUTH, Request.PUT, headers, username);
         Response response = clientStub.sendRequest(request);
         if(response.getStatus() == StatusCode.OK){
             headers.remove(Headers.TOKEN);
+            headers.remove(Headers.KEY);
             return true;
         }
         return false;
@@ -44,7 +45,7 @@ public class Client extends ApiComponent {
             put(Constants.USERNAME, username);
             put(Constants.PASSWORD, encryptedPassword);
         }};
-        Request request = new Request(AUTH, Request.GET, headers, body);
+        Request request = new Request(API_AUTH, Request.GET, headers, body);
         return openSession(username, request);
     }
 
@@ -54,7 +55,7 @@ public class Client extends ApiComponent {
             put(Constants.USERNAME, username);
             put(Constants.PASSWORD, encryptedPassword);
         }};
-        Request request = new Request(AUTH, Request.POST, headers, body);
+        Request request = new Request(API_AUTH, Request.POST, headers, body);
         return openSession(username, request);
     }
 
@@ -63,7 +64,8 @@ public class Client extends ApiComponent {
         if(response.getStatus() == StatusCode.OK){
             String token = (String) response.getBody();
             headers.put(Headers.TOKEN, token);
-            headers.put(Headers.USER, username);
+            String key = encrypt(username);
+            headers.put(Headers.KEY, key);
             this.username = username;
             return true;
         }
@@ -71,61 +73,69 @@ public class Client extends ApiComponent {
     }
 
     public List<String> getShoppingLists() {
-        Request request = new Request(SHOPPINGLIST, Request.GET, headers, null);
-        Response response = clientStub.sendRequest(request);
-        if (response.getStatus() == StatusCode.OK) {
-            return (List<String>) response.getBody();
+        if(isLoggedIn()) {
+            Request request = new Request(API_SHOPPINGLIST, Request.GET, headers, null);
+            Response response = clientStub.sendRequest(request);
+            if (response.getStatus() == StatusCode.OK) {
+                return (List<String>) response.getBody();
+            }
+            String message = (String) response.getBody();
+            System.out.println(message);
         }
-        String message = (String) response.getBody();
-        System.out.println(message);
         return new ArrayList<>();
     }
 
     public String createShoppingList(String listName){
-        Request request = new Request(SHOPPINGLIST, Request.POST, headers, listName);
-        Response response = clientStub.sendRequest(request);
-        if (response.getStatus() == StatusCode.OK) {
-            return (String) response.getBody();
+        if(isLoggedIn()) {
+            Request request = new Request(API_SHOPPINGLIST, Request.POST, headers, listName);
+            Response response = clientStub.sendRequest(request);
+            if (response.getStatus() == StatusCode.OK) {
+                return (String) response.getBody();
+            }
+            String message = (String) response.getBody();
+            System.out.println(message);
         }
-        String message = (String) response.getBody();
-        System.out.println(message);
         return null;
     }
 
     public String deleteShoppingList(String listName){
-        Request request = new Request(SHOPPINGLIST, Request.DELETE, headers, listName);
-        Response response = clientStub.sendRequest(request);
-        if (response.getStatus() == StatusCode.OK) {
-            return (String) response.getBody();
+        if(isLoggedIn()) {
+            Request request = new Request(API_SHOPPINGLIST, Request.DELETE, headers, listName);
+            Response response = clientStub.sendRequest(request);
+            if (response.getStatus() == StatusCode.OK) {
+                return (String) response.getBody();
+            }
+            String message = (String) response.getBody();
+            System.out.println(message);
         }
-        String message = (String) response.getBody();
-        System.out.println(message);
         return null;
     }
 
     public String addSharedUser(String target, String username){
-        String route = String.format("%s/%s", SHOPPINGLIST, SHARE);
-        ListShareDataModel body = new ListShareDataModel(target, username);
-        Request request = new Request(route, Request.POST, headers, body);
-        Response response = clientStub.sendRequest(request);
-        if (response.getStatus() == StatusCode.OK) {
-            return (String) response.getBody();
+        if(isLoggedIn()) {
+            ShareOperationDataModel body = new ShareOperationDataModel(target, username);
+            Request request = new Request(API_SHARED, Request.POST, headers, body);
+            Response response = clientStub.sendRequest(request);
+            if (response.getStatus() == StatusCode.OK) {
+                return (String) response.getBody();
+            }
+            String message = (String) response.getBody();
+            System.out.println(message);
         }
-        String message = (String) response.getBody();
-        System.out.println(message);
         return null;
     }
 
     public String removeSharedUser(String target, String username){
-        String route = String.format("%s/%s", SHOPPINGLIST, SHARE);
-        ListShareDataModel body = new ListShareDataModel(target, username);
-        Request request = new Request(route, Request.DELETE, headers, body);
-        Response response = clientStub.sendRequest(request);
-        if (response.getStatus() == StatusCode.OK) {
-            return (String) response.getBody();
+        if(isLoggedIn()) {
+            ShareOperationDataModel body = new ShareOperationDataModel(target, username);
+            Request request = new Request(API_SHARED, Request.DELETE, headers, body);
+            Response response = clientStub.sendRequest(request);
+            if (response.getStatus() == StatusCode.OK) {
+                return (String) response.getBody();
+            }
+            String message = (String) response.getBody();
+            System.out.println(message);
         }
-        String message = (String) response.getBody();
-        System.out.println(message);
         return null;
     }
 
@@ -159,6 +169,11 @@ public class Client extends ApiComponent {
         return "Successfully unchecked item";
     }
 
+    public String removeItem(String listName, String itemName){
+        System.out.println("Removing item");
+        return "Successfully removed item";
+    }
+
     private String encrypt(String toEncrypt){
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
@@ -177,8 +192,24 @@ public class Client extends ApiComponent {
         }
     }
 
+    private boolean isLoggedIn(){
+        if(headers.containsKey(Headers.TOKEN)){
+            return true;
+        }
+        System.out.println("You must be logged in to issue this command");
+        return false;
+    }
+
     static class Constants{
         public static final String USERNAME = "username";
         public static final String PASSWORD = "password";
+
+    }
+
+    static class ItemOperations{
+        public static final String ADD = "add";
+        public static final String RM = "rm";
+        public static final String CHECK = "check";
+        public static final String UNCHECK = "uncheck";
     }
 }

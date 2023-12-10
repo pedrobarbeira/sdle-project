@@ -6,6 +6,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
+import java.util.UUID;
 
 public class AuthService {
 
@@ -43,8 +44,10 @@ public class AuthService {
 
     public String generateToken(String username, String password){
         if(validateUser(username, password)){
-            String token = encrypt(username);
-            tokenMap.put(username, token);
+            String key = encrypt(username);
+            String tokenDigest = UUID.randomUUID().toString();
+            String token = encrypt(tokenDigest);
+            tokenMap.put(key, token);
             return token;
         }
         return null;
