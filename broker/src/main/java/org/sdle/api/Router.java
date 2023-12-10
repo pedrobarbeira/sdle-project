@@ -17,7 +17,7 @@ public class Router extends ApiComponent{
 
     public Response handle(Request request){
         try {
-            String route = request.getRoute();
+            String route = request.route;
             switch (route) {
                 case AUTH -> {
                     return authRequestHandler.handle(request);

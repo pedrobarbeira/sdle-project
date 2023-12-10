@@ -1,8 +1,8 @@
 package org.sdle.api;
 
 public class Response {
-    int status;
-    Object body;
+    private int status;
+    private Object body;
 
     public Response() {}
 

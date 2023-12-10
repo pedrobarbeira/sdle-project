@@ -21,10 +21,8 @@ public class ClientStub extends ApiComponent {
         try {
             ZMQ.Socket socket = ctx.createSocket(SocketType.REQ);
             socket.connect(API_BASE);
-
             String requestStr = mapper.writeValueAsString(request);
             socket.send(requestStr);
-
             String responseStr = socket.recvStr();
             return mapper.readValue(responseStr, Response.class);
         }catch(Exception e){

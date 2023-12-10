@@ -6,7 +6,8 @@ import java.io.InputStreamReader;
 public class Main {
     public static void main(String[] args) {
         ClientStub clientStub = new ClientStub();
-        Client client = new Client(clientStub);
+        ShoppingListRepository repository = new ShoppingListRepository();
+        Client client = new Client(repository, clientStub);
         CommandHandler handler = new CommandHandler(client);
         try {
             BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));

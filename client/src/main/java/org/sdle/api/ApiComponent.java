@@ -48,7 +48,7 @@ public abstract class ApiComponent {
     }
 
     public static class Headers{
-        public static final String DATA_ROOT = "data-root";
         public static final String TOKEN = "token";
+        public static final String USER = "user";
     }
 }

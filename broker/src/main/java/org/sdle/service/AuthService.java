@@ -52,7 +52,7 @@ public class AuthService {
 
     public boolean validateToken(String user, String token){
         String validToken = tokenMap.get(user);
-        return validToken.equals(token);
+        return validToken != null && validToken.equals(token);
     }
 
     public String register(String username, String password){

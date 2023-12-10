@@ -3,10 +3,12 @@ package org.sdle;
 import org.sdle.api.ApiComponent;
 import org.sdle.api.Request;
 import org.sdle.api.Response;
+import org.sdle.model.ListShareDataModel;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -14,11 +16,14 @@ public class Client extends ApiComponent {
     public static final String AUTH = "api/auth";
     public static final String REPLICA = "api/replica";
     public static final String SHOPPINGLIST = "api/shoppinglist";
+    public static final String SHARE = "share";
     private String username;
+    private final ShoppingListRepository repository;
     private final HashMap<String, String> headers;
     private final ClientStub clientStub;
 
-    public Client(ClientStub clientStub) {
+    public Client(ShoppingListRepository repository, ClientStub clientStub) {
+        this.repository = repository;
         this.clientStub = clientStub;
         this.headers = new HashMap<>();
     }
@@ -40,14 +45,7 @@ public class Client extends ApiComponent {
             put(Constants.PASSWORD, encryptedPassword);
         }};
         Request request = new Request(AUTH, Request.GET, headers, body);
-        Response response = clientStub.sendRequest(request);
-        if(response.getStatus() == StatusCode.OK){
-            String token = (String) response.getBody();
-            headers.put(Headers.TOKEN, token);
-            this.username = username;
-            return true;
-        }
-        return false;
+        return openSession(username, request);
     }
 
     public boolean register(String username, String password){
@@ -57,39 +55,78 @@ public class Client extends ApiComponent {
             put(Constants.PASSWORD, encryptedPassword);
         }};
         Request request = new Request(AUTH, Request.POST, headers, body);
+        return openSession(username, request);
+    }
+
+    private boolean openSession(String username, Request request){
         Response response = clientStub.sendRequest(request);
         if(response.getStatus() == StatusCode.OK){
             String token = (String) response.getBody();
             headers.put(Headers.TOKEN, token);
+            headers.put(Headers.USER, username);
             this.username = username;
             return true;
         }
         return false;
     }
 
-    public List<String> getShoppingLists(){
-        System.out.println("Fetching shopping lists");
-        return List.of("Shopping List 1, Shopping List 2");
+    public List<String> getShoppingLists() {
+        Request request = new Request(SHOPPINGLIST, Request.GET, headers, null);
+        Response response = clientStub.sendRequest(request);
+        if (response.getStatus() == StatusCode.OK) {
+            return (List<String>) response.getBody();
+        }
+        String message = (String) response.getBody();
+        System.out.println(message);
+        return new ArrayList<>();
     }
 
     public String createShoppingList(String listName){
-        System.out.println("Creating shopping list");
-        return listName;
+        Request request = new Request(SHOPPINGLIST, Request.POST, headers, listName);
+        Response response = clientStub.sendRequest(request);
+        if (response.getStatus() == StatusCode.OK) {
+            return (String) response.getBody();
+        }
+        String message = (String) response.getBody();
+        System.out.println(message);
+        return null;
     }
 
     public String deleteShoppingList(String listName){
-        System.out.println("Deleting shopping list");
-        return listName;
+        Request request = new Request(SHOPPINGLIST, Request.DELETE, headers, listName);
+        Response response = clientStub.sendRequest(request);
+        if (response.getStatus() == StatusCode.OK) {
+            return (String) response.getBody();
+        }
+        String message = (String) response.getBody();
+        System.out.println(message);
+        return null;
     }
 
-    public String addSharedUser(String listName, String target){
-        System.out.printf("Adding user [%s] to list [%s}%n", target, listName);
-        return "Successfully added user";
+    public String addSharedUser(String target, String username){
+        String route = String.format("%s/%s", SHOPPINGLIST, SHARE);
+        ListShareDataModel body = new ListShareDataModel(target, username);
+        Request request = new Request(route, Request.POST, headers, body);
+        Response response = clientStub.sendRequest(request);
+        if (response.getStatus() == StatusCode.OK) {
+            return (String) response.getBody();
+        }
+        String message = (String) response.getBody();
+        System.out.println(message);
+        return null;
     }
 
-    public String removeSharedUser(String listName, String target){
-        System.out.printf("Removing user [%s] from list [%s}%n", target, listName);
-        return "Successfully removed user";
+    public String removeSharedUser(String target, String username){
+        String route = String.format("%s/%s", SHOPPINGLIST, SHARE);
+        ListShareDataModel body = new ListShareDataModel(target, username);
+        Request request = new Request(route, Request.DELETE, headers, body);
+        Response response = clientStub.sendRequest(request);
+        if (response.getStatus() == StatusCode.OK) {
+            return (String) response.getBody();
+        }
+        String message = (String) response.getBody();
+        System.out.println(message);
+        return null;
     }
 
     public List<String> getItems(String listName){

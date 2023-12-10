@@ -74,15 +74,15 @@ public class CommandHandler {
     private void handleListsCommand(List<String> tokens){
         String token = tokens.get(0);
         switch(token){
-            case ListsCommand.SHOW -> handleListsCommandShow(tokens);
-            case ListsCommand.CREATE -> handleListsCommandCreate(tokens);
-            case ListsCommand.DELETE -> handleListsCommandDelete(tokens);
-            default -> handleListsCommandShare(tokens);
+            case ListsCommand.SHOW -> handleListsShowCommand(tokens);
+            case ListsCommand.CREATE -> handleListsCreateCommand(tokens);
+            case ListsCommand.DELETE -> handleListsDeleteCommand(tokens);
+            default -> handleListsShareCommand(tokens);
         }
     }
 
-    private void handleListsCommandShow(List<String> tokens){
-        if(tokens.size() > CommandLength.LIST_SHOW){
+    private void handleListsShowCommand(List<String> tokens){
+        if(tokens.size() > CommandLength.LISTS_OPERATION){
             handleListsCommandError(tokens);
             return;
         }
@@ -92,27 +92,31 @@ public class CommandHandler {
         }
     }
 
-    private void handleListsCommandCreate(List<String> tokens){
+    private void handleListsCreateCommand(List<String> tokens){
         if(tokens.size() != CommandLength.LISTS_OPERATION){
             handleListsCommandError(tokens);
             return;
         }
         String listName = tokens.get(ListsCommand.LIST_NAME);
         String shoppingList = client.createShoppingList(listName);
-        System.out.println(shoppingList);
+        if(shoppingList != null) {
+            System.out.println(shoppingList);
+        }
     }
 
-    private void handleListsCommandDelete(List<String> tokens){
+    private void handleListsDeleteCommand(List<String> tokens){
         if(tokens.size() != CommandLength.LISTS_OPERATION){
             handleListsCommandError(tokens);
             return;
         }
         String listName = tokens.get(ListsCommand.LIST_NAME);
         String shoppingList = client.deleteShoppingList(listName);
-        System.out.println(shoppingList);
+        if(shoppingList != null) {
+            System.out.println(shoppingList);
+        }
     }
 
-    private void handleListsCommandShare(List<String> tokens){
+    private void handleListsShareCommand(List<String> tokens){
         if(tokens.size() != CommandLength.LISTS_SHARE){
             handleListsCommandError(tokens);
             return;
@@ -122,13 +126,13 @@ public class CommandHandler {
             handleListsCommandError(tokens);
             return;
         }
-        String listName = tokens.get(ListsCommand.SHARE_LIST_NAME);
         String option = tokens.get(ListsCommand.SHARE_OPTION);
-        String target = tokens.get(ListsCommand.SHARE_TARGET);
+        String target = tokens.get(ListsCommand.SHARE_LIST_NAME);
+        String username = tokens.get(ListsCommand.SHARE_TARGET);
         String message = "";
         switch(option){
-            case CommandOptions.ADD -> message = client.addSharedUser(listName, target);
-            case CommandOptions.REMOVE -> message = client.removeSharedUser(listName, target);
+            case CommandOptions.ADD -> message = client.addSharedUser(target, username);
+            case CommandOptions.REMOVE -> message = client.removeSharedUser(target, username);
             default -> handleListsCommandError(tokens);
         }
         System.out.println(message);
@@ -302,8 +306,8 @@ public class CommandHandler {
                 # ShoppingList
                 lists ls
                 lists create <list-name>
-                lists <list-name> share add <user-name>
-                lists <list-name> share rm <user-name>
+                lists shared <list-name> add <user-name>
+                lists shared <list-name> rm <user-name>
                 lists delete <list-name>
 
                 # ShoppingItem
@@ -358,11 +362,11 @@ public class CommandHandler {
     static class ListsCommand {
         public static final String SHOW = "ls";
         public static final String CREATE = "create";
-        public static final String SHARE = "share";
+        public static final String SHARE = "shared";
         public static final String DELETE = "delete";
         public static final int LIST_NAME = 1;
-        public static final int SHARE_COMMAND = 1;
-        public static final int SHARE_LIST_NAME = 0;
+        public static final int SHARE_COMMAND = 0;
+        public static final int SHARE_LIST_NAME = 1;
         public static final int SHARE_OPTION = 2;
         public static final int SHARE_TARGET = 3;
     }
@@ -388,8 +392,7 @@ public class CommandHandler {
     static class CommandLength{
         public static final int AUTH_REGISTER =3 ;
         public static final int AUTH_LOGIN = 2;
-        public static final int LIST_SHOW = 2;
-        public static final int LISTS_OPERATION = 3;
+        public static final int LISTS_OPERATION = 2;
         public static final int LISTS_SHARE = 4;
         public static final int ITEMS_MIN = 2;
         public static final int ITEMS_CREATE_MAX = 4;

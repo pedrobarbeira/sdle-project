@@ -56,7 +56,7 @@ public class Broker extends ApiComponent {
         AuthRequestHandler authRequestHandler = new AuthRequestHandler(authService);
 
         NodeService nodeService = new NodeService(brokerConfig);
-        ShoppingListRequestHandler shoppingListRequestHandler = new ShoppingListRequestHandler(nodeService, ctx);
+        ShoppingListRequestHandler shoppingListRequestHandler = new ShoppingListRequestHandler(nodeService, authService, ctx);
 
         router = new Router(shoppingListRequestHandler, authRequestHandler);
     }

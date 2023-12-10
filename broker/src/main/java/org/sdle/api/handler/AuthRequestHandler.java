@@ -19,7 +19,7 @@ public class AuthRequestHandler extends ApiComponent implements RequestHandler{
 
     @Override
     public Response handle(Request request){
-        String method = request.getMethod();
+        String method = request.method;
         switch(method){
             case Request.GET -> {
                 return handleLoginRequest(request);
@@ -37,7 +37,7 @@ public class AuthRequestHandler extends ApiComponent implements RequestHandler{
     }
 
     private Response handleLoginRequest(Request request){
-        Object body = request.getBody();
+        Object body = request.body;
         HashMap<String, String> bodyData = (HashMap<String, String>) body;
         String username = bodyData.get(Constants.USERNAME);
         String password = bodyData.get(Constants.PASSWORD);
@@ -49,7 +49,7 @@ public class AuthRequestHandler extends ApiComponent implements RequestHandler{
     }
 
     private Response handleRegisterRequest(Request request) {
-        Object body = request.getBody();
+        Object body = request.body;
         HashMap<String, String> bodyData = (HashMap<String, String>) body;
         String username = bodyData.get(Constants.USERNAME);
         String password = bodyData.get(Constants.PASSWORD);
@@ -61,9 +61,9 @@ public class AuthRequestHandler extends ApiComponent implements RequestHandler{
     }
 
     private Response handleLogoutRequest(Request request){
-        HashMap<String, String> headers = request.getHeaders();
+        HashMap<String, String> headers = request.headers;
         String token = headers.get(Headers.TOKEN);
-        String username = (String) request.getBody();
+        String username = (String) request.body;
         if(service.validateToken(username, token)){
             return ok(token);
         }
