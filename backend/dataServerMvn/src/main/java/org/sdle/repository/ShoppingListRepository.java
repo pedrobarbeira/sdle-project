@@ -19,7 +19,7 @@ public class ShoppingListRepository implements IShoppingListRepository, ICRDTRep
     public static final String DATA_DIR = "data";
     private Cache cache;
     private ClassLoader loader;
-    private final ObjectMapper mapper = new ObjectMapper();
+    private final ObjectMapper mapper = ObjectFactory.getMapper();
 
     public ShoppingListRepository(String nodeId) {
         this(nodeId, new HashMap<>());

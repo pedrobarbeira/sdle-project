@@ -13,7 +13,7 @@ import java.util.concurrent.ExecutorService;
 public class ServerStub{
     public static final String API_WORKERS = "inproc://workers";
     private final int port;
-    private final ObjectMapper mapper = new ObjectMapper();
+    private final ObjectMapper mapper = ObjectFactory.getMapper();
     private final Router router;
     private final ZContext ctx;
 
