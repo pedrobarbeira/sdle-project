@@ -3,15 +3,19 @@ package org.sdle.api.handler;
 import org.sdle.api.ApiComponent;
 import org.sdle.api.Request;
 import org.sdle.api.Response;
+import org.sdle.api.controller.ReplicaController;
 import org.sdle.api.controller.SharedListController;
-import org.sdle.model.ShareOperationDataModel;
+import org.sdle.model.domain.SharedOperationDataModel;
 
 public class SharedListRequestHandler extends ApiComponent implements RequestHandler{
 
     private final SharedListController controller;
+    private final ReplicaController replicaController;
 
-    public SharedListRequestHandler(SharedListController controller){
+
+    public SharedListRequestHandler(SharedListController controller, ReplicaController replicaController){
         this.controller = controller;
+        this.replicaController = replicaController;
     }
 
     @Override
@@ -27,13 +31,21 @@ public class SharedListRequestHandler extends ApiComponent implements RequestHan
 
     private Response handleAddSharedUser(Request request){
         String user = request.headers.get(Headers.USER);
-        ShareOperationDataModel dataModel = (ShareOperationDataModel) request.getBody();
-        return controller.addSharedUser(dataModel, user);
+        SharedOperationDataModel dataModel = (SharedOperationDataModel) request.getBody();
+        Response response = controller.addSharedUser(dataModel, user);
+        if(response.getStatus() == StatusCode.OK){
+            replicaController.sendSharedAddUserCrdtOp(dataModel);
+        }
+        return response;
     }
 
     private Response handleRemoveSharedUser(Request request){
         String user = request.headers.get(Headers.USER);
-        ShareOperationDataModel dataModel = (ShareOperationDataModel) request.getBody();
-        return controller.removeSharedUser(dataModel, user);
+        SharedOperationDataModel dataModel = (SharedOperationDataModel) request.getBody();
+        Response response = controller.removeSharedUser(dataModel, user);
+        if(response.getStatus() == StatusCode.OK){
+            replicaController.sendSharedRemoveUserCrdtOp(dataModel);
+        }
+        return response;
     }
 }

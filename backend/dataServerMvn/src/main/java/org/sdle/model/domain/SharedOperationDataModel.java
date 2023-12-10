@@ -1,12 +1,12 @@
 package org.sdle.model.domain;
 
-public class ShareOperationDataModel {
+public class SharedOperationDataModel {
     public String targetId;
     public String username;
 
-    public ShareOperationDataModel(){}
+    public SharedOperationDataModel(){}
 
-    public ShareOperationDataModel(String targetId, String username){
+    public SharedOperationDataModel(String targetId, String username){
         this.targetId = targetId;
         this.username = username;
     }

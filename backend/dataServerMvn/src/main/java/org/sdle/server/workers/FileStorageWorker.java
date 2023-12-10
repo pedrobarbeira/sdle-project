@@ -1,6 +1,6 @@
 package org.sdle.server.workers;
 
-import org.sdle.model.ReplicaDataModel;
+import org.sdle.model.domain.ReplicaDataModel;
 import org.sdle.model.ShoppingList;
 import org.sdle.repository.ShoppingListRepository;
 import org.sdle.repository.crdt.CRDT;

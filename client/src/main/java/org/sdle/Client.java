@@ -209,24 +209,10 @@ public class Client extends ApiComponent {
     }
 
     public String checkItem(String target, String itemName){
+        //TODO change logic to simplify
         if(isLoggedIn()) {
             String targetId = repository.getIdFromName(target);
             ItemOperationDataModel body = new ItemOperationDataModel(targetId, itemName);
-            Request request = new Request(API_SHARED, Request.PUT, headers, body);
-            Response response = clientStub.sendRequest(request);
-            if (response.getStatus() == StatusCode.OK) {
-                return (String) response.getBody();
-            }
-            String message = (String) response.getBody();
-            System.out.println(message);
-        }
-        return null;
-    }
-
-    public String uncheckItem(String target, String itemName, int quantity){
-        if(isLoggedIn()) {
-            String targetId = repository.getIdFromName(target);
-            ItemOperationDataModel body = new ItemOperationDataModel(targetId, itemName, quantity);
             Request request = new Request(API_SHARED, Request.PUT, headers, body);
             Response response = clientStub.sendRequest(request);
             if (response.getStatus() == StatusCode.OK) {

@@ -4,16 +4,19 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.sdle.api.ApiComponent;
 import org.sdle.api.Request;
 import org.sdle.api.Response;
+import org.sdle.api.controller.ReplicaController;
 import org.sdle.api.controller.ShoppingListController;
-import org.sdle.model.ShoppingListDataModel;
+import org.sdle.model.domain.ListOperationDataModel;
 
 public class ShoppingListRequestHandler extends ApiComponent implements RequestHandler {
 
-    ShoppingListController controller;
+    private final ShoppingListController controller;
+    private final ReplicaController replicaController;
     private final ObjectMapper mapper = new ObjectMapper();
 
-    public ShoppingListRequestHandler(ShoppingListController controller) {
+    public ShoppingListRequestHandler(ShoppingListController controller, ReplicaController replicaController) {
         this.controller = controller;
+        this.replicaController = replicaController;
     }
 
     @Override
@@ -36,20 +39,32 @@ public class ShoppingListRequestHandler extends ApiComponent implements RequestH
 
     private Response handleCreateShoppingList(Request request){
         String user = request.headers.get(Headers.USER);
-        ShoppingListDataModel dataModel = (ShoppingListDataModel) request.body;
-        return controller.createShoppingList(user, dataModel);
+        ListOperationDataModel dataModel = (ListOperationDataModel) request.body;
+        Response response =  controller.createShoppingList(user, dataModel);
+        if(response.getStatus() == StatusCode.OK){
+            replicaController.sendListsCreateCrdtOp(dataModel);
+        }
+        return response;
     }
 
     private Response handleUpdateShoppingList(Request request){
         String user = request.headers.get(Headers.USER);
-        ShoppingListDataModel dataModel = (ShoppingListDataModel) request.body;
-        return controller.updateShoppingList(user, dataModel);
+        ListOperationDataModel dataModel = (ListOperationDataModel) request.body;
+        Response response = controller.updateShoppingList(user, dataModel);
+        if(response.getStatus() == StatusCode.OK){
+            replicaController.sendListsUpdateCrdtOp(dataModel);
+        }
+        return response;
     }
 
     private Response handleDeleteShoppingList(Request request){
         String user = request.headers.get(Headers.USER);
-        ShoppingListDataModel dataModel = (ShoppingListDataModel) request.body;
-        return controller.deleteShoppingList(user, dataModel);
+        ListOperationDataModel dataModel = (ListOperationDataModel) request.body;
+        Response response = controller.deleteShoppingList(user, dataModel);
+        if(response.getStatus() == StatusCode.OK){
+            replicaController.sendListsDeleteCrdtOp(dataModel);
+        }
+        return response;
     }
 
 }

@@ -1,21 +1,19 @@
 package org.sdle.api.controller;
 
-import org.sdle.api.ApiComponent;
 import org.sdle.api.Response;
-import org.sdle.model.ShareOperationDataModel;
+import org.sdle.model.domain.SharedOperationDataModel;
 import org.sdle.model.ShoppingList;
 import org.sdle.repository.ShoppingListRepository;
 
 import java.util.Set;
 
-public class SharedListController extends ApiComponent {
-    private final ShoppingListRepository repository;
+public class SharedListController extends ListController {
 
     public SharedListController(ShoppingListRepository repository) {
-        this.repository = repository;
+        super(repository);
     }
 
-    public Response addSharedUser(ShareOperationDataModel dataModel, String user){
+    public Response addSharedUser(SharedOperationDataModel dataModel, String user){
         String id = dataModel.targetId;
         ShoppingList shoppingList = repository.getById(id);
         Set<String> authorizedUsers = shoppingList.getAuthorizedUsers();
@@ -29,7 +27,7 @@ public class SharedListController extends ApiComponent {
         return ok(shoppingList);
     }
 
-    public Response removeSharedUser(ShareOperationDataModel dataModel, String user){
+    public Response removeSharedUser(SharedOperationDataModel dataModel, String user){
         String id = dataModel.targetId;
         ShoppingList shoppingList = repository.getById(id);
         Set<String> authorizedUsers = shoppingList.getAuthorizedUsers();

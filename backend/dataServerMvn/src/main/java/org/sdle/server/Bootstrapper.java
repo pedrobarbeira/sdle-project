@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.sdle.config.NodeConfig;
 import org.sdle.config.ServerConfig;
-import org.sdle.model.ReplicaDataModel;
+import org.sdle.model.domain.ReplicaDataModel;
 import org.sdle.model.ShoppingList;
 import org.sdle.repository.Cache;
 import org.sdle.repository.crdt.CRDT;

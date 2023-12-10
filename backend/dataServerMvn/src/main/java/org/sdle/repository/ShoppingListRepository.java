@@ -182,7 +182,7 @@ public class ShoppingListRepository implements IShoppingListRepository, ICRDTRep
     @Override
     public CRDT<ShoppingList> putCRDt(ShoppingList value) {
         UUID uuid = UUID.randomUUID();
-        CRDT<ShoppingList> shoppingList = new CRDT<>(value, uuid.toString(), Date.from(Instant.now()));
+        CRDT<ShoppingList> shoppingList = new CRDT<>(value);
         cache.put(value.getId(), shoppingList);
         writeToMemory(shoppingList);
         return shoppingList;

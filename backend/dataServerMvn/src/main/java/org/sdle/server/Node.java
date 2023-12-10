@@ -68,10 +68,11 @@ public class Node extends Thread {
         String dataRoot = this.config.nodeId;
 
         ShoppingListRepository repository = new ShoppingListRepository(dataRoot);
-        ReplicaRequestHandler replicaRequestHandler = initializeReplicaRequestHandler(repository);
-        ShoppingListRequestHandler shoppingListRequestHandler = initializeShoppingListRequestHandler(repository);
-        SharedListRequestHandler sharedListRequestHandler = initializeSharedListRequestHandler(repository);
-        ShoppingItemRequestHandler shoppingItemRequestHandler = initializeShoppingItemRequestHanlder(repository);
+        ReplicaController replicaController = new ReplicaController(repository, replicaService);
+        ReplicaRequestHandler replicaRequestHandler = initializeReplicaRequestHandler(replicaController);
+        ShoppingListRequestHandler shoppingListRequestHandler = initializeShoppingListRequestHandler(repository, replicaController);
+        SharedListRequestHandler sharedListRequestHandler = initializeSharedListRequestHandler(repository, replicaController);
+        ShoppingItemRequestHandler shoppingItemRequestHandler = initializeShoppingItemRequestHanlder(repository, replicaController);
 
         Router router = new Router(
                 replicaRequestHandler,
@@ -83,23 +84,28 @@ public class Node extends Thread {
         serverStub.boot(this.config.threadNum);
     }
 
-    private static ReplicaRequestHandler initializeReplicaRequestHandler(ShoppingListRepository repository) {
-        ReplicaController replicaController = new ReplicaController(repository);
+    private static ReplicaRequestHandler initializeReplicaRequestHandler(ReplicaController replicaController) {
         return new ReplicaRequestHandler(replicaController);
     }
 
-    private static ShoppingListRequestHandler initializeShoppingListRequestHandler(ShoppingListRepository repository) {
+    private static ShoppingListRequestHandler initializeShoppingListRequestHandler(
+            ShoppingListRepository repository,
+            ReplicaController replicaController) {
         ShoppingListController shoppingListController = new ShoppingListController(repository);
-        return new ShoppingListRequestHandler(shoppingListController);
+        return new ShoppingListRequestHandler(shoppingListController, replicaController);
     }
 
-    private static SharedListRequestHandler initializeSharedListRequestHandler(ShoppingListRepository repository) {
+    private static SharedListRequestHandler initializeSharedListRequestHandler(
+            ShoppingListRepository repository,
+            ReplicaController replicaController) {
         SharedListController shoppingListController = new SharedListController(repository);
-        return new SharedListRequestHandler(shoppingListController);
+        return new SharedListRequestHandler(shoppingListController, replicaController);
     }
 
-    private static ShoppingItemRequestHandler initializeShoppingItemRequestHanlder(ShoppingListRepository repository) {
+    private static ShoppingItemRequestHandler initializeShoppingItemRequestHanlder(
+            ShoppingListRepository repository,
+            ReplicaController replicaController) {
         ShoppingItemController shoppingListController = new ShoppingItemController(repository);
-        return new ShoppingItemRequestHandler(shoppingListController);
+        return new ShoppingItemRequestHandler(shoppingListController, replicaController);
     }
 }
