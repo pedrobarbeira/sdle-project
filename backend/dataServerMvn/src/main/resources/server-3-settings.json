@@ -48,5 +48,8 @@
     "200cd0be-1820-4bcb-a0de-838ee38774f0": "tcp://localhost:4200",
     "4c73f5ce-f87e-4b35-b0a4-7235bf203265": "tcp://localhost:4400",
     "52a8d4f8-fe38-41ee-9bec-1f05af515597": "tcp://localhost:4500"
-  }
+  },
+  "tmpListeners":[
+    "tcp://localhost:4402", "tcp://localhost:4501"
+  ]
 }
