@@ -24,8 +24,11 @@ public class Router extends  ApiComponent {
     }
 
     public Response route(Request request) {
+        String username = request.headers.get(Headers.USER);
+        if(username == null){
+            return unauthorized();
+        }
         RequestHandler handler = handlers.get(request.getRoute());
-
         if(handler == null) {
             return notFound();
         }

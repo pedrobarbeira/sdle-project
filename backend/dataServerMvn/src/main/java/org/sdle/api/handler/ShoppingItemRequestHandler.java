@@ -12,7 +12,7 @@ public class ShoppingItemRequestHandler extends ApiComponent implements RequestH
         this.shoppingItemController = shoppingItemController;
     }
     @Override
-    public Response handle(Request request) {
-        return null;
+    public Response handle(Request request){
+        return error();
     }
 }

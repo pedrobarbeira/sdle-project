@@ -132,7 +132,7 @@ public class Client extends ApiComponent {
         if(isLoggedIn()) {
             String targetId = repository.getIdFromName(target);
             ShareOperationDataModel body = new ShareOperationDataModel(targetId, username);
-            Request request = new Request(API_SHARED, Request.POST, headers, body);
+            Request request = new Request(API_SHARED, Request.PUT, headers, body);
             Response response = clientStub.sendRequest(request);
             if (response.getStatus() == StatusCode.OK) {
                 return (String) response.getBody();

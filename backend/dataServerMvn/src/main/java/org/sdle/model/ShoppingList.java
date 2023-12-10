@@ -7,7 +7,6 @@ import java.util.Set;
 public class ShoppingList {
 
     private String id;
-    private String primaryNodeId;
     private String name;
     private HashMap<String, ShoppingItem> items;
     private Set<String> authorizedUsers;
@@ -16,7 +15,6 @@ public class ShoppingList {
 
     public ShoppingList(String id, String primaryNodeId, String name, HashMap<String, ShoppingItem> items, Set<String> authorizedUsers){
         this.id = id;
-        this.primaryNodeId = primaryNodeId;
         this.name = name;
         this.items = items != null ? items : new HashMap<>();
         this.authorizedUsers = authorizedUsers != null ? authorizedUsers : new HashSet<>();
@@ -63,13 +61,5 @@ public class ShoppingList {
 
     public void addAuthorizedUser(String username) {
         authorizedUsers.add(username);
-    }
-
-    public void setPrimaryNodeId(String primaryNodeId) {
-        this.primaryNodeId = primaryNodeId;
-    }
-
-    public String getPrimaryNodeId() {
-        return primaryNodeId;
     }
 }

@@ -2,8 +2,9 @@ package org.sdle.server;
 
 import org.sdle.api.Router;
 import org.sdle.api.ServerStub;
-import org.sdle.api.controller.SharedlistController;
+import org.sdle.api.controller.SharedListController;
 import org.sdle.api.controller.ShoppingItemController;
+import org.sdle.api.controller.ShoppingListController;
 import org.sdle.api.handler.ReplicaRequestHandler;
 import org.sdle.api.handler.SharedListRequestHandler;
 import org.sdle.api.handler.ShoppingItemRequestHandler;
@@ -11,7 +12,6 @@ import org.sdle.api.handler.ShoppingListRequestHandler;
 import org.sdle.config.NodeConfig;
 import org.sdle.config.ServerConfig;
 import org.sdle.api.controller.ReplicaController;
-import org.sdle.api.controller.ShoppingListController;
 import org.sdle.model.ShoppingList;
 import org.sdle.repository.ShoppingListRepository;
 import org.sdle.service.CRDTExecutionService;
@@ -94,7 +94,7 @@ public class Node extends Thread {
     }
 
     private static SharedListRequestHandler initializeSharedListRequestHandler(ShoppingListRepository repository) {
-        SharedlistController shoppingListController = new SharedlistController(repository);
+        SharedListController shoppingListController = new SharedListController(repository);
         return new SharedListRequestHandler(shoppingListController);
     }
 

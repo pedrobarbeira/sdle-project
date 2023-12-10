@@ -2,64 +2,29 @@ package org.sdle.api.controller;
 
 import org.sdle.api.ApiComponent;
 import org.sdle.api.Response;
-import org.sdle.model.ShoppingList;
+import org.sdle.model.ShoppingListDataModel;
 import org.sdle.repository.IShoppingListRepository;
 
-import java.util.List;
-import java.util.Set;
-
-public class ShoppingListController extends ApiComponent implements IShoppingListController {
-
+public class ShoppingListController extends ApiComponent {
     private final IShoppingListRepository repository;
 
-    public ShoppingListController(IShoppingListRepository repository){
+    public ShoppingListController(IShoppingListRepository repository) {
         this.repository = repository;
     }
 
-    public ShoppingList shareShoppingList(String id, String username) {
-        return repository.addAuthorizedUser(id, username);
+    public Response getAllShoppingLists(String user){
+        return ok("Getting all shopping lists");
     }
 
-    public Response getShoppingList(String id){
-        if (id == null) {
-            return badRequest();
-        }
-        return ok(repository.getById(id));
+    public Response createShoppingList(String user, ShoppingListDataModel dataModel){
+        return ok("Creating shopping list");
     }
 
-    public List<ShoppingList> getAllShoppingLists(){
-        return repository.getAll();
+    public Response updateShoppingList(String user, ShoppingListDataModel dataModel){
+        return ok("Updating shopping list");
     }
 
-    public Response getAllShoppingListsFromUser(String username){
-        return ok(repository.getAllFromUser(username));
-    }
-
-    public ShoppingList addShoppingList(ShoppingList shoppingList){
-        return repository.put(shoppingList);
-    }
-
-    public List<ShoppingList> addShoppingLists(List<ShoppingList> shoppingLists){
-        return repository.put(shoppingLists);
-    }
-
-    public ShoppingList updateShoppingList(ShoppingList shoppingList){
-        return repository.update(shoppingList);
-    }
-
-    public Response deleteShoppingList(ShoppingList shoppingList, String username){
-        if (shoppingList == null || username == null) {
-            return badRequest();
-        }
-
-        Set<String> authorizedUsers = repository.getAuthorizedUsers(shoppingList.getId());
-        if (!authorizedUsers.contains(username)){
-            return unauthorized();
-        }
-
-        if(repository.delete(shoppingList.getId())){
-            return ok(shoppingList);
-        }
-        return error();
+    public Response deleteShoppingList(String user, ShoppingListDataModel dataModel){
+        return ok("Deleting shopping list");
     }
 }
