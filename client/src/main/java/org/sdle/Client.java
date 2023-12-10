@@ -3,6 +3,7 @@ package org.sdle;
 import org.sdle.api.ApiComponent;
 import org.sdle.api.Request;
 import org.sdle.api.Response;
+import org.sdle.model.ItemOperationDataModel;
 import org.sdle.model.ShareOperationDataModel;
 
 import java.nio.charset.StandardCharsets;
@@ -139,39 +140,102 @@ public class Client extends ApiComponent {
         return null;
     }
 
-    public List<String> getItems(String listName){
-        System.out.printf("Getting items from list [%s]%n", listName);
-        return List.of("Item 1", "Item 2");
+    public List<String> getItems(String target){
+        if(isLoggedIn()){
+            ItemOperationDataModel body = new ItemOperationDataModel(target);
+            Request request = new Request(API_ITEMS, Request.GET, headers, body);
+            Response response = clientStub.sendRequest(request);
+            if (response.getStatus() == StatusCode.OK) {
+                return (List<String>) response.getBody();
+            }
+            String message = (String) response.getBody();
+            System.out.println(message);
+        }
+        return null;
     }
 
-    public String createIem(String listName, String itemName, int itemQuantity){
-        System.out.printf("Creating item in list [%s] with name [%s} and quantity [%d}%n", listName, itemName, itemQuantity);
-        return "Successfully created item";
+    public String createIem(String target, String itemName, int quantity){
+        if(isLoggedIn()) {
+            ItemOperationDataModel body = new ItemOperationDataModel(target, itemName, ItemOperations.CREATE, quantity);
+            Request request = new Request(API_SHARED, Request.POST, headers, body);
+            Response response = clientStub.sendRequest(request);
+            if (response.getStatus() == StatusCode.OK) {
+                return (String) response.getBody();
+            }
+            String message = (String) response.getBody();
+            System.out.println(message);
+        }
+        return null;
     }
 
-    public String addQuantityToItem(String listName, String itemName, int itemQuantity){
-        System.out.printf("Adding [%d] to item [%s] in list [%s]%n", itemQuantity, itemName, listName);
-        return "Successfully created item";
+    public String addQuantityToItem(String target, String itemName, int quantity){
+        if(isLoggedIn()) {
+            ItemOperationDataModel body = new ItemOperationDataModel(target, itemName, ItemOperations.ADD, quantity);
+            Request request = new Request(API_SHARED, Request.PUT, headers, body);
+            Response response = clientStub.sendRequest(request);
+            if (response.getStatus() == StatusCode.OK) {
+                return (String) response.getBody();
+            }
+            String message = (String) response.getBody();
+            System.out.println(message);
+        }
+        return null;
     }
 
-    public String removeQuantityFromItem(String listName, String  itemName, int itemQuantity){
-        System.out.printf("Removing [%d] from item [%s] in list [%s]%n", itemQuantity, itemName, listName);
-        return "Successfully created item";
+    public String removeQuantityFromItem(String target, String  itemName, int quantity){
+        if(isLoggedIn()) {
+            ItemOperationDataModel body = new ItemOperationDataModel(target, itemName, ItemOperations.RM, quantity);
+            Request request = new Request(API_SHARED, Request.PUT, headers, body);
+            Response response = clientStub.sendRequest(request);
+            if (response.getStatus() == StatusCode.OK) {
+                return (String) response.getBody();
+            }
+            String message = (String) response.getBody();
+            System.out.println(message);
+        }
+        return null;
     }
 
-    public String checkItem(String listName, String itemName){
-        System.out.printf("Creating item in list [%s] with name [%s]%n", listName, itemName);
-        return "Successfully created item";
+    public String checkItem(String target, String itemName){
+        if(isLoggedIn()) {
+            ItemOperationDataModel body = new ItemOperationDataModel(target, itemName, ItemOperations.CHECK);
+            Request request = new Request(API_SHARED, Request.PUT, headers, body);
+            Response response = clientStub.sendRequest(request);
+            if (response.getStatus() == StatusCode.OK) {
+                return (String) response.getBody();
+            }
+            String message = (String) response.getBody();
+            System.out.println(message);
+        }
+        return null;
     }
 
-    public String uncheckItem(String listName, String itemName, int itemQuantity){
-        System.out.printf("Unchecking item in list [%s] with name [%s] and quantity [%d]%n", listName, itemName, itemQuantity);
-        return "Successfully unchecked item";
+    public String uncheckItem(String target, String itemName, int quantity){
+        if(isLoggedIn()) {
+            ItemOperationDataModel body = new ItemOperationDataModel(target, itemName, ItemOperations.UNCHECK, quantity);
+            Request request = new Request(API_SHARED, Request.PUT, headers, body);
+            Response response = clientStub.sendRequest(request);
+            if (response.getStatus() == StatusCode.OK) {
+                return (String) response.getBody();
+            }
+            String message = (String) response.getBody();
+            System.out.println(message);
+        }
+        return null;
     }
 
-    public String removeItem(String listName, String itemName){
-        System.out.println("Removing item");
-        return "Successfully removed item";
+    public String removeItem(String target, String itemName){
+        if(isLoggedIn()) {
+            ItemOperationDataModel body = new ItemOperationDataModel(target, itemName, ItemOperations.DELETE);
+            Request request = new Request(API_SHARED, Request.PUT, headers, body);
+            Response response = clientStub.sendRequest(request);
+            if (response.getStatus() == StatusCode.OK) {
+                return (String) response.getBody();
+            }
+            String message = (String) response.getBody();
+            System.out.println(message);
+        }
+        return null;
     }
 
     private String encrypt(String toEncrypt){
@@ -207,9 +271,11 @@ public class Client extends ApiComponent {
     }
 
     static class ItemOperations{
+        public static final String CREATE = "create";
         public static final String ADD = "add";
         public static final String RM = "rm";
         public static final String CHECK = "check";
         public static final String UNCHECK = "uncheck";
+        public static final String DELETE = "delete";
     }
 }
