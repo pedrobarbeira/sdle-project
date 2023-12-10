@@ -1,6 +1,7 @@
 package org.sdle.config;
 
 import java.util.HashMap;
+import java.util.List;
 
 public class ServerConfig {
     public int maxActiveThreads;
@@ -10,4 +11,5 @@ public class ServerConfig {
     public String apiBase;
     public HashMap<String, NodeConfig> nodeMap;
     public HashMap<String, String> addressMap;
+    public List<String> tmpListeners;
 }

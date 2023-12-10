@@ -34,6 +34,7 @@ public class Bootstrapper {
     private HashMap<String, CRDTExecutionService<ShoppingList>> executionServiceMap;
 
     public Bootstrapper() throws IOException {
+        executionServiceMap = new HashMap<>();
         this.config = ObjectFactory.getServerConfig();
         this.nodeMap = config.nodeMap;
         this.ctx = new ZContext();
@@ -51,6 +52,7 @@ public class Bootstrapper {
     }
 
     private void initializeServices(){
+        System.out.println("Initializing services");
         int timeOut = this.config.timeOut;
         String mainNodeId = this.config.mainNodeId;
 
@@ -64,14 +66,15 @@ public class Bootstrapper {
         this.replicaService = new ReplicaService<>(this.ctx);
     }
 
-    private void getData() throws ExecutionException, JsonProcessingException, InterruptedException {
+    private void getData() throws ExecutionException, IOException, InterruptedException {
+        System.out.println("Fetching data");
         String dataRoot = this.config.mainNodeId;
         NodeConfig nodeConfig = this.nodeMap.get(dataRoot);
 
-        List<String> mainNodeReplicas = nodeConfig.replicatedOn;
+        List<String> tmpListeners = ObjectFactory.getServerConfig().tmpListeners;
         CompletableFuture<Void> asyncSynchronize = CompletableFuture.runAsync(()-> {
             try {
-                synchronizeMainData(mainNodeReplicas);
+                synchronizeMainData(tmpListeners);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
@@ -84,11 +87,13 @@ public class Bootstrapper {
     }
 
     private void synchronizeMainData(List<String> targets) throws ExecutionException, JsonProcessingException, InterruptedException {
+        System.out.println("Synchronizing main node data");
         CompletableFuture.runAsync(() -> openTmpListeners(targets));
         getNodeData(targets);
     }
 
     private void openTmpListeners(List<String> targets){
+        System.out.println("Opening temporary listeners");
         HashMap<String, String> addressMap = this.config.addressMap;
         for(String target : targets) {
             CRDTExecutionService<ShoppingList> crdtExecutionService = this.executionServiceMap.get(target);
@@ -100,13 +105,16 @@ public class Bootstrapper {
     }
 
     private void synchronizeReplicatesData(List<String> targets) throws ExecutionException, JsonProcessingException, InterruptedException {
+        System.out.println("Synchronizing replicates data");
         openNodeListeners(targets);
         getNodeData(targets);
     }
 
     private void openNodeListeners(List<String> targets){
+        System.out.println("Opening node listeners");
         HashMap<String, String> addressMap = this.config.addressMap;
         for(String target : targets){
+            System.out.printf("Opening node listener on [%s]%n", target);
             CRDTExecutionService<ShoppingList> crdtExecutionService = executionServiceMap.get(target);
             String address = addressMap.get(target);
             replicaService.subscribe(address, crdtExecutionService);
@@ -114,6 +122,7 @@ public class Bootstrapper {
     }
 
     private void getNodeData(List<String> targets) throws ExecutionException, JsonProcessingException, InterruptedException {
+        System.out.println("Fetching node data");
         List<DataFetchWorker> workers = new ArrayList<>();
         for(String target: targets){
             workers.add(new DataFetchWorker(this.ctx, this.config, target));
@@ -123,6 +132,7 @@ public class Bootstrapper {
     }
 
     private List<ReplicaDataModel> executeFetchWorkers(List<DataFetchWorker> workers) throws JsonProcessingException, ExecutionException, InterruptedException {
+        System.out.println("Executing fetch workers");
         List<Future<String>> futures = new ArrayList<>();
         ExecutorService executorService = ObjectFactory.getExecutorService();
         for(DataFetchWorker worker : workers){
@@ -149,6 +159,7 @@ public class Bootstrapper {
     }
 
     private void mergeRepositoryData(Cache baseData, Cache toMerge){
+        System.out.println("Merging data");
         String dataRoot = this.config.mainNodeId;
         CRDTExecutionService<ShoppingList> executionService = this.executionServiceMap.get(dataRoot);
         for(CRDT<ShoppingList> crdt : toMerge.getValues()){
@@ -164,6 +175,7 @@ public class Bootstrapper {
     }
 
     private void storeData(ReplicaDataModel data) throws InterruptedException {
+        System.out.println("Storing data");
         FileStorageWorker worker = new FileStorageWorker(data);
         Thread thread = new Thread(worker);
         thread.start();
@@ -171,6 +183,7 @@ public class Bootstrapper {
     }
 
     private void bootNodes() {
+        System.out.println("Booting nodes");
         String mainNodeId = this.config.mainNodeId;
         NodeConfig nodeConfig = this.nodeMap.get(mainNodeId);
         bootMainNode(nodeConfig);
@@ -179,6 +192,7 @@ public class Bootstrapper {
     }
 
     private void bootMainNode(NodeConfig nodeConfig){
+        System.out.println("Booting main node");
         String nodeId = nodeConfig.nodeId;
         CRDTExecutionService<ShoppingList> executionService = executionServiceMap.get(nodeId);
         Node mainNode = new Node(nodeConfig, this.replicaService, executionService);
@@ -193,6 +207,7 @@ public class Bootstrapper {
         }
         for(NodeConfig config : nodeConfigs){
             String nodeId = config.nodeId;
+            System.out.printf("Booting seconary node %s%n", nodeId);
             CRDTExecutionService<ShoppingList> executionService = executionServiceMap.get(nodeId);
             Node node = new Node(config, executionService);
             node.start();

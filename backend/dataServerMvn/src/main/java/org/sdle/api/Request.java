@@ -7,10 +7,12 @@ public class Request {
     public static final String POST = "POST";
     public static final  String PUT = "PUT";
     public static final String DELETE = "DELETE";
-    private final String route;
-    private final String method;
-    private final HashMap<String, String> headers;
-    private final Object body;
+    public String route;
+    public String method;
+    public HashMap<String, String> headers;
+    public Object body;
+
+    public Request(){}
 
     public Request(String route, String method, HashMap<String, String> headers, Object body) {
         this.route = route;
