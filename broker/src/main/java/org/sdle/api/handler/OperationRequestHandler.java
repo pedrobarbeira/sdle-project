@@ -16,7 +16,6 @@ import org.zeromq.ZContext;
 import org.zeromq.ZMQ;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.UUID;
 
 public class OperationRequestHandler extends ApiComponent implements RequestHandler {
@@ -41,7 +40,7 @@ public class OperationRequestHandler extends ApiComponent implements RequestHand
             try {
                 switch (route) {
                     case API_SHOPPINGLIST -> {
-                        return handShoppintListRequest(request);
+                        return handleShoppintListRequest(request);
                     }
                     case API_SHARED -> {
                         return handleShareRequest(request);
@@ -60,7 +59,7 @@ public class OperationRequestHandler extends ApiComponent implements RequestHand
         return badRequest();
     }
 
-    private Response handShoppintListRequest(Request request){
+    private Response handleShoppintListRequest(Request request) throws JsonProcessingException {
         String method = request.method;
         switch(method){
             case Request.POST -> {
@@ -72,33 +71,36 @@ public class OperationRequestHandler extends ApiComponent implements RequestHand
         }
     }
 
-    private Response handleCreateListRequest(Request request){
+    private Response handleCreateListRequest(Request request) throws JsonProcessingException {
         String listUuid = UUID.randomUUID().toString();
         String prefix = nodeService.getNextPrefix();
-        String listId = String.join("-", prefix, listUuid);
-        ListOperationDataModel dataModel = new ListOperationDataModel(listId);
-        return ok("Creating list");
-    }
-
-    private Response handleListOperationsRequest(Request request){
-        ListOperationDataModel dataModel = (ListOperationDataModel) request.body;
-        String prefix = dataModel.targetId.split("-")[0];
         String address = nodeService.getPrefixMainAddress(prefix);
-        return ok("Handling list operations");
+
+        String listId = String.join("-", prefix, listUuid);
+        String name = (String) request.body;
+        request.body =  new ListOperationDataModel(listId, name);
+        return sendRequestToServer(request, address);
     }
 
-    private Response handleShareRequest(Request request){
+    private Response handleListOperationsRequest(Request request) throws JsonProcessingException {
+        ListOperationDataModel dataModel = (ListOperationDataModel) request.body;
+        String prefix = dataModel.id.split("-")[0];
+        String address = nodeService.getPrefixMainAddress(prefix);
+        return sendRequestToServer(request, address);
+    }
+
+    private Response handleShareRequest(Request request) throws JsonProcessingException {
         ShareOperationDataModel dataModel = (ShareOperationDataModel) request.body;
         String prefix = dataModel.targetId.split("-")[0];
         String address = nodeService.getPrefixMainAddress(prefix);
-        return ok("Handling share request");
+        return sendRequestToServer(request, address);
     }
 
-    private Response handleItemsRequest(Request request){
+    private Response handleItemsRequest(Request request) throws JsonProcessingException {
         ItemOperationDataModel dataModel = (ItemOperationDataModel) request.body;
         String prefix = dataModel.targetId.split("-")[0];
         String address = nodeService.getPrefixMainAddress(prefix);
-        return ok("Handling share request");
+        return sendRequestToServer(request, address);
     }
 
 

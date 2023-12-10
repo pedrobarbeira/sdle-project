@@ -10,6 +10,7 @@ import org.sdle.controller.ReplicaController;
 import org.sdle.controller.ShoppingListController;
 import org.sdle.model.ShoppingList;
 import org.sdle.repository.ShoppingListRepository;
+import org.sdle.service.CRDTExecutionService;
 import org.sdle.service.ReplicaService;
 import org.zeromq.ZContext;
 
@@ -20,16 +21,19 @@ import java.util.List;
 
 public class Node extends Thread {
     private final ReplicaService<ShoppingList> replicaService;
+    private final CRDTExecutionService<ShoppingList> executionService;
     private final NodeConfig config;
-    public Node(NodeConfig config) {
+    public Node(NodeConfig config, CRDTExecutionService<ShoppingList> executionService) {
         ZContext ctx = new ZContext();
         this.replicaService = new ReplicaService<>(ctx);
         this.config = config;
+        this.executionService = executionService;
     }
 
-    public Node(NodeConfig config, ReplicaService<ShoppingList> replicaService){
+    public Node(NodeConfig config, ReplicaService<ShoppingList> replicaService, CRDTExecutionService<ShoppingList> executionService){
         this.config = config;
         this.replicaService = replicaService;
+        this.executionService = executionService;
     }
 
     @Override
@@ -56,7 +60,7 @@ public class Node extends Thread {
         this.replicaService.registerReplicatedOn(addresses);
     }
 
-    private void initializeNode() throws IOException {
+    private void initializeNode() throws IOException, InterruptedException {
         String dataRoot = this.config.nodeId;
 
         ShoppingListRepository repository = new ShoppingListRepository(dataRoot);
@@ -65,6 +69,7 @@ public class Node extends Thread {
 
         Router router = new Router(shoppingListRequestHandler, replicaRequestHandler);
         ServerStub serverStub = new ServerStub(this.config.port, router);
+        executionService.run(repository);
         serverStub.boot(this.config.threadNum);
     }
 

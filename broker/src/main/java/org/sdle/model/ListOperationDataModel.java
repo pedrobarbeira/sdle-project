@@ -1,12 +1,11 @@
 package org.sdle.model;
 
-import java.util.HashMap;
-import java.util.Set;
-
 public class ListOperationDataModel {
-    public String targetId;
+    public String id;
+    public String name;
 
-    public ListOperationDataModel(String targetId){
-        this.targetId = targetId;
+    public ListOperationDataModel(String id, String name){
+        this.id = id;
+        this.name = name;
     }
 }

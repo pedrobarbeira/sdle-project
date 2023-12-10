@@ -37,7 +37,7 @@ public class Bootstrapper {
         this.config = ObjectFactory.getServerConfig();
         this.nodeMap = config.nodeMap;
         this.ctx = new ZContext();
-        this.booted = true;
+        this.booted = false;
     }
 
     public void bootServer() {
@@ -52,12 +52,12 @@ public class Bootstrapper {
 
     private void initializeServices(){
         int timeOut = this.config.timeOut;
-        String dataRoot = this.config.mainNodeId;
+        String mainNodeId = this.config.mainNodeId;
 
-        NodeConfig nodeConfig = this.nodeMap.get(dataRoot);
+        NodeConfig nodeConfig = this.nodeMap.get(mainNodeId);
         List<String> replicates = nodeConfig.replicates;
 
-        this.executionServiceMap.put(dataRoot, new CRDTExecutionService<>(timeOut));
+        this.executionServiceMap.put(mainNodeId, new CRDTExecutionService<>(timeOut));
         for(String id : replicates){
             this.executionServiceMap.put(id, new CRDTExecutionService<>(timeOut));
         }
@@ -171,15 +171,17 @@ public class Bootstrapper {
     }
 
     private void bootNodes() {
-        String dataRoot = this.config.mainNodeId;
-        NodeConfig nodeConfig = this.nodeMap.get(dataRoot);
+        String mainNodeId = this.config.mainNodeId;
+        NodeConfig nodeConfig = this.nodeMap.get(mainNodeId);
         bootMainNode(nodeConfig);
         bootSecondaryNodes(nodeConfig);
         this.booted = true;
     }
 
     private void bootMainNode(NodeConfig nodeConfig){
-        Node mainNode = new Node(nodeConfig, this.replicaService);
+        String nodeId = nodeConfig.nodeId;
+        CRDTExecutionService<ShoppingList> executionService = executionServiceMap.get(nodeId);
+        Node mainNode = new Node(nodeConfig, this.replicaService, executionService);
         mainNode.start();
     }
     private void bootSecondaryNodes(NodeConfig mainNodeConfig){
@@ -190,7 +192,9 @@ public class Bootstrapper {
             nodeConfigs.add(config);
         }
         for(NodeConfig config : nodeConfigs){
-            Node node = new Node(config);
+            String nodeId = config.nodeId;
+            CRDTExecutionService<ShoppingList> executionService = executionServiceMap.get(nodeId);
+            Node node = new Node(config, executionService);
             node.start();
         }
     }

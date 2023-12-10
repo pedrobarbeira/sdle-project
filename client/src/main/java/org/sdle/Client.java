@@ -86,10 +86,9 @@ public class Client extends ApiComponent {
         return new ArrayList<>();
     }
 
-    public String createShoppingList(String target){
+    public String createShoppingList(String listName){
         if(isLoggedIn()) {
-            String targetId = repository.getIdFromName(target);
-            Request request = new Request(API_SHOPPINGLIST, Request.POST, headers, targetId);
+            Request request = new Request(API_SHOPPINGLIST, Request.POST, headers, listName);
             Response response = clientStub.sendRequest(request);
             if (response.getStatus() == StatusCode.OK) {
                 return (String) response.getBody();

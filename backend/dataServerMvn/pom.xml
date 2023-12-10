@@ -35,7 +35,7 @@
             <version>2.13.4.1</version> <!-- Use the latest version available -->
         </dependency>
         <dependency>
-            <groupId>io.jsonwebtoken</groupId>
+            <groupId>io.jsonwebtoken</groupId>tcp://localhost:4202
             <artifactId>jjwt</artifactId>
             <version>0.9.1</version> <!-- Replace with the version you are using -->
         </dependency>
