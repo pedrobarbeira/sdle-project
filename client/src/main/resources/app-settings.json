@@ -1,0 +1,5 @@
+{
+  "apiBase": "tcp://localhost:5555",
+  "communicationTimeout": 2000,
+  "communicationRetries": 3
+}
