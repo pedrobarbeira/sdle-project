@@ -27,24 +27,4 @@ public class CRDTOpItemsCreate extends CRDTOp<ShoppingList> {
     public void apply(CRDT<ShoppingList> target) {
         System.out.println("Creating item");
     }
-
-    public void setTargetId(String targetId){
-        this.targetId = targetId;
-    }
-
-    public void setValue(Object value){
-        this.value = value;
-    }
-
-    public void setVersion(int version){
-        this.version = version;
-    }
-
-    public void setTimestamp(Date timeStamp){
-        this.timeStamp = timeStamp;
-    }
-
-    public void setType(String type){
-        this.type = type;
-    }
 }

@@ -193,4 +193,16 @@ public class ShoppingListRepository implements IShoppingListRepository, ICRDTRep
         getAll();
         return this.cache;
     }
+
+    public List<CRDT<ShoppingList>> getAllCrdtFromUser(String user){
+        List<CRDT<ShoppingList>> crdts = new ArrayList<>();
+        for(CRDT<ShoppingList> crdt : cache.getValues()){
+            ShoppingList shoppingList = crdt.getValue();
+            Set<String> authorizedUsers = shoppingList.getAuthorizedUsers();
+            if(authorizedUsers.contains(user)){
+                crdts.add(crdt);
+            }
+        }
+        return crdts;
+    }
 }
