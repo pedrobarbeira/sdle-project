@@ -1,4 +1,4 @@
-package org.sdle.model;
+package org.sdle.model.domain;
 
 public class ShareOperationDataModel {
     public String targetId;
