@@ -65,6 +65,7 @@ public class Client extends ApiComponent {
         if(response.getStatus() == StatusCode.OK){
             String token = (String) response.getBody();
             headers.put(Headers.TOKEN, token);
+            headers.put(Headers.USER, username);
             String key = encrypt(username);
             headers.put(Headers.KEY, key);
             this.username = username;
