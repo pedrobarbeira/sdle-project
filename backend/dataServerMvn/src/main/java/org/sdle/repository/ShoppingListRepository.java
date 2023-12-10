@@ -14,7 +14,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.*;
 
-public class ShoppingListRepository implements IShoppingListRepository, ICRDTRepository<ShoppingList> {
+public class ShoppingListRepository implements ICRDTRepository<ShoppingList> {
 
     public static final String DATA_DIR = "data";
     private Cache cache;
@@ -111,23 +111,6 @@ public class ShoppingListRepository implements IShoppingListRepository, ICRDTRep
         return toReturn;
     }
 
-    public List<ShoppingList> getAllFromUser(String username){
-        String dataRoot = this.cache.getDataRoot();
-        URL resourceUrl = loader.getResource(dataRoot);
-        if (resourceUrl == null) {
-            throw new IllegalStateException("Resource directory not found: " + dataRoot);
-        }
-        List<ShoppingList> allLists = getAll();
-        List<ShoppingList> toReturn = new ArrayList<>();
-        for(ShoppingList list : allLists){
-            if(list.getAuthorizedUsers() != null && list.getAuthorizedUsers().contains(username)) {
-                toReturn.add(list);
-            }
-        }
-
-        return toReturn;
-    }
-
     public ShoppingList put(ShoppingList item){
         return putCRDt(item).getValue();
     }
@@ -140,17 +123,6 @@ public class ShoppingListRepository implements IShoppingListRepository, ICRDTRep
         return items;
     }
 
-    public ShoppingList update(ShoppingList item){
-        if(cache.containsKey(item.getId())){
-            return put(item);
-        }
-        String path = buildFilePath(item.getId());
-        if(loader.getResource(path) != null){
-            return put(item);
-        }
-        return null;
-    }
-
     public boolean delete(String id){
         cache.remove(id);
         File file = new File(filePathFromResources(id));
@@ -158,17 +130,6 @@ public class ShoppingListRepository implements IShoppingListRepository, ICRDTRep
             return file.delete();
         }
         return false;
-    }
-
-    public ShoppingList addAuthorizedUser(String id, String username) {
-        ShoppingList shoppingList = this.getById(id);
-        shoppingList.addAuthorizedUser(username);
-        return put(shoppingList);
-    }
-
-    public Set<String> getAuthorizedUsers(String id){
-        ShoppingList shoppingList = this.getById(id);
-        return shoppingList.getAuthorizedUsers();
     }
 
     @Override
@@ -195,6 +156,7 @@ public class ShoppingListRepository implements IShoppingListRepository, ICRDTRep
     }
 
     public List<CRDT<ShoppingList>> getAllCrdtFromUser(String user){
+        getAll();
         List<CRDT<ShoppingList>> crdts = new ArrayList<>();
         for(CRDT<ShoppingList> crdt : cache.getValues()){
             ShoppingList shoppingList = crdt.getValue();
