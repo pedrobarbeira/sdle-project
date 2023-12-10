@@ -1,13 +1,27 @@
 package org.sdle;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.sdle.model.ShoppingListDataModel;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class CommandHandler {
     private final Client client;
+    private final ShoppingListRepository repository;
+    private final ObjectMapper mapper = new ObjectMapper();
 
-    public CommandHandler(Client client) {
+    public CommandHandler(ShoppingListRepository repository, Client client) {
         this.client = client;
+        this.repository = repository;
+    }
+
+    public void boot() {
+        String username = client.continueSession();
+        if(username != null) {
+            System.out.printf("Welcome, %s%n", username);
+            repository.setSubDir(username);
+        }
     }
 
     public void handle(String command){
@@ -25,7 +39,8 @@ public class CommandHandler {
     }
 
     private void handleAuthCommand(List<String> tokens){
-        String token = tokens.get(0);
+        String token = tokens.remove(0);
+
         switch(token){
             case AuthCommand.REGISTER -> handleAuthCommandRegister(tokens);
             case AuthCommand.LOGOUT -> handleAuthCommandLogout();
@@ -43,6 +58,7 @@ public class CommandHandler {
         if(client.register(username, password)){
             System.out.println("Account successfully created");
             System.out.printf("Welcome, %s%n", username);
+            repository.setSubDir(username);
         }else{
             System.out.println("Could not create account");
         }
@@ -50,11 +66,11 @@ public class CommandHandler {
 
     private void handleAuthCommandLogout(){
         System.out.println("Logging out");
-        if(client.endSession()) {
-            System.out.println("See you next time");
-        }else{
-            System.out.println("Couldn't logout");
-        }
+
+        client.endSession();
+
+        System.out.println("See you next time");
+        repository.setSubDir(null);
     }
 
     private void handleAuthCommandLogin(List<String> tokens){
@@ -66,6 +82,7 @@ public class CommandHandler {
         String password = tokens.get(AuthCommand.PASSWORD);
         if(client.authenticate(username, password)){
             System.out.printf("Welcome, %s%n", username);
+            repository.setSubDir(username);
         }else{
             System.out.println("Invalid credentials");
         }
@@ -88,7 +105,8 @@ public class CommandHandler {
         }
         List<String> shoppingLists = client.getShoppingLists();
         for(String list : shoppingLists){
-            System.out.println(list);
+            ShoppingListDataModel shoppingList = mapper.convertValue(list, ShoppingListDataModel.class);
+            System.out.printf("%s | %s | %d | %d", shoppingList.id, shoppingList.name, shoppingList.itemNo, shoppingList.sharedNo);
         }
     }
 
@@ -98,6 +116,11 @@ public class CommandHandler {
             return;
         }
         String listName = tokens.get(ListsCommand.LIST_NAME);
+
+        ShoppingListDataModel shoppingListDataModel = new ShoppingListDataModel();
+        shoppingListDataModel.name = listName;
+
+        repository.put(shoppingListDataModel);
         String shoppingList = client.createShoppingList(listName);
         if(shoppingList != null) {
             System.out.println(shoppingList);
@@ -110,7 +133,11 @@ public class CommandHandler {
             return;
         }
         String listName = tokens.get(ListsCommand.LIST_NAME);
-        String shoppingList = client.deleteShoppingList(listName);
+
+        String targetId = repository.getIdFromName(listName);
+        repository.remove(listName);
+
+        String shoppingList = client.deleteShoppingList(targetId);
         if(shoppingList != null) {
             System.out.println(shoppingList);
         }
@@ -405,7 +432,7 @@ public class CommandHandler {
     }
 
     static class CommandLength{
-        public static final int AUTH_REGISTER =3 ;
+        public static final int AUTH_REGISTER = 2;
         public static final int AUTH_LOGIN = 2;
         public static final int LISTS_OPERATION = 2;
         public static final int LISTS_SHARE = 4;

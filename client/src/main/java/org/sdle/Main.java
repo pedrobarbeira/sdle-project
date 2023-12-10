@@ -1,5 +1,8 @@
 package org.sdle;
 
+import org.sdle.model.ShoppingListDataModel;
+import org.sdle.services.SessionService;
+
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
@@ -8,8 +11,11 @@ public class Main {
         try {
             ClientStub clientStub = new ClientStub();
             ShoppingListRepository repository = new ShoppingListRepository();
-            Client client = new Client(repository, clientStub);
-            CommandHandler handler = new CommandHandler(client);
+            SessionService sessionService = new SessionService();
+            Client client = new Client(clientStub, sessionService);
+            CommandHandler handler = new CommandHandler(repository, client);
+
+            handler.boot();
 
             BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
             String command;

@@ -20,4 +20,8 @@ public class ObjectFactory {
         }
         return clientConfig;
     }
+
+    public static ObjectMapper getMapper(){
+        return mapper;
+    }
 }
