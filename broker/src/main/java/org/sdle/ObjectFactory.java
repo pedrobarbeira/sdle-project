@@ -1,11 +1,10 @@
-package org.broker;
+package org.sdle;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.broker.config.BrokerConfig;
+import org.sdle.config.BrokerConfig;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -31,5 +30,9 @@ public class ObjectFactory {
             executorService = Executors.newFixedThreadPool(brokerConfig.maxActiveThreads);
         }
         return executorService;
+    }
+
+    public static ObjectMapper getMapper(){
+        return mapper;
     }
 }

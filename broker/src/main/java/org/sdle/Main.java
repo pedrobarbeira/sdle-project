@@ -1,7 +1,4 @@
-package org.broker;
-
-import org.broker.config.BrokerConfig;
-import org.broker.service.AuthService;
+package org.sdle;
 
 public class Main {
     public static void main(String[] args) {

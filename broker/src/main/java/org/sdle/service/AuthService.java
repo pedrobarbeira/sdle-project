@@ -1,6 +1,6 @@
-package org.broker.service;
+package org.sdle.service;
 
-import org.broker.model.User;
+import org.sdle.model.User;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -18,7 +18,7 @@ public class AuthService {
     }
 
 
-    private String encrypt(String toEncrypt){
+    public static String encrypt(String toEncrypt){
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             byte[] encodedhash = digest.digest(toEncrypt.getBytes(StandardCharsets.UTF_8));
@@ -38,8 +38,7 @@ public class AuthService {
 
     private boolean validateUser(String userName, String password){
         User user = repository.getUser(userName);
-        String encrypted = encrypt(password);
-        return encrypted.equals(user.getPassword());
+        return password.equals(user.getPassword());
     }
 
     public String generateToken(String userName, String password){

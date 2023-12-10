@@ -1,35 +1,50 @@
 {
   "maxActiveThreads": 32,
-  "port": 9000,
+  "port": 5555,
   "apiBase": "tcp://localhost",
   "dataRoot": "data",
   "prefixMap": {
-    "a": "1f89cea5-f8d9-4cd2-8128-bced97f29e60",
-    "b": "200cd0be-1820-4bcb-a0de-838ee38774f0",
-    "c": "379a2fc7-f5bb-4e2f-80d3-9b28166a1d7d",
-    "d": "4c73f5ce-f87e-4b35-b0a4-7235bf203265",
-    "e": "52a8d4f8-fe38-41ee-9bec-1f05af515597"
+    "a": {
+      "server": "1f89cea5-f8d9-4cd2-8128-bced97f29e60",
+      "address": "tcp://localhost:4100"
+    },
+    "b": {
+      "server": "200cd0be-1820-4bcb-a0de-838ee38774f0",
+      "address": "tcp://localhost:4200"
+    },
+    "c": {
+      "server": "379a2fc7-f5bb-4e2f-80d3-9b28166a1d7d",
+      "address": "tcp://localhost:4300"
+    },
+    "d": {
+      "server": "4c73f5ce-f87e-4b35-b0a4-7235bf203265",
+      "address": "tcp://localhost:4400"
+    },
+    "e": {
+      "server": "52a8d4f8-fe38-41ee-9bec-1f05af515597",
+      "address": "tcp://localhost:4500"
+    }
   },
   "replicaMap": {
     "1f89cea5-f8d9-4cd2-8128-bced97f29e60": [
-      "200cd0be-1820-4bcb-a0de-838ee38774f0",
-      "379a2fc7-f5bb-4e2f-80d3-9b28166a1d7d"
+      "tcp://localhost:4202",
+      "tcp://localhost:4301"
     ],
     "200cd0be-1820-4bcb-a0de-838ee38774f0": [
-      "379a2fc7-f5bb-4e2f-80d3-9b28166a1d7d",
-      "4c73f5ce-f87e-4b35-b0a4-7235bf203265"
+      "tcp://localhost:4302",
+      "tcp://localhost:4401"
     ],
     "379a2fc7-f5bb-4e2f-80d3-9b28166a1d7d": [
-      "4c73f5ce-f87e-4b35-b0a4-7235bf203265",
-      "52a8d4f8-fe38-41ee-9bec-1f05af515597"
+      "tcp://localhost:4402",
+      "tcp://localhost:4501"
     ],
     "4c73f5ce-f87e-4b35-b0a4-7235bf203265": [
-      "52a8d4f8-fe38-41ee-9bec-1f05af515597",
-      "1f89cea5-f8d9-4cd2-8128-bced97f29e60"
+      "tcp://localhost:4502",
+      "tcp://localhost:4101"
     ],
     "52a8d4f8-fe38-41ee-9bec-1f05af515597": [
-      "1f89cea5-f8d9-4cd2-8128-bced97f29e60",
-      "200cd0be-1820-4bcb-a0de-838ee38774f0"
+      "tcp://localhost:4102",
+      "tcp://localhost:4201"
     ]
   }
 }
