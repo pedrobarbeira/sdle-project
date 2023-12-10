@@ -190,6 +190,7 @@ public class ShoppingListRepository implements IShoppingListRepository, ICRDTRep
 
     @Override
     public Cache getCache(){
+        getAll();
         return this.cache;
     }
 }

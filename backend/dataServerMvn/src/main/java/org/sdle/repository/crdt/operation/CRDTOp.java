@@ -1,9 +1,7 @@
 package org.sdle.repository.crdt.operation;
 
-import org.sdle.model.ShoppingList;
 import org.sdle.repository.crdt.CRDT;
 
-import java.time.LocalDateTime;
 import java.util.Date;
 
 public abstract class CRDTOp<T> {

@@ -1,13 +1,8 @@
 package org.sdle.repository;
 
 import org.sdle.model.ShoppingList;
-import org.sdle.repository.crdt.CRDT;
 
-import java.io.File;
-import java.net.URL;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 
 public interface IShoppingListRepository {

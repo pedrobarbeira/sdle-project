@@ -14,12 +14,14 @@ import org.sdle.service.CRDTExecutionService;
 import org.sdle.service.ReplicaService;
 import org.zeromq.ZContext;
 
-import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
-import java.util.concurrent.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 
 public class Bootstrapper {
 
@@ -31,21 +33,19 @@ public class Bootstrapper {
     private ReplicaService<ShoppingList> replicaService;
     private HashMap<String, CRDTExecutionService<ShoppingList>> executionServiceMap;
 
-    public Bootstrapper(ServerConfig config){
-        this.config = config;
+    public Bootstrapper() throws IOException {
+        this.config = ObjectFactory.getServerConfig();
         this.nodeMap = config.nodeMap;
         this.ctx = new ZContext();
         this.booted = true;
     }
 
-    public void bootServer(){
+    public void bootServer() {
         try {
             initializeServices();
-            if(isNewServer()) {
-                getData();
-            }
+            getData();
             bootNodes();
-        }catch(Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -62,13 +62,6 @@ public class Bootstrapper {
             this.executionServiceMap.put(id, new CRDTExecutionService<>(timeOut));
         }
         this.replicaService = new ReplicaService<>(this.ctx);
-    }
-    private boolean isNewServer(){
-        String dataRoot = this.config.mainNodeId;
-        ClassLoader loader = getClass().getClassLoader();
-        String path = Objects.requireNonNull(loader.getResource(dataRoot)).getPath();
-        File file = new File(path);
-        return file.exists();
     }
 
     private void getData() throws ExecutionException, JsonProcessingException, InterruptedException {
@@ -91,12 +84,8 @@ public class Bootstrapper {
     }
 
     private void synchronizeMainData(List<String> targets) throws ExecutionException, JsonProcessingException, InterruptedException {
-        List<NodeConfig> replicasConfig = new ArrayList<>();
-        for(String id : targets){
-            replicasConfig.add(this.nodeMap.get(id));
-        }
         CompletableFuture.runAsync(() -> openTmpListeners(targets));
-        getNodeData(replicasConfig);
+        getNodeData(targets);
     }
 
     private void openTmpListeners(List<String> targets){
@@ -111,12 +100,8 @@ public class Bootstrapper {
     }
 
     private void synchronizeReplicatesData(List<String> targets) throws ExecutionException, JsonProcessingException, InterruptedException {
-        List<NodeConfig> replicatesConfig = new ArrayList<>();
-        for(String id : targets){
-            replicatesConfig.add(this.nodeMap.get(id));
-        }
         openNodeListeners(targets);
-        getNodeData(replicatesConfig);
+        getNodeData(targets);
     }
 
     private void openNodeListeners(List<String> targets){
@@ -128,10 +113,10 @@ public class Bootstrapper {
         }
     }
 
-    private void getNodeData(List<NodeConfig> targets) throws ExecutionException, JsonProcessingException, InterruptedException {
+    private void getNodeData(List<String> targets) throws ExecutionException, JsonProcessingException, InterruptedException {
         List<DataFetchWorker> workers = new ArrayList<>();
-        for(NodeConfig target: targets){
-            workers.add(new DataFetchWorker(this.ctx, target, config.mainNodeId, config.apiBase));
+        for(String target: targets){
+            workers.add(new DataFetchWorker(this.ctx, this.config, target));
         }
         List<ReplicaDataModel> unmergedData = executeFetchWorkers(workers);
         mergeAndStoreData(unmergedData);

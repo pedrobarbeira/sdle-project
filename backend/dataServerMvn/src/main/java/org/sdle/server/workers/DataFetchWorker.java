@@ -1,10 +1,9 @@
 package org.sdle.server.workers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.sdle.api.ApiComponent;
 import org.sdle.api.Request;
 import org.sdle.api.Router;
-import org.sdle.config.NodeConfig;
+import org.sdle.config.ServerConfig;
 import org.zeromq.SocketType;
 import org.zeromq.ZContext;
 import org.zeromq.ZMQ;
@@ -14,26 +13,25 @@ import java.util.concurrent.Callable;
 
 public class DataFetchWorker implements Callable<String> {
     private final ZContext ctx;
-    private final NodeConfig target;
-    private final String dataRoot;
-    private final String apiBase;
+    private final String target;
+    HashMap<String, String> addressMap;
     private final ObjectMapper mapper = new ObjectMapper();
 
-    public DataFetchWorker(ZContext ctx, NodeConfig target, String dataRoot, String apiBase){
+    public DataFetchWorker(ZContext ctx, ServerConfig config, String targets){
         this.ctx = ctx;
-        this.target = target;
-        this.dataRoot = dataRoot;
-        this.apiBase = apiBase;
+        this.target = targets;
+        this.addressMap = config.addressMap;
     }
 
     @Override
     public String call() throws Exception {
         ZMQ.Socket socket = ctx.createSocket(SocketType.REQ);
-        socket.connect(String.format("%s:%d", this.apiBase, target.port));
-        HashMap<String, String> headers = new HashMap<>(){{
-            put(ApiComponent.Headers.DATA_ROOT, dataRoot);
-        }};
-        Request request = new Request(Router.REPLICA, Request.GET, headers, target.nodeId);
+        String address = addressMap.get(target);
+        socket.connect(String.format(address));
+
+        HashMap<String, String> headers = new HashMap<>();
+        Request request = new Request(Router.REPLICA, Request.GET, headers, target);
+
         String requestStr = mapper.writeValueAsString(request);
         socket.send(requestStr);
         return socket.recvStr();

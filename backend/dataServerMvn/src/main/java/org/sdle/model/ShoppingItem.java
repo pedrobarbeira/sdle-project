@@ -1,7 +1,5 @@
 package org.sdle.model;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-
 import java.util.UUID;
 
 public class ShoppingItem {

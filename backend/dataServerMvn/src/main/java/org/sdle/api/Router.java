@@ -1,5 +1,6 @@
 package org.sdle.api;
 
+import org.sdle.api.handler.ReplicaRequestHandler;
 import org.sdle.api.handler.RequestHandler;
 import org.sdle.api.handler.ShoppingListRequestHandler;
 
@@ -11,10 +12,11 @@ public class Router extends  ApiComponent {
     public static final String SHOPPINGLIST_SHARE = "api/shoppinglist-share";
     private final Map<String, RequestHandler> handlers;
 
-    public Router(ShoppingListRequestHandler shoppingListRequestHandler){
+    public Router(ShoppingListRequestHandler shoppingListRequestHandler, ReplicaRequestHandler replicaRequestHandler){
         handlers = Map.of(
                 SHOPPINGLIST, shoppingListRequestHandler,
-                SHOPPINGLIST_SHARE, shoppingListRequestHandler
+                SHOPPINGLIST_SHARE, shoppingListRequestHandler,
+                REPLICA, replicaRequestHandler
         );
     }
 

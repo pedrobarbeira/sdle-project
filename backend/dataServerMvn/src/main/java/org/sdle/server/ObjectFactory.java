@@ -10,9 +10,13 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class ObjectFactory {
-    public static final String CONFIG_FILE = "server-1-settings.json";
+    public static String CONFIG_FILE;
     private static ServerConfig serverConfig;
     private static ExecutorService executorService;
+
+    public static void setServerConfigFile(String configFile){
+        CONFIG_FILE = configFile;
+    }
 
     public static ServerConfig getServerConfig() throws IOException {
         if(serverConfig == null){

@@ -1,21 +1,17 @@
 package org.sdle;
 
-import org.sdle.config.NodeConfig;
-import org.sdle.config.ServerConfig;
-import org.sdle.server.Node;
+import org.sdle.server.Bootstrapper;
 import org.sdle.server.ObjectFactory;
 
 public class Main {
     public static void main(String[] args) {
         try {
-            ServerConfig serverConfig = ObjectFactory.getServerConfig();
-            for (NodeConfig nodeConfig : serverConfig.nodeMap.values()) {
-                Node node = new Node(nodeConfig);
-                node.start();
-            }
-        } catch (Exception e) {
+            String configFile = args[0];
+            ObjectFactory.setServerConfigFile(configFile);
+            Bootstrapper bootstrapper = new Bootstrapper();
+            bootstrapper.bootServer();
+        }catch(Exception e){
             e.printStackTrace();
-            ;
         }
     }
 }

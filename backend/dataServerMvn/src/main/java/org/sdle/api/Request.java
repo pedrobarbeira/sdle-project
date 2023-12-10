@@ -1,7 +1,5 @@
 package org.sdle.api;
 
-import zmq.socket.reqrep.Req;
-
 import java.util.HashMap;
 
 public class Request {
@@ -9,10 +7,10 @@ public class Request {
     public static final String POST = "POST";
     public static final  String PUT = "PUT";
     public static final String DELETE = "DELETE";
-    private String route;
-    private String method;
-    private HashMap<String, String> headers;
-    private Object body;
+    private final String route;
+    private final String method;
+    private final HashMap<String, String> headers;
+    private final Object body;
 
     public Request(String route, String method, HashMap<String, String> headers, Object body) {
         this.route = route;

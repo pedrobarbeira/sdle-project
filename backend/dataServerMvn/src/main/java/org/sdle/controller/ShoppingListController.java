@@ -4,10 +4,8 @@ import org.sdle.api.ApiComponent;
 import org.sdle.api.Response;
 import org.sdle.model.ShoppingList;
 import org.sdle.repository.IShoppingListRepository;
-import org.sdle.repository.ShoppingListRepository;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 public class ShoppingListController extends ApiComponent implements IShoppingListController {

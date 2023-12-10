@@ -2,9 +2,11 @@ package org.sdle.server;
 
 import org.sdle.api.Router;
 import org.sdle.api.ServerStub;
+import org.sdle.api.handler.ReplicaRequestHandler;
 import org.sdle.api.handler.ShoppingListRequestHandler;
 import org.sdle.config.NodeConfig;
 import org.sdle.config.ServerConfig;
+import org.sdle.controller.ReplicaController;
 import org.sdle.controller.ShoppingListController;
 import org.sdle.model.ShoppingList;
 import org.sdle.repository.ShoppingListRepository;
@@ -58,11 +60,21 @@ public class Node extends Thread {
         String dataRoot = this.config.nodeId;
 
         ShoppingListRepository repository = new ShoppingListRepository(dataRoot);
-        ShoppingListController controller = new ShoppingListController(repository);
-        ShoppingListRequestHandler handler = new ShoppingListRequestHandler(controller);
-        Router router = new Router(handler);
+        ShoppingListRequestHandler shoppingListRequestHandler = initializeShoppingListRequestHandler(repository);
+        ReplicaRequestHandler replicaRequestHandler = initializeReplicaRequestHandler(repository);
 
+        Router router = new Router(shoppingListRequestHandler, replicaRequestHandler);
         ServerStub serverStub = new ServerStub(this.config.port, router);
         serverStub.boot(this.config.threadNum);
+    }
+
+    private static ReplicaRequestHandler initializeReplicaRequestHandler(ShoppingListRepository repository) {
+        ReplicaController replicaController = new ReplicaController(repository);
+        return new ReplicaRequestHandler(replicaController);
+    }
+
+    private static ShoppingListRequestHandler initializeShoppingListRequestHandler(ShoppingListRepository repository) {
+        ShoppingListController shoppingListController = new ShoppingListController(repository);
+        return new ShoppingListRequestHandler(shoppingListController);
     }
 }
