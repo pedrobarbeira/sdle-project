@@ -1,4 +1,4 @@
-package org.sdle.controller;
+package org.sdle.api.controller;
 
 import org.sdle.api.Response;
 import org.sdle.model.ShoppingList;

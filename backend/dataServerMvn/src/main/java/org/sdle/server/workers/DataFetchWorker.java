@@ -30,7 +30,7 @@ public class DataFetchWorker implements Callable<String> {
         socket.connect(String.format(address));
 
         HashMap<String, String> headers = new HashMap<>();
-        Request request = new Request(Router.REPLICA, Request.GET, headers, target);
+        Request request = new Request(Router.API_REPLICA, Request.GET, headers, target);
 
         String requestStr = mapper.writeValueAsString(request);
         socket.send(requestStr);

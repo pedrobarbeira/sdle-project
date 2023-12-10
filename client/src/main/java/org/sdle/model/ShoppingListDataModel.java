@@ -1,6 +1,6 @@
 package org.sdle.model;
 
-public class ShoppingList {
+public class ShoppingListDataModel {
     public String id;
     public String name;
 }

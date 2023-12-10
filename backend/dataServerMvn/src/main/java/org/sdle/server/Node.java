@@ -2,12 +2,16 @@ package org.sdle.server;
 
 import org.sdle.api.Router;
 import org.sdle.api.ServerStub;
+import org.sdle.api.controller.SharedlistController;
+import org.sdle.api.controller.ShoppingItemController;
 import org.sdle.api.handler.ReplicaRequestHandler;
+import org.sdle.api.handler.SharedListRequestHandler;
+import org.sdle.api.handler.ShoppingItemRequestHandler;
 import org.sdle.api.handler.ShoppingListRequestHandler;
 import org.sdle.config.NodeConfig;
 import org.sdle.config.ServerConfig;
-import org.sdle.controller.ReplicaController;
-import org.sdle.controller.ShoppingListController;
+import org.sdle.api.controller.ReplicaController;
+import org.sdle.api.controller.ShoppingListController;
 import org.sdle.model.ShoppingList;
 import org.sdle.repository.ShoppingListRepository;
 import org.sdle.service.CRDTExecutionService;
@@ -64,10 +68,16 @@ public class Node extends Thread {
         String dataRoot = this.config.nodeId;
 
         ShoppingListRepository repository = new ShoppingListRepository(dataRoot);
-        ShoppingListRequestHandler shoppingListRequestHandler = initializeShoppingListRequestHandler(repository);
         ReplicaRequestHandler replicaRequestHandler = initializeReplicaRequestHandler(repository);
+        ShoppingListRequestHandler shoppingListRequestHandler = initializeShoppingListRequestHandler(repository);
+        SharedListRequestHandler sharedListRequestHandler = initializeSharedListRequestHandler(repository);
+        ShoppingItemRequestHandler shoppingItemRequestHandler = initializeShoppingItemRequestHanlder(repository);
 
-        Router router = new Router(shoppingListRequestHandler, replicaRequestHandler);
+        Router router = new Router(
+                replicaRequestHandler,
+                shoppingListRequestHandler,
+                sharedListRequestHandler,
+                shoppingItemRequestHandler);
         ServerStub serverStub = new ServerStub(this.config.port, router);
         executionService.run(repository);
         serverStub.boot(this.config.threadNum);
@@ -81,5 +91,15 @@ public class Node extends Thread {
     private static ShoppingListRequestHandler initializeShoppingListRequestHandler(ShoppingListRepository repository) {
         ShoppingListController shoppingListController = new ShoppingListController(repository);
         return new ShoppingListRequestHandler(shoppingListController);
+    }
+
+    private static SharedListRequestHandler initializeSharedListRequestHandler(ShoppingListRepository repository) {
+        SharedlistController shoppingListController = new SharedlistController(repository);
+        return new SharedListRequestHandler(shoppingListController);
+    }
+
+    private static ShoppingItemRequestHandler initializeShoppingItemRequestHanlder(ShoppingListRepository repository) {
+        ShoppingItemController shoppingListController = new ShoppingItemController(repository);
+        return new ShoppingItemRequestHandler(shoppingListController);
     }
 }

@@ -1,4 +1,4 @@
-package org.sdle.controller;
+package org.sdle.api.controller;
 
 import org.sdle.api.ApiComponent;
 import org.sdle.api.Response;

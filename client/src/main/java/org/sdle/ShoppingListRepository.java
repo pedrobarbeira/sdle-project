@@ -1,29 +1,29 @@
 package org.sdle;
 
-import org.sdle.model.ShoppingList;
+import org.sdle.model.ShoppingListDataModel;
 
 import java.util.HashMap;
 import java.util.List;
 
 public class ShoppingListRepository {
-    private final HashMap<String, ShoppingList> cache;
+    private final HashMap<String, ShoppingListDataModel> cache;
 
     public ShoppingListRepository(){
         this.cache = new HashMap<>();
     }
 
     public String getIdFromName(String name){
-        ShoppingList shoppingList = cache.get(name);
+        ShoppingListDataModel shoppingList = cache.get(name);
         return shoppingList.id;
     }
 
-    public void put(ShoppingList shoppingList){
+    public void put(ShoppingListDataModel shoppingList){
         String key = shoppingList.name;
         cache.put(key, shoppingList);
     }
 
-    public void put(List<ShoppingList> shoppingLists){
-        for(ShoppingList shoppingList : shoppingLists){
+    public void put(List<ShoppingListDataModel> shoppingLists){
+        for(ShoppingListDataModel shoppingList : shoppingLists){
             put(shoppingList);
         }
     }

@@ -34,6 +34,7 @@ public class Client extends ApiComponent {
         Response response = clientStub.sendRequest(request);
         if(response.getStatus() == StatusCode.OK){
             headers.remove(Headers.TOKEN);
+            headers.remove(Headers.USER);
             headers.remove(Headers.KEY);
             return true;
         }
@@ -65,6 +66,7 @@ public class Client extends ApiComponent {
         if(response.getStatus() == StatusCode.OK){
             String token = (String) response.getBody();
             headers.put(Headers.TOKEN, token);
+            headers.put(Headers.USER, username);
             String key = encrypt(username);
             headers.put(Headers.KEY, key);
             this.username = username;
@@ -87,6 +89,19 @@ public class Client extends ApiComponent {
     }
 
     public String createShoppingList(String listName){
+        if(isLoggedIn()) {
+            Request request = new Request(API_SHOPPINGLIST, Request.POST, headers, listName);
+            Response response = clientStub.sendRequest(request);
+            if (response.getStatus() == StatusCode.OK) {
+                return (String) response.getBody();
+            }
+            String message = (String) response.getBody();
+            System.out.println(message);
+        }
+        return null;
+    }
+
+    public String updateShoppingList(String listName, String newName){
         if(isLoggedIn()) {
             Request request = new Request(API_SHOPPINGLIST, Request.POST, headers, listName);
             Response response = clientStub.sendRequest(request);

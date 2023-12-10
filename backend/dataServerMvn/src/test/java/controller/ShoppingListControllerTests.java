@@ -1,14 +1,11 @@
 package controller;
 
-import handler.ShoppingListRequestHandlerTest;
 import io.jsonwebtoken.lang.Assert;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.sdle.api.ApiComponent;
-import org.sdle.api.Request;
 import org.sdle.api.Response;
-import org.sdle.api.Router;
-import org.sdle.controller.ShoppingListController;
+import org.sdle.api.controller.ShoppingListController;
 import org.sdle.model.ShoppingItem;
 import org.sdle.model.ShoppingList;
 import org.sdle.repository.IShoppingListRepository;

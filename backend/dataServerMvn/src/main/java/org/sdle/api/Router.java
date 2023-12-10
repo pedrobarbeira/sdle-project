@@ -1,22 +1,25 @@
 package org.sdle.api;
 
-import org.sdle.api.handler.ReplicaRequestHandler;
-import org.sdle.api.handler.RequestHandler;
-import org.sdle.api.handler.ShoppingListRequestHandler;
+import org.sdle.api.handler.*;
 
 import java.util.Map;
 
 public class Router extends  ApiComponent {
-    public static final String REPLICA = "api/replica";
-    public static final String SHOPPINGLIST = "api/shoppinglist";
-    public static final String SHOPPINGLIST_SHARE = "api/shoppinglist-share";
+    public static final String API_REPLICA = "api/replica";
+    public static final String API_SHOPPINGLIST = "api/shoppinglist";
+    public static final String API_SHARED = "api/shared";
+    public static final String API_ITEMS = "api/items";
     private final Map<String, RequestHandler> handlers;
 
-    public Router(ShoppingListRequestHandler shoppingListRequestHandler, ReplicaRequestHandler replicaRequestHandler){
+    public Router(ReplicaRequestHandler replicaRequestHandler,
+                  ShoppingListRequestHandler shoppingListRequestHandler,
+                  SharedListRequestHandler sharedListRequestHandler,
+                  ShoppingItemRequestHandler shoppingItemRequestHandler){
         handlers = Map.of(
-                SHOPPINGLIST, shoppingListRequestHandler,
-                SHOPPINGLIST_SHARE, shoppingListRequestHandler,
-                REPLICA, replicaRequestHandler
+                API_REPLICA, replicaRequestHandler,
+                API_SHOPPINGLIST, shoppingListRequestHandler,
+                API_SHARED, sharedListRequestHandler,
+                API_ITEMS, shoppingItemRequestHandler
         );
     }
 
