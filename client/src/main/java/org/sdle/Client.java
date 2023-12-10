@@ -176,7 +176,7 @@ public class Client extends ApiComponent {
     public String createIem(String target, String itemName, int quantity){
         if(isLoggedIn()) {
             String targetId = repository.getIdFromName(target);
-            ItemOperationDataModel body = new ItemOperationDataModel(targetId, itemName, ItemOperations.CREATE, quantity);
+            ItemOperationDataModel body = new ItemOperationDataModel(targetId, itemName, quantity);
             Request request = new Request(API_SHARED, Request.POST, headers, body);
             Response response = clientStub.sendRequest(request);
             if (response.getStatus() == StatusCode.OK) {
@@ -191,7 +191,7 @@ public class Client extends ApiComponent {
     public String addQuantityToItem(String target, String itemName, int quantity){
         if(isLoggedIn()) {
             String targetId = repository.getIdFromName(target);
-            ItemOperationDataModel body = new ItemOperationDataModel(targetId, itemName, ItemOperations.ADD, quantity);
+            ItemOperationDataModel body = new ItemOperationDataModel(targetId, itemName, quantity);
             Request request = new Request(API_SHARED, Request.PUT, headers, body);
             Response response = clientStub.sendRequest(request);
             if (response.getStatus() == StatusCode.OK) {
@@ -204,24 +204,14 @@ public class Client extends ApiComponent {
     }
 
     public String removeQuantityFromItem(String target, String  itemName, int quantity){
-        if(isLoggedIn()) {
-            String targetId = repository.getIdFromName(target);
-            ItemOperationDataModel body = new ItemOperationDataModel(targetId, itemName, ItemOperations.RM, quantity);
-            Request request = new Request(API_SHARED, Request.PUT, headers, body);
-            Response response = clientStub.sendRequest(request);
-            if (response.getStatus() == StatusCode.OK) {
-                return (String) response.getBody();
-            }
-            String message = (String) response.getBody();
-            System.out.println(message);
-        }
-        return null;
+        int negQuantity = - quantity;
+        return addQuantityToItem(target, itemName, negQuantity);
     }
 
     public String checkItem(String target, String itemName){
         if(isLoggedIn()) {
             String targetId = repository.getIdFromName(target);
-            ItemOperationDataModel body = new ItemOperationDataModel(targetId, itemName, ItemOperations.CHECK);
+            ItemOperationDataModel body = new ItemOperationDataModel(targetId, itemName);
             Request request = new Request(API_SHARED, Request.PUT, headers, body);
             Response response = clientStub.sendRequest(request);
             if (response.getStatus() == StatusCode.OK) {
@@ -236,7 +226,7 @@ public class Client extends ApiComponent {
     public String uncheckItem(String target, String itemName, int quantity){
         if(isLoggedIn()) {
             String targetId = repository.getIdFromName(target);
-            ItemOperationDataModel body = new ItemOperationDataModel(targetId, itemName, ItemOperations.UNCHECK, quantity);
+            ItemOperationDataModel body = new ItemOperationDataModel(targetId, itemName, quantity);
             Request request = new Request(API_SHARED, Request.PUT, headers, body);
             Response response = clientStub.sendRequest(request);
             if (response.getStatus() == StatusCode.OK) {
@@ -251,7 +241,7 @@ public class Client extends ApiComponent {
     public String removeItem(String target, String itemName){
         if(isLoggedIn()) {
             String targetId = repository.getIdFromName(target);
-            ItemOperationDataModel body = new ItemOperationDataModel(targetId, itemName, ItemOperations.DELETE);
+            ItemOperationDataModel body = new ItemOperationDataModel(targetId, itemName);
             Request request = new Request(API_SHARED, Request.PUT, headers, body);
             Response response = clientStub.sendRequest(request);
             if (response.getStatus() == StatusCode.OK) {
@@ -293,14 +283,5 @@ public class Client extends ApiComponent {
         public static final String USERNAME = "username";
         public static final String PASSWORD = "password";
 
-    }
-
-    static class ItemOperations{
-        public static final String CREATE = "create";
-        public static final String ADD = "add";
-        public static final String RM = "rm";
-        public static final String CHECK = "check";
-        public static final String UNCHECK = "uncheck";
-        public static final String DELETE = "delete";
     }
 }
