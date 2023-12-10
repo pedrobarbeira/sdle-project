@@ -9,7 +9,7 @@ import org.sdle.api.ApiComponent;
 import org.sdle.api.Request;
 import org.sdle.api.Response;
 import org.sdle.api.Router;
-import org.sdle.controller.IShoppingListController;
+import org.sdle.api.controller.IShoppingListController;
 import org.sdle.api.handler.ShoppingListRequestHandler;
 
 import java.util.HashMap;
@@ -47,7 +47,7 @@ public class ShoppingListRequestHandlerTest {
 
     @Test
     void handleRequestNotAllowedTest(){
-        Request request = new Request(Router.SHOPPINGLIST, "Error", defaultHeaders, new Object());
+        Request request = new Request(Router.API_SHOPPINGLIST, "Error", defaultHeaders, new Object());
 
         Response response = requestHandler.handle(request);
         Assert.isTrue(response.getStatus() == ApiComponent.StatusCode.NOT_ALLOWED);
@@ -55,7 +55,7 @@ public class ShoppingListRequestHandlerTest {
 
     @Test
     void handleGetError(){
-        Request request = new Request(Router.SHOPPINGLIST, Request.GET, defaultHeaders, new Object());
+        Request request = new Request(Router.API_SHOPPINGLIST, Request.GET, defaultHeaders, new Object());
 
         Response response = requestHandler.handle(request);
         Assert.isTrue(response.getStatus() == ApiComponent.StatusCode.ERROR);
@@ -63,7 +63,7 @@ public class ShoppingListRequestHandlerTest {
 
     @Test
     void handleGetBadRequest(){
-        Request request = new Request(Router.SHOPPINGLIST, Request.GET, defaultHeaders, null);
+        Request request = new Request(Router.API_SHOPPINGLIST, Request.GET, defaultHeaders, null);
 
         Response response = requestHandler.handle(request);
         Assert.isTrue(response.getStatus() == ApiComponent.StatusCode.BAD_REQUEST);
@@ -73,7 +73,7 @@ public class ShoppingListRequestHandlerTest {
     void handleGetAllFromUserRequest(){
         when(mockController.getAllShoppingListsFromUser(any()))
                 .thenReturn(requestHandler.ok(new Object()));
-        Request request = new Request(Router.SHOPPINGLIST, Request.GET, defaultHeaders, new HashMap<>());
+        Request request = new Request(Router.API_SHOPPINGLIST, Request.GET, defaultHeaders, new HashMap<>());
 
         Response response = requestHandler.handle(request);
         Assert.isTrue(response.getStatus() == ApiComponent.StatusCode.OK);
@@ -86,7 +86,7 @@ public class ShoppingListRequestHandlerTest {
         HashMap<String, String> body = new HashMap<>(){{
             put(ShoppingListRequestHandler.Constants.SHOPPING_LIST_ID, ShoppingListRequestHandler.Constants.SHOPPING_LIST_ID);
         }};
-        Request request = new Request(Router.SHOPPINGLIST, Request.GET, defaultHeaders, body);
+        Request request = new Request(Router.API_SHOPPINGLIST, Request.GET, defaultHeaders, body);
 
         Response response = requestHandler.handle(request);
         Assert.isTrue(response.getStatus() == ApiComponent.StatusCode.OK);
@@ -96,7 +96,7 @@ public class ShoppingListRequestHandlerTest {
     void handleDeleteRequestTest(){
         when(mockController.deleteShoppingList(any(), any()))
                 .thenReturn(requestHandler.ok(null));
-        Request request = new Request(Router.SHOPPINGLIST, Request.DELETE, defaultHeaders, null);
+        Request request = new Request(Router.API_SHOPPINGLIST, Request.DELETE, defaultHeaders, null);
 
         Response response = requestHandler.handle(request);
         Assert.isTrue(response.getStatus() == ApiComponent.StatusCode.OK);

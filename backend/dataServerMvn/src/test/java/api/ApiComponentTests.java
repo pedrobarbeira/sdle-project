@@ -5,7 +5,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.sdle.api.ApiComponent;
 import org.sdle.api.Response;
-import org.sdle.controller.IShoppingListController;
+import org.sdle.api.controller.IShoppingListController;
 import org.sdle.api.handler.ShoppingListRequestHandler;
 
 import static org.mockito.Mockito.*;

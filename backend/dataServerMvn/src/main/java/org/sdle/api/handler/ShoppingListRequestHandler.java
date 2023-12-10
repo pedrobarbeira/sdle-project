@@ -5,7 +5,7 @@ import org.sdle.api.ApiComponent;
 import org.sdle.api.Request;
 import org.sdle.api.Response;
 import org.sdle.api.Router;
-import org.sdle.controller.IShoppingListController;
+import org.sdle.api.controller.IShoppingListController;
 import org.sdle.model.ShoppingList;
 
 import java.util.HashMap;
@@ -29,7 +29,7 @@ public class ShoppingListRequestHandler extends ApiComponent implements RequestH
             return error();
         }
 
-        if (Objects.equals(request.getRoute(), Router.SHOPPINGLIST)) {
+        if (Objects.equals(request.getRoute(), Router.API_SHOPPINGLIST)) {
             switch (request.getMethod()) {
                 case Request.GET -> {
                     return getShoppingList(request.getBody(), username);
@@ -44,7 +44,7 @@ public class ShoppingListRequestHandler extends ApiComponent implements RequestH
                     return notAllowed();
                 }
             }
-        } else if (Objects.equals(request.getRoute(), Router.SHOPPINGLIST_SHARE)) {
+        } else if (Objects.equals(request.getRoute(), Router.API_SHARED)) {
             return shareShoppingList(request.getBody(), username);
         }
 

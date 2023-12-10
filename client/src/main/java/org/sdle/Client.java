@@ -99,6 +99,19 @@ public class Client extends ApiComponent {
         return null;
     }
 
+    public String updateShoppingList(String listName, String newName){
+        if(isLoggedIn()) {
+            Request request = new Request(API_SHOPPINGLIST, Request.POST, headers, listName);
+            Response response = clientStub.sendRequest(request);
+            if (response.getStatus() == StatusCode.OK) {
+                return (String) response.getBody();
+            }
+            String message = (String) response.getBody();
+            System.out.println(message);
+        }
+        return null;
+    }
+
     public String deleteShoppingList(String target){
         if(isLoggedIn()) {
             String targetId = repository.getIdFromName(target);
