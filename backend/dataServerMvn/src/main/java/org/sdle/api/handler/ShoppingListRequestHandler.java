@@ -23,7 +23,7 @@ public class ShoppingListRequestHandler extends ApiComponent implements RequestH
 
     @Override
     public Response handle(Request request) {
-        String username = (String) mapper.convertValue(request.getHeaders(), HashMap.class).get("username");
+        String username
 
         if (username == null) {
             return error();

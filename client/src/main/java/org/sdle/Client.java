@@ -34,6 +34,7 @@ public class Client extends ApiComponent {
         Response response = clientStub.sendRequest(request);
         if(response.getStatus() == StatusCode.OK){
             headers.remove(Headers.TOKEN);
+            headers.remove(Headers.USER);
             headers.remove(Headers.KEY);
             return true;
         }
