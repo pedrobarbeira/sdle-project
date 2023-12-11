@@ -28,7 +28,7 @@ public class FileStorageWorker implements Runnable{
                 tmpRepository.delete(id);
             }
             for (CRDT<ShoppingList> item : dataModel.data.getValues()) {
-                tmpRepository.putCRDt(item.getValue());
+                tmpRepository.put(item.getValue());
             }
         }catch(IOException e){
             e.printStackTrace();

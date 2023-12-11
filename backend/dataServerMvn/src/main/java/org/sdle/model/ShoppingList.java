@@ -20,6 +20,13 @@ public class ShoppingList {
         this.authorizedUsers = authorizedUsers != null ? authorizedUsers : new HashSet<>();
     }
 
+    public ShoppingList(String id, String name) {
+        this.id = id;
+        this.name = name;
+        this.items = new HashMap<>();
+        this.authorizedUsers = new HashSet<>();
+    }
+
     public String getId(){
         return id;
     }

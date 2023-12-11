@@ -9,9 +9,7 @@ import org.sdle.repository.crdt.CRDT;
 import org.sdle.server.ObjectFactory;
 
 import java.io.*;
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.time.Instant;
 import java.util.*;
 
 public class ShoppingListRepository implements ICRDTRepository<ShoppingList> {
@@ -111,11 +109,6 @@ public class ShoppingListRepository implements ICRDTRepository<ShoppingList> {
         return toReturn;
     }
 
-    public ShoppingList put(ShoppingList item){
-        return putCRDt(item).getValue();
-    }
-
-
     public List<ShoppingList> put(List<ShoppingList> items){
         for(ShoppingList item : items){
             put(item);
@@ -123,13 +116,13 @@ public class ShoppingListRepository implements ICRDTRepository<ShoppingList> {
         return items;
     }
 
-    public boolean delete(String id){
-        cache.remove(id);
+    public CRDT<ShoppingList> delete(String id){
+        CRDT<ShoppingList> crdt  = cache.remove(id);
         File file = new File(filePathFromResources(id));
         if(file.exists()){
-            return file.delete();
+            file.delete();
         }
-        return false;
+        return crdt.incrementVersion();
     }
 
     @Override
@@ -141,12 +134,17 @@ public class ShoppingListRepository implements ICRDTRepository<ShoppingList> {
     }
 
     @Override
-    public CRDT<ShoppingList> putCRDt(ShoppingList value) {
-        UUID uuid = UUID.randomUUID();
+    public CRDT<ShoppingList> put(ShoppingList value) {
         CRDT<ShoppingList> shoppingList = new CRDT<>(value);
         cache.put(value.getId(), shoppingList);
         writeToMemory(shoppingList);
         return shoppingList;
+    }
+
+    public CRDT<ShoppingList> putCRDT(CRDT<ShoppingList> value){
+        ShoppingList shoppingList = value.getValue();
+        String id = shoppingList.getId();
+        return cache.put(id, value);
     }
 
     @Override

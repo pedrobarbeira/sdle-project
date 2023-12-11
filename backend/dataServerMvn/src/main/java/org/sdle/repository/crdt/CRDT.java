@@ -1,5 +1,7 @@
 package org.sdle.repository.crdt;
 
+import org.sdle.model.ShoppingList;
+
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.Date;
@@ -50,8 +52,9 @@ public class CRDT<T> {
         this.version = version;
     }
 
-    public void incrementVersion(){
+    public CRDT<T> incrementVersion(){
         this.version += 1;
+        return this;
     }
     public void setTimeStamp(Date timeStamp){
         this.timeStamp = timeStamp;

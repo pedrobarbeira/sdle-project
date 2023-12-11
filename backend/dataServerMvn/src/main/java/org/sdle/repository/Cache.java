@@ -3,7 +3,9 @@ package org.sdle.repository;
 import org.sdle.model.ShoppingList;
 import org.sdle.repository.crdt.CRDT;
 
+import java.time.Instant;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 
 public class Cache {
@@ -36,6 +38,8 @@ public class Cache {
     }
 
     public CRDT<ShoppingList> put(String id, CRDT<ShoppingList> item){
+        Date timeStamp = Date.from(Instant.now());
+        item.setTimeStamp(timeStamp);
         return data.put(id, item);
     }
 

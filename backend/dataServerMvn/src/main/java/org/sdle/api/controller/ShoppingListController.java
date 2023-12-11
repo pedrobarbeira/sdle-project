@@ -6,6 +6,7 @@ import org.sdle.model.domain.ListOperationDataModel;
 import org.sdle.repository.ShoppingListRepository;
 import org.sdle.repository.crdt.CRDT;
 
+import javax.sound.sampled.SourceDataLine;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -26,21 +27,36 @@ public class ShoppingListController extends ListController {
             int itemNo = shoppingList.getItems().size();
             int sharedNo = shoppingList.getAuthorizedUsers().size();
             Date timeStamp = crdt.getTimeStamp();
-            ListOperationDataModel dataModel = new ListOperationDataModel(id, name, itemNo, sharedNo, timeStamp);
+            int version = crdt.getVersion();
+            ListOperationDataModel dataModel = new ListOperationDataModel(id, name, itemNo, sharedNo, timeStamp, version);
             data.add(dataModel);
         }
         return ok(data);
     }
 
     public Response createShoppingList(String user, ListOperationDataModel dataModel){
-        return ok("Creating shopping list");
+        String id = dataModel.id;
+        String name = dataModel.name;
+        ShoppingList shoppingList = new ShoppingList(id, name);
+        shoppingList.addAuthorizedUser(user);
+        CRDT<ShoppingList> crdt = repository.put(shoppingList);
+        return ok(crdt);
     }
 
     public Response updateShoppingList(String user, ListOperationDataModel dataModel){
-        return ok("Updating shopping list");
+        String id = dataModel.id;
+        CRDT<ShoppingList> crdt = repository.getCRDT(id);
+        ShoppingList shoppingList = crdt.getValue();
+        String name = dataModel.name;;
+        shoppingList.setName(name);
+        crdt.setValue(shoppingList);
+        crdt = repository.putCRDT(crdt);
+        return ok(crdt);
     }
 
     public Response deleteShoppingList(String user, ListOperationDataModel dataModel){
-        return ok("Deleting shopping list");
+        String id = dataModel.id;
+        CRDT<ShoppingList> crdt = repository.delete(id);
+        return ok(crdt);
     }
 }
