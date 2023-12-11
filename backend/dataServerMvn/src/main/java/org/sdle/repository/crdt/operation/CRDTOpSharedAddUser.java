@@ -9,6 +9,7 @@ import org.sdle.repository.crdt.CRDT;
 
 import java.time.Instant;
 import java.util.Date;
+import java.util.Set;
 
 public class CRDTOpSharedAddUser extends CRDTOp<ShoppingList>{
 
@@ -28,8 +29,9 @@ public class CRDTOpSharedAddUser extends CRDTOp<ShoppingList>{
 
     @Override
     public void apply(CRDT<ShoppingList> target, ICRDTRepository<ShoppingList> repository) {
-        if(validOp(target)){
-            ShoppingList targetList = target.getValue();
-        }
+        Set<String> authorizedUsers = value.getValue().getAuthorizedUsers();
+        Set<String> targetUsers = target.getValue().getAuthorizedUsers();
+        targetUsers.addAll(authorizedUsers);;
+        repository.putCRDT(target);
     }
 }

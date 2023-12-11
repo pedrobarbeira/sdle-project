@@ -43,7 +43,6 @@ public class CRDTOpListsUpdate extends CRDTOp<ShoppingList> {
                 targetList.setName(name);
             }
         }
-        target.setValue(targetList);
         repository.putCRDT(target);
     }
 }

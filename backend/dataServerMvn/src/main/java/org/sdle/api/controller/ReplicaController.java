@@ -51,7 +51,7 @@ public class ReplicaController extends ApiComponent {
         String username = dataModel.username;
         CRDT<ShoppingList> crdt = repository.getCRDT(targetId);
         int version = crdt.getVersion();
-        CRDTOpSharedAddUser crdtOp = new CRDTOpSharedAddUser(targetId, username, version);
+        CRDTOpSharedAddUser crdtOp = new CRDTOpSharedAddUser(targetId, crdt, version);
         replicaService.publish(crdtOp);
     }
 
@@ -60,7 +60,7 @@ public class ReplicaController extends ApiComponent {
         String username = dataModel.username;
         CRDT<ShoppingList> crdt = repository.getCRDT(targetId);
         int version = crdt.getVersion();
-        CRDTOpSharedRemoveUser crdtOp = new CRDTOpSharedRemoveUser(targetId, username, version);
+        CRDTOpSharedRemoveUser crdtOp = new CRDTOpSharedRemoveUser(targetId, crdt, version);
         replicaService.publish(crdtOp);
     }
 

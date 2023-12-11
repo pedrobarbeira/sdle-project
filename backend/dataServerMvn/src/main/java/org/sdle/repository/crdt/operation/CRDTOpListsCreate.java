@@ -8,6 +8,7 @@ import org.sdle.repository.crdt.CRDT;
 
 import java.time.Instant;
 import java.util.Date;
+import java.util.Set;
 
 public class CRDTOpListsCreate extends CRDTOp<ShoppingList> {
 
@@ -27,7 +28,10 @@ public class CRDTOpListsCreate extends CRDTOp<ShoppingList> {
 
     @Override
     public void apply(CRDT<ShoppingList> target, ICRDTRepository<ShoppingList> repository) {
-        CRDT<ShoppingList> crdt = value;
-        repository.putCRDT(crdt);
+        ShoppingList shoppingList = target.getValue();
+        ShoppingList targetList = target.getValue();
+        Set<String> authorizedUsers = shoppingList.getAuthorizedUsers();
+        targetList.setAuthorizedUsers(authorizedUsers);
+        repository.putCRDT(target);
     }
 }

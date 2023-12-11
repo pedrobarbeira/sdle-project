@@ -27,7 +27,7 @@ public class CRDTExecutionService<T> implements ICRDTExecutionService<T>{
             }else{
                 CRDTOp<T> operation = operationQueue.remove();
                 CRDT<T> target = repository.getCRDT(operation.getTargetId());
-                CRDT<T> crdt = operation.apply(target, repository);
+                operation.apply(target, repository);
             }
         }
     }
