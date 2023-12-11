@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.sdle.api.Request;
 import org.sdle.api.Router;
 import org.sdle.config.ServerConfig;
+import org.sdle.server.ObjectFactory;
 import org.zeromq.SocketType;
 import org.zeromq.ZContext;
 import org.zeromq.ZMQ;
@@ -15,7 +16,7 @@ public class DataFetchWorker implements Callable<String> {
     private final ZContext ctx;
     private final String target;
     HashMap<String, String> addressMap;
-    private final ObjectMapper mapper = new ObjectMapper();
+    private final ObjectMapper mapper = ObjectFactory.getMapper();
 
     public DataFetchWorker(ZContext ctx, ServerConfig config, String targets){
         this.ctx = ctx;

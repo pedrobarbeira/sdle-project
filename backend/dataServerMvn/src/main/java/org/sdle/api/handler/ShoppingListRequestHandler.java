@@ -7,12 +7,12 @@ import org.sdle.api.Response;
 import org.sdle.api.controller.ReplicaController;
 import org.sdle.api.controller.ShoppingListController;
 import org.sdle.model.domain.ListOperationDataModel;
+import org.sdle.server.ObjectFactory;
 
 public class ShoppingListRequestHandler extends ApiComponent implements RequestHandler {
 
     private final ShoppingListController controller;
     private final ReplicaController replicaController;
-    private final ObjectMapper mapper = new ObjectMapper();
 
     public ShoppingListRequestHandler(ShoppingListController controller, ReplicaController replicaController) {
         this.controller = controller;

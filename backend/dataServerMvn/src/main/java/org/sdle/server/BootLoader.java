@@ -23,17 +23,17 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
-public class Bootstrapper {
+public class BootLoader {
 
     private final ServerConfig config;
     private final ZContext ctx;
-    private final ObjectMapper mapper = new ObjectMapper();
+    private final ObjectMapper mapper = ObjectFactory.getMapper();
     private final HashMap<String, NodeConfig> nodeMap;
     private boolean booted;
     private ReplicaService<ShoppingList> replicaService;
     private HashMap<String, CRDTExecutionService<ShoppingList>> executionServiceMap;
 
-    public Bootstrapper() throws IOException {
+    public BootLoader() throws IOException {
         executionServiceMap = new HashMap<>();
         this.config = ObjectFactory.getServerConfig();
         this.nodeMap = config.nodeMap;

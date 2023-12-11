@@ -1,6 +1,8 @@
 package org.sdle.server;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import org.sdle.Main;
 import org.sdle.config.ServerConfig;
 
@@ -18,10 +20,17 @@ public class    ObjectFactory {
         CONFIG_FILE = configFile;
     }
 
+    public static ObjectMapper getMapper() {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.enable(SerializationFeature.INDENT_OUTPUT);
+        mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY);
+        return mapper;
+    }
+
     public static ServerConfig getServerConfig() throws IOException {
         if(serverConfig == null){
             InputStream stream = Main.class.getClassLoader().getResourceAsStream(CONFIG_FILE);
-            serverConfig = new ObjectMapper().readValue(stream, ServerConfig.class);
+            serverConfig = getMapper().readValue(stream, ServerConfig.class);
         }
         return serverConfig;
     }

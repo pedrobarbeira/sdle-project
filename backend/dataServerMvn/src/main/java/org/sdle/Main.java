@@ -1,6 +1,6 @@
 package org.sdle;
 
-import org.sdle.server.Bootstrapper;
+import org.sdle.server.BootLoader;
 import org.sdle.server.ObjectFactory;
 
 public class Main {
@@ -8,7 +8,7 @@ public class Main {
         try {
             String configFile = args[0];
             ObjectFactory.setServerConfigFile(configFile);
-            Bootstrapper bootstrapper = new Bootstrapper();
+            BootLoader bootstrapper = new BootLoader();
             bootstrapper.bootServer();
         }catch(Exception e){
             e.printStackTrace();

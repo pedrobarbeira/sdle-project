@@ -1,22 +1,20 @@
 package org.sdle.repository.crdt.operation;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.*;
 import org.sdle.model.ShoppingList;
 import org.sdle.repository.crdt.CRDT;
 
 import java.time.Instant;
 import java.util.Date;
 
-public class CRDTOpListsCreate extends CRDTOp<ShoppingList> {
+public class CRDTOpItemsCreate extends CRDTOp<ShoppingList> {
 
-    public CRDTOpListsCreate(String targetId, Object value, int version) {
-        super(targetId, value, version, Date.from(Instant.now()), OP_LISTS_CREATE);
+    public CRDTOpItemsCreate(String targetId, Object value, int version) {
+        this(targetId, value, version, Date.from(Instant.now()), OP_ITEMS_CREATE);
     }
 
     @JsonCreator
-    public CRDTOpListsCreate(
+    public CRDTOpItemsCreate(
             @JsonProperty("targetId") String targetId,
             @JsonProperty("value")Object value,
             @JsonProperty("version")int version,
@@ -27,6 +25,6 @@ public class CRDTOpListsCreate extends CRDTOp<ShoppingList> {
 
     @Override
     public void apply(CRDT<ShoppingList> target) {
-        System.out.println("Creating list");
+        System.out.println("Creating item");
     }
 }

@@ -9,14 +9,13 @@ import org.sdle.repository.crdt.CRDT;
 import java.time.Instant;
 import java.util.Date;
 
-public class CRDTOpSharedRemoveUser extends CRDTOp<ShoppingList>{
-
-    public CRDTOpSharedRemoveUser(String targetId, Object value, int version) {
-        super(targetId, value, version, Date.from(Instant.now()), OP_SHARED_RM);
+public class CRDTOpItemsUpdate extends CRDTOp<ShoppingList> {
+    public CRDTOpItemsUpdate(String targetId, Object value, int version) {
+        super(targetId, value, version, Date.from(Instant.now()), OP_ITEMS_UPDATE);
     }
 
     @JsonCreator
-    public CRDTOpSharedRemoveUser(
+    public CRDTOpItemsUpdate(
             @JsonProperty("targetId") String targetId,
             @JsonProperty("value")Object value,
             @JsonProperty("version")int version,
@@ -27,10 +26,6 @@ public class CRDTOpSharedRemoveUser extends CRDTOp<ShoppingList>{
 
     @Override
     public void apply(CRDT<ShoppingList> target) {
-        if(validOp(target)){
-            ShoppingList targetList = target.getValue();
-            String user = (String) this.value;
-            targetList.getAuthorizedUsers().remove(user);
-        }
+        System.out.println("Updating item");
     }
 }

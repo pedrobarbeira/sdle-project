@@ -7,6 +7,7 @@ import org.sdle.api.Request;
 import org.sdle.api.Response;
 import org.sdle.api.Router;
 import org.sdle.repository.crdt.operation.CRDTOp;
+import org.sdle.server.ObjectFactory;
 import org.zeromq.SocketType;
 import org.zeromq.ZContext;
 import org.zeromq.ZMQ;
@@ -20,7 +21,7 @@ public class ReplicaService<T> extends ApiComponent implements IReplicaService<T
     private final ZContext ctx;
     private boolean tmpListenerFlag;
     private  List<String> replicatedOnAddresses;
-    private final ObjectMapper mapper = new ObjectMapper();
+    private final ObjectMapper mapper = ObjectFactory.getMapper();
 
     public ReplicaService(ZContext ctx){
         this.ctx = ctx;
