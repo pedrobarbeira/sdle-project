@@ -3,6 +3,8 @@ package org.sdle.repository.crdt.operation;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import org.sdle.model.ShoppingList;
+import org.sdle.repository.ICRDTRepository;
 import org.sdle.repository.crdt.CRDT;
 
 import java.util.Date;
@@ -33,19 +35,19 @@ public abstract class CRDTOp<T> {
     public static final String OP_ITEMS_REMOVE = "op-item-rm";
 
     public String targetId;
-    public Object value;
+    public CRDT<ShoppingList> value;
     public int version;
     public String type;
     public Date timeStamp;
     public CRDTOp(){}
-    CRDTOp(String targetId, Object value, int version, Date timeStamp, String type) {
+    CRDTOp(String targetId, CRDT<ShoppingList> value, int version, Date timeStamp, String type) {
         this.targetId = targetId;
         this.value = value;
         this.version = version;
         this.timeStamp = timeStamp;
         this.type = type;
     }
-    public abstract void apply(CRDT<T> target);
+    public abstract void apply(CRDT<T> target, ICRDTRepository<T> repository);
 
     public String getTargetId(){
         return this.targetId;

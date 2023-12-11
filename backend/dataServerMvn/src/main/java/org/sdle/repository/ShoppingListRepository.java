@@ -141,10 +141,16 @@ public class ShoppingListRepository implements ICRDTRepository<ShoppingList> {
         return shoppingList;
     }
 
+    @Override
     public CRDT<ShoppingList> putCRDT(CRDT<ShoppingList> value){
         ShoppingList shoppingList = value.getValue();
         String id = shoppingList.getId();
         return cache.put(id, value);
+    }
+
+    @Override
+    public CRDT<ShoppingList> remove(String id) {
+        return cache.remove(id);
     }
 
     @Override

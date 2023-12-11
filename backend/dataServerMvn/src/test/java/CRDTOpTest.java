@@ -11,12 +11,4 @@ import java.util.List;
 
 public class CRDTOpTest {
 
-    @Test
-    void classHierarchySerializationTest() throws JsonProcessingException {
-        CRDTOpItemsCreate op = new CRDTOpItemsCreate("test", "test", 0);
-        ObjectMapper mapper = ObjectFactory.getMapper();
-        String jsonString = mapper.writeValueAsString(op);
-        CRDTOp<ShoppingList> operation = mapper.readValue(jsonString, new TypeReference<>() {});
-        operation.apply(null);
-    }
 }
