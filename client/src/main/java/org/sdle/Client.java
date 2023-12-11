@@ -5,7 +5,9 @@ import org.sdle.api.Request;
 import org.sdle.api.Response;
 import org.sdle.model.ItemOperationDataModel;
 import org.sdle.model.ShareOperationDataModel;
+import org.sdle.services.SessionService;
 
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -19,26 +21,20 @@ public class Client extends ApiComponent {
     public static final String API_SHARED = "api/shared";
     public static final String API_ITEMS = "api/items";
     private String username;
-    private final ShoppingListRepository repository;
-    private final HashMap<String, String> headers;
     private final ClientStub clientStub;
 
-    public Client(ShoppingListRepository repository, ClientStub clientStub) {
-        this.repository = repository;
+    private final SessionService sessionService;
+
+    public Client(ClientStub clientStub, SessionService sessionService) {
         this.clientStub = clientStub;
-        this.headers = new HashMap<>();
+        this.sessionService = sessionService;
     }
 
-    public boolean endSession(){
-        Request request = new Request(API_AUTH, Request.PUT, headers, username);
+    public void endSession(){
+        sessionService.clearHeaders();
+
+        Request request = new Request(API_AUTH, Request.PUT, sessionService.headers, username);
         Response response = clientStub.sendRequest(request);
-        if(response.getStatus() == StatusCode.OK){
-            headers.remove(Headers.TOKEN);
-            headers.remove(Headers.USER);
-            headers.remove(Headers.KEY);
-            return true;
-        }
-        return false;
     }
 
     public boolean authenticate(String username, String password){
@@ -47,7 +43,7 @@ public class Client extends ApiComponent {
             put(Constants.USERNAME, username);
             put(Constants.PASSWORD, encryptedPassword);
         }};
-        Request request = new Request(API_AUTH, Request.GET, headers, body);
+        Request request = new Request(API_AUTH, Request.GET, sessionService.headers, body);
         return openSession(username, request);
     }
 
@@ -57,7 +53,7 @@ public class Client extends ApiComponent {
             put(Constants.USERNAME, username);
             put(Constants.PASSWORD, encryptedPassword);
         }};
-        Request request = new Request(API_AUTH, Request.POST, headers, body);
+        Request request = new Request(API_AUTH, Request.POST, sessionService.headers, body);
         return openSession(username, request);
     }
 
@@ -65,19 +61,43 @@ public class Client extends ApiComponent {
         Response response = clientStub.sendRequest(request);
         if(response.getStatus() == StatusCode.OK){
             String token = (String) response.getBody();
-            headers.put(Headers.TOKEN, token);
-            headers.put(Headers.USER, username);
+
             String key = encrypt(username);
-            headers.put(Headers.KEY, key);
+
             this.username = username;
+
+            sessionService.persistHeaders(username, token, key);
             return true;
         }
         return false;
     }
 
+    public String continueSession() {
+        try {
+            HashMap<String, String> map = sessionService.parseHeadersFile() ;
+            if(map.containsKey(ApiComponent.Headers.TOKEN) && map.containsKey(ApiComponent.Headers.USER) && map.containsKey(ApiComponent.Headers.KEY)) {
+                String mapKey = map.get(ApiComponent.Headers.KEY);
+                String username = map.get(ApiComponent.Headers.USER);
+
+                String key = encrypt(username);
+
+                if(key.equals(mapKey)) {
+                    sessionService.persistHeaders(username, map.get(ApiComponent.Headers.TOKEN), key);
+
+                    return username;
+                }
+            }
+
+            sessionService.clearHeaders();
+            return null;
+        } catch (IOException e) {
+            return null;
+        }
+    }
+
     public List<String> getShoppingLists() {
         if(isLoggedIn()) {
-            Request request = new Request(API_SHOPPINGLIST, Request.GET, headers, null);
+            Request request = new Request(API_SHOPPINGLIST, Request.GET, sessionService.headers, null);
             Response response = clientStub.sendRequest(request);
             if (response.getStatus() == StatusCode.OK) {
                 return (List<String>) response.getBody();
@@ -90,7 +110,7 @@ public class Client extends ApiComponent {
 
     public String createShoppingList(String listName){
         if(isLoggedIn()) {
-            Request request = new Request(API_SHOPPINGLIST, Request.POST, headers, listName);
+            Request request = new Request(API_SHOPPINGLIST, Request.POST, sessionService.headers, listName);
             Response response = clientStub.sendRequest(request);
             if (response.getStatus() == StatusCode.OK) {
                 return (String) response.getBody();
@@ -103,7 +123,7 @@ public class Client extends ApiComponent {
 
     public String updateShoppingList(String listName, String newName){
         if(isLoggedIn()) {
-            Request request = new Request(API_SHOPPINGLIST, Request.POST, headers, listName);
+            Request request = new Request(API_SHOPPINGLIST, Request.POST, sessionService.headers, listName);
             Response response = clientStub.sendRequest(request);
             if (response.getStatus() == StatusCode.OK) {
                 return (String) response.getBody();
@@ -114,10 +134,9 @@ public class Client extends ApiComponent {
         return null;
     }
 
-    public String deleteShoppingList(String target){
+    public String deleteShoppingList(String targetId){
         if(isLoggedIn()) {
-            String targetId = repository.getIdFromName(target);
-            Request request = new Request(API_SHOPPINGLIST, Request.DELETE, headers, targetId);
+            Request request = new Request(API_SHOPPINGLIST, Request.DELETE, sessionService.headers, targetId);
             Response response = clientStub.sendRequest(request);
             if (response.getStatus() == StatusCode.OK) {
                 return (String) response.getBody();
@@ -128,11 +147,12 @@ public class Client extends ApiComponent {
         return null;
     }
 
-    public String addSharedUser(String target, String username){
+    public String addSharedUser(String targetId, String username){
         if(isLoggedIn()) {
-            String targetId = repository.getIdFromName(target);
             ShareOperationDataModel body = new ShareOperationDataModel(targetId, username);
-            Request request = new Request(API_SHARED, Request.PUT, headers, body);
+
+            Request request = new Request(API_SHARED, Request.PUT, sessionService.headers, body);
+
             Response response = clientStub.sendRequest(request);
             if (response.getStatus() == StatusCode.OK) {
                 return (String) response.getBody();
@@ -143,11 +163,10 @@ public class Client extends ApiComponent {
         return null;
     }
 
-    public String removeSharedUser(String target, String username){
+    public String removeSharedUser(String targetId, String username){
         if(isLoggedIn()) {
-            String targetId = repository.getIdFromName(target);
             ShareOperationDataModel body = new ShareOperationDataModel(targetId, username);
-            Request request = new Request(API_SHARED, Request.DELETE, headers, body);
+            Request request = new Request(API_SHARED, Request.DELETE, sessionService.headers, body);
             Response response = clientStub.sendRequest(request);
             if (response.getStatus() == StatusCode.OK) {
                 return (String) response.getBody();
@@ -158,11 +177,10 @@ public class Client extends ApiComponent {
         return null;
     }
 
-    public List<String> getItems(String target){
+    public List<String> getItems(String targetId){
         if(isLoggedIn()){
-            String targetId = repository.getIdFromName(target);
             ItemOperationDataModel body = new ItemOperationDataModel(targetId);
-            Request request = new Request(API_ITEMS, Request.GET, headers, body);
+            Request request = new Request(API_ITEMS, Request.GET, sessionService.headers, body);
             Response response = clientStub.sendRequest(request);
             if (response.getStatus() == StatusCode.OK) {
                 return (List<String>) response.getBody();
@@ -173,11 +191,11 @@ public class Client extends ApiComponent {
         return null;
     }
 
-    public String createIem(String target, String itemName, int quantity){
+    public String createIem(String targetId, String itemName, int quantity){
         if(isLoggedIn()) {
-            String targetId = repository.getIdFromName(target);
             ItemOperationDataModel body = new ItemOperationDataModel(targetId, itemName, quantity);
-            Request request = new Request(API_SHARED, Request.POST, headers, body);
+            Request request = new Request(API_SHARED, Request.POST, sessionService.headers, body);
+
             Response response = clientStub.sendRequest(request);
             if (response.getStatus() == StatusCode.OK) {
                 return (String) response.getBody();
@@ -188,11 +206,11 @@ public class Client extends ApiComponent {
         return null;
     }
 
-    public String addQuantityToItem(String target, String itemName, int quantity){
+    public String addQuantityToItem(String targetId, String itemName, int quantity){
         if(isLoggedIn()) {
-            String targetId = repository.getIdFromName(target);
             ItemOperationDataModel body = new ItemOperationDataModel(targetId, itemName, quantity);
-            Request request = new Request(API_SHARED, Request.PUT, headers, body);
+            Request request = new Request(API_SHARED, Request.PUT, sessionService.headers, body);
+
             Response response = clientStub.sendRequest(request);
             if (response.getStatus() == StatusCode.OK) {
                 return (String) response.getBody();
@@ -203,17 +221,16 @@ public class Client extends ApiComponent {
         return null;
     }
 
-    public String removeQuantityFromItem(String target, String  itemName, int quantity){
+    public String removeQuantityFromItem(String targetId, String  itemName, int quantity){
         int negQuantity = - quantity;
-        return addQuantityToItem(target, itemName, negQuantity);
+        return addQuantityToItem(targetId, itemName, negQuantity);
     }
 
-    public String checkItem(String target, String itemName){
+    public String checkItem(String targetId, String itemName){
         //TODO change logic to simplify
         if(isLoggedIn()) {
-            String targetId = repository.getIdFromName(target);
             ItemOperationDataModel body = new ItemOperationDataModel(targetId, itemName);
-            Request request = new Request(API_SHARED, Request.PUT, headers, body);
+            Request request = new Request(API_SHARED, Request.PUT, sessionService.headers, body);
             Response response = clientStub.sendRequest(request);
             if (response.getStatus() == StatusCode.OK) {
                 return (String) response.getBody();
@@ -224,11 +241,11 @@ public class Client extends ApiComponent {
         return null;
     }
 
-    public String removeItem(String target, String itemName){
+
+    public String removeItem(String targetId, String itemName){
         if(isLoggedIn()) {
-            String targetId = repository.getIdFromName(target);
             ItemOperationDataModel body = new ItemOperationDataModel(targetId, itemName);
-            Request request = new Request(API_SHARED, Request.PUT, headers, body);
+            Request request = new Request(API_SHARED, Request.PUT, sessionService.headers, body);
             Response response = clientStub.sendRequest(request);
             if (response.getStatus() == StatusCode.OK) {
                 return (String) response.getBody();
@@ -238,6 +255,7 @@ public class Client extends ApiComponent {
         }
         return null;
     }
+
 
     private String encrypt(String toEncrypt){
         try {
@@ -258,7 +276,7 @@ public class Client extends ApiComponent {
     }
 
     private boolean isLoggedIn(){
-        if(headers.containsKey(Headers.TOKEN)){
+        if(sessionService.headers.containsKey(Headers.TOKEN)){
             return true;
         }
         System.out.println("You must be logged in to issue this command");
