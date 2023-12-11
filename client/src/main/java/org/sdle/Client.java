@@ -150,7 +150,9 @@ public class Client extends ApiComponent {
     public String addSharedUser(String targetId, String username){
         if(isLoggedIn()) {
             ShareOperationDataModel body = new ShareOperationDataModel(targetId, username);
-            Request request = new Request(API_SHARED, Request.POST, sessionService.headers, body);
+
+            Request request = new Request(API_SHARED, Request.PUT, sessionService.headers, body);
+
             Response response = clientStub.sendRequest(request);
             if (response.getStatus() == StatusCode.OK) {
                 return (String) response.getBody();
@@ -191,8 +193,9 @@ public class Client extends ApiComponent {
 
     public String createIem(String targetId, String itemName, int quantity){
         if(isLoggedIn()) {
-            ItemOperationDataModel body = new ItemOperationDataModel(targetId, itemName, ItemOperations.CREATE, quantity);
+            ItemOperationDataModel body = new ItemOperationDataModel(targetId, itemName, quantity);
             Request request = new Request(API_SHARED, Request.POST, sessionService.headers, body);
+
             Response response = clientStub.sendRequest(request);
             if (response.getStatus() == StatusCode.OK) {
                 return (String) response.getBody();
@@ -205,8 +208,9 @@ public class Client extends ApiComponent {
 
     public String addQuantityToItem(String targetId, String itemName, int quantity){
         if(isLoggedIn()) {
-            ItemOperationDataModel body = new ItemOperationDataModel(targetId, itemName, ItemOperations.ADD, quantity);
+            ItemOperationDataModel body = new ItemOperationDataModel(targetId, itemName, quantity);
             Request request = new Request(API_SHARED, Request.PUT, sessionService.headers, body);
+
             Response response = clientStub.sendRequest(request);
             if (response.getStatus() == StatusCode.OK) {
                 return (String) response.getBody();
@@ -218,22 +222,14 @@ public class Client extends ApiComponent {
     }
 
     public String removeQuantityFromItem(String targetId, String  itemName, int quantity){
-        if(isLoggedIn()) {
-            ItemOperationDataModel body = new ItemOperationDataModel(targetId, itemName, ItemOperations.RM, quantity);
-            Request request = new Request(API_SHARED, Request.PUT, sessionService.headers, body);
-            Response response = clientStub.sendRequest(request);
-            if (response.getStatus() == StatusCode.OK) {
-                return (String) response.getBody();
-            }
-            String message = (String) response.getBody();
-            System.out.println(message);
-        }
-        return null;
+        int negQuantity = - quantity;
+        return addQuantityToItem(targetId, itemName, negQuantity);
     }
 
     public String checkItem(String targetId, String itemName){
+        //TODO change logic to simplify
         if(isLoggedIn()) {
-            ItemOperationDataModel body = new ItemOperationDataModel(targetId, itemName, ItemOperations.CHECK);
+            ItemOperationDataModel body = new ItemOperationDataModel(targetId, itemName);
             Request request = new Request(API_SHARED, Request.PUT, sessionService.headers, body);
             Response response = clientStub.sendRequest(request);
             if (response.getStatus() == StatusCode.OK) {
@@ -245,23 +241,10 @@ public class Client extends ApiComponent {
         return null;
     }
 
-    public String uncheckItem(String targetId, String itemName, int quantity){
-        if(isLoggedIn()) {
-            ItemOperationDataModel body = new ItemOperationDataModel(targetId, itemName, ItemOperations.UNCHECK, quantity);
-            Request request = new Request(API_SHARED, Request.PUT, sessionService.headers, body);
-            Response response = clientStub.sendRequest(request);
-            if (response.getStatus() == StatusCode.OK) {
-                return (String) response.getBody();
-            }
-            String message = (String) response.getBody();
-            System.out.println(message);
-        }
-        return null;
-    }
 
     public String removeItem(String targetId, String itemName){
         if(isLoggedIn()) {
-            ItemOperationDataModel body = new ItemOperationDataModel(targetId, itemName, ItemOperations.DELETE);
+            ItemOperationDataModel body = new ItemOperationDataModel(targetId, itemName);
             Request request = new Request(API_SHARED, Request.PUT, sessionService.headers, body);
             Response response = clientStub.sendRequest(request);
             if (response.getStatus() == StatusCode.OK) {
@@ -272,6 +255,7 @@ public class Client extends ApiComponent {
         }
         return null;
     }
+
 
     private String encrypt(String toEncrypt){
         try {
@@ -303,14 +287,5 @@ public class Client extends ApiComponent {
         public static final String USERNAME = "username";
         public static final String PASSWORD = "password";
 
-    }
-
-    static class ItemOperations{
-        public static final String CREATE = "create";
-        public static final String ADD = "add";
-        public static final String RM = "rm";
-        public static final String CHECK = "check";
-        public static final String UNCHECK = "uncheck";
-        public static final String DELETE = "delete";
     }
 }

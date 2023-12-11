@@ -7,21 +7,21 @@ import java.util.UUID;
 
 public class CRDT<T> {
     private T value;
-    private String version;
+    private int version;
     private Date timeStamp;
     private boolean dirty;
 
     public CRDT(){}
 
     public CRDT(T value){
-        this(value, UUID.randomUUID().toString(), Date.from(Instant.now()));
+        this(value, 1, Date.from(Instant.now()));
     }
 
-    public CRDT(T value, String version){
+    public CRDT(T value, int version){
         this(value, version, Date.from(Instant.now()));
     }
 
-    public CRDT(T value, String version, Date timeStamp){
+    public CRDT(T value, int version, Date timeStamp){
         this.value = value;
         this.version = version;
         this.timeStamp = timeStamp;
@@ -32,7 +32,7 @@ public class CRDT<T> {
         return this.value;
     }
 
-    public String getVersion(){
+    public int getVersion(){
         return this.version;
     }
 
@@ -46,10 +46,13 @@ public class CRDT<T> {
         this.value = value;
     }
 
-    public void setVersion(String version){
+    public void setVersion(int version){
         this.version = version;
     }
 
+    public void incrementVersion(){
+        this.version += 1;
+    }
     public void setTimeStamp(Date timeStamp){
         this.timeStamp = timeStamp;
     }

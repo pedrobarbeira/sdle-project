@@ -1,4 +1,4 @@
-package org.sdle.model;
+package org.sdle.model.domain;
 
 import org.sdle.repository.Cache;
 

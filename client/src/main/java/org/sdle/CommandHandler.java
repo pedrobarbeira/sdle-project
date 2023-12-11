@@ -190,7 +190,8 @@ public class CommandHandler {
             return;
         }
         String listName = getItemsListName(tokens);
-        List<String> items = client.getItems(listName);
+        String targetId = repository.getIdFromName(listName);
+        List<String> items = client.getItems(targetId);
         for(String item : items){
             System.out.println(item);
         }
@@ -202,6 +203,7 @@ public class CommandHandler {
             return;
         }
         String listName = getItemsListName(tokens);
+        String targetId = repository.getIdFromName(listName);
         String itemName = getItemsCreateName(tokens);
         int itemQuantity = 0;
         try {
@@ -209,7 +211,7 @@ public class CommandHandler {
                 String quantity = getItemsCreateQuantity(tokens);
                 itemQuantity = Integer.parseInt(quantity);
             }
-            String result = client.createIem(listName, itemName, itemQuantity);
+            String result = client.createIem(targetId, itemName, itemQuantity);
             System.out.println(result);
         } catch (NumberFormatException e) {
             handleItemsCommandError(tokens);
@@ -226,7 +228,6 @@ public class CommandHandler {
             case CommandOptions.ADD -> handleItemsCommandOperationsAdd(tokens);
             case CommandOptions.REMOVE -> handleItemsCommandOperationsRemove(tokens);
             case ItemsCommand.CHECK -> handleItemsCommandCheck(tokens);
-            case ItemsCommand.UNCHECK -> handleItemsCommandUncheck(tokens);
             default -> handleItemsCommandError(tokens);
         }
     }
@@ -237,11 +238,12 @@ public class CommandHandler {
             return;
         }
         String listName = getItemsListName(tokens);
+        String targetId = repository.getIdFromName(listName);
         String itemName = getItemsOperationName(tokens);
         String quantity = getItemsOperationQuantity(tokens);
         try {
             int itemQuantity = Integer.parseInt(quantity);
-            String result = client.addQuantityToItem(listName, itemName, itemQuantity);
+            String result = client.addQuantityToItem(targetId, itemName, itemQuantity);
             System.out.println(result);
         }catch(NumberFormatException e){
             handleItemsCommandError(tokens);
@@ -254,11 +256,12 @@ public class CommandHandler {
             return;
         }
         String listName = getItemsListName(tokens);
+        String targetId = repository.getIdFromName(listName);
         String itemName = getItemsOperationName(tokens);
         String quantity = getItemsOperationQuantity(tokens);
         try {
             int itemQuantity = Integer.parseInt(quantity);
-            String result = client.removeQuantityFromItem(listName, itemName, itemQuantity);
+            String result = client.removeQuantityFromItem(targetId, itemName, itemQuantity);
             System.out.println(result);
         } catch (NumberFormatException e) {
             handleItemsCommandError(tokens);
@@ -271,29 +274,10 @@ public class CommandHandler {
             return;
         }
         String listName = getItemsListName(tokens);
+        String targetId = repository.getIdFromName(listName);
         String itemName = getItemsOperationName(tokens);
-        String result = client.checkItem(listName, itemName);
+        String result = client.checkItem(targetId, itemName);
         System.out.println(result);
-    }
-
-    private void handleItemsCommandUncheck(List<String> tokens) {
-        if (tokens.size() > CommandLength.ITEMS_OPERATION_MAX) {
-            handleItemsCommandError(tokens);
-            return;
-        }
-        String listName = getItemsListName(tokens);
-        String itemName = getItemsOperationName(tokens);
-        int itemQuantity = 0;
-        try {
-            if (tokens.size() == CommandLength.ITEMS_OPERATION_MAX) {
-                String quantity = getItemsOperationQuantity(tokens);
-                itemQuantity = Integer.parseInt(quantity);
-            }
-            String result = client.uncheckItem(listName, itemName, itemQuantity);
-            System.out.println(result);
-        } catch (NumberFormatException e) {
-            handleItemsCommandError(tokens);
-        }
     }
 
     private void handleItemsRemoveCommand(List<String> tokens) {
@@ -302,9 +286,10 @@ public class CommandHandler {
             return;
         }
         String listName = getItemsListName(tokens);
+        String targetId = repository.getIdFromName(listName);
         String itemName = getItemsCreateName(tokens);
         int itemQuantity = 0;
-        String result = client.removeItem(listName, itemName);
+        String result = client.removeItem(targetId, itemName);
         System.out.println(result);
     }
 
